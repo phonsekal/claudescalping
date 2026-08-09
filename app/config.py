@@ -82,8 +82,17 @@ PERIODE_DATA_FAST_INTRADAY = "5d"  # cukup untuk sinyal terkini, fetch lebih rin
 # Target profit tipis (1.5-2%) butuh spread kecil, kalau tidak keburu habis dimakan
 # spread+fee sebelum sempat profit — beda filosofi dari gorengan yang justru cari
 # volatilitas tinggi.
-WATCHLIST_FAST_INTRADAY = ["BBCA.JK", "BBRI.JK", "BMRI.JK", "BBNI.JK", "TLKM.JK", "ASII.JK", "GOTO.JK", "ARTO.JK"]
-
+WATCHLIST_FAST_INTRADAY = [
+    "ACES.JK", "ADRO.JK", "AKRA.JK", "AMMN.JK", "AMRT.JK", 
+    "ANTM.JK", "ARTO.JK", "ASII.JK", "BBCA.JK", "BBNI.JK", 
+    "BBRI.JK", "BBTN.JK", "BMRI.JK", "BRIS.JK", "BRPT.JK", 
+    "BUKA.JK", "CPIN.JK", "EMTK.JK", "ESSA.JK", "EXCL.JK", 
+    "GGRM.JK", "GOTO.JK", "HRUM.JK", "ICBP.JK", "INDF.JK", 
+    "INKP.JK", "INCO.JK", "INTP.JK", "ITMG.JK", "KLBF.JK", 
+    "MAPI.JK", "MBMA.JK", "MDKA.JK", "MEDC.JK", "MTEL.JK", 
+    "PGAS.JK", "PGEO.JK", "PTBA.JK", "SIDO.JK", "SMGR.JK", 
+    "SRTG.JK", "TLKM.JK", "TOWR.JK", "UNTR.JK", "UNVR.JK"
+]
 MAX_HOLD_BARS_FAST_INTRADAY = 8  # 8 x 15 menit = maks ~2 jam hold yang disarankan
 MIN_PROFIT_BERSIH_FAST_INTRADAY_PERSEN = 1.5
 MIN_RASIO_RISK_REWARD_FAST_INTRADAY = 1.5
