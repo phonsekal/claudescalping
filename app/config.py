@@ -138,13 +138,15 @@ RANGE_PAGI_SORE_PERIODE = "60d"       # data intraday 15 menit (batas maksimal y
 RANGE_PAGI_SORE_INTERVAL = "15m"
 RANGE_PAGI_SORE_JAM_PAGI = 12.0       # batas jam sesi pagi (12:00)
 RANGE_PAGI_SORE_JAM_SORE = 13.5       # awal sesi sore (13:30)
-# Setting TERBAIK hasil sweep walk-forward (BBRI & TLKM, Agu 2026): persentil jual
-# 0.20 konsisten menang di kedua saham (jual terisi ~80% hari), window 20 stabil &
-# hampir setara window 15, persentil beli 0.50 menyeimbangkan frekuensi vs margin.
-# Ekspektasi BBRI naik dari +0.13% (default lama) ke +0.23% per hari.
+# Setting TERBAIK hasil sweep walk-forward syarat JUAL TERISI >= 55% (BBRI & TLKM,
+# Agu 2026): persentil jual 0.10 memberi jual terisi ~91% (jauh di atas syarat user,
+# karena kalau tidak terjual saham tetap di-keep untuk dividen), persentil beli 0.30
+# membuat level beli lebih dalam sehingga net per round-trip hampir 2x lipat
+# (+1.54% vs +0.91%) walau frekuensi beli turun; ekspektasi BBRI naik +0.23% ->
+# +0.31% per hari. Window 20 stabil & hampir setara window 15.
 RANGE_PAGI_SORE_WINDOW_HARI = 20      # jendela hari untuk statistik pola
-RANGE_PAGI_SORE_PERSENTIL_JUAL = 0.20 # persentil peak pagi -> level jual (0.20 => terisi ~80% hari)
-RANGE_PAGI_SORE_PERSENTIL_BELI = 0.50 # persentil trough sore -> level beli (0.50 => terisi ~50% hari)
+RANGE_PAGI_SORE_PERSENTIL_JUAL = 0.10 # persentil peak pagi -> level jual (0.10 => terisi ~91% hari)
+RANGE_PAGI_SORE_PERSENTIL_BELI = 0.30 # persentil trough sore -> level beli (0.30 => beli lebih dalam, net/RT lebih besar)
 
 # --- KONFIGURASI RETRY (ketahanan terhadap kegagalan sesaat Yahoo Finance) ---
 RETRY_PERCOBAAN_MAKSIMAL = 2
