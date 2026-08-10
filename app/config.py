@@ -104,6 +104,11 @@ JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY = 20
 # --- KONFIGURASI RETRY (ketahanan terhadap kegagalan sesaat Yahoo Finance) ---
 RETRY_PERCOBAAN_MAKSIMAL = 2
 RETRY_JEDA_DETIK = 1.5
+# TTL cache untuk kondisi market IHSG — menghindari download ulang data ^JKSE yang
+# sama saat banyak request masuk dalam waktu berdekatan (misal screener 50+ saham
+# yang masing-masing memanggil cek_kondisi_market). Kondisi IHSG jarang berubah
+# dalam hitungan menit, jadi cache 5 menit aman.
+CACHE_TTL_MARKET_DETIK = 300
 
 # --- KONFIGURASI MANAJEMEN RISIKO PORTOFOLIO (saran ukuran posisi) ---
 # CATATAN: API ini stateless (tidak ada database), jadi angka di bawah ini adalah

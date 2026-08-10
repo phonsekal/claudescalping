@@ -18,9 +18,14 @@ from app.config import (
     MIN_RASIO_RISK_REWARD_FAST_INTRADAY, ATR_MULTIPLIER_SL_FAST_INTRADAY,
     ATR_MULTIPLIER_TP_FAST_INTRADAY, VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY,
     JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY, INTERVAL_FAST_INTRADAY,
-    PERIODE_DATA_FAST_INTRADAY
+    PERIODE_DATA_FAST_INTRADAY,
+    CACHE_TTL_MARKET_DETIK
 )
 import datetime
+
+# Cache in-memory untuk kondisi market IHSG (TTL-based, menghindari download
+# ulang data ^JKSE yang sama dalam waktu singkat saat banyak request bersamaan)
+_cache_kondisi_market = {"data": None, "waktu": 0}
 
 
 # =========================================================================
@@ -162,6 +167,67 @@ def hitung_indikator_lengkap(df, period=14):
     df['CMF20'] = (mfm * df['Volume']).rolling(window=20).sum() / (df['Volume'].rolling(window=20).sum() + 1e-10)
 
     return df
+
+
+# =========================================================================
+# PRE-FILTER: SCREENING RINGAN (CPU-only, tanpa HTTP ke Yahoo Finance)
+# Dipakai oleh screener di routers.py untuk mengeliminasi saham yang jelas
+# tidak lolos SEBELUM membuang waktu download .info per ticker. Indikator
+# dihitung ulang dari DataFrame yang sudah di-batch — overhead CPU ~milidetik
+# per saham, vs .info yang butuh ~1-3 detik HTTP per saham.
+# =========================================================================
+
+def pre_filter_oversold_swing(df):
+    """
+    Pre-filter teknikal untuk screener swing: cek kondisi oversold (f1_kondisi)
+    hanya dari data harga (DataFrame), TANPA memanggil Yahoo Finance .info.
+    Dipakai untuk mengeliminasi saham yang jelas tidak lolos sebelum membuang
+    waktu download data fundamental per ticker.
+
+    Return True jika saham POTENSIAL lolos filter oversold (layak analisis lanjut).
+    """
+    if df is None or df.empty or len(df) < 200:
+        return False
+    df = df.copy()
+    df['EMA20'] = df['Close'].ewm(span=20, adjust=False).mean()
+    df['EMA200'] = df['Close'].ewm(span=200, adjust=False).mean()
+    df = hitung_indikator_lengkap(df)
+    t = df.iloc[-1]
+    return bool(
+        t['Close'] < t['EMA20'] and
+        t['Close'] > t['EMA200'] and
+        t['Stoch_D'] <= 20 and
+        t['MACD'] < 0
+    )
+
+
+def pre_filter_momentum(df, ema_span_pendek=5, ema_span_panjang=10,
+                         volume_multiplier=2.5, volume_lookback=35,
+                         min_data_points=40):
+    """
+    Pre-filter teknikal untuk screener momentum (gorengan & fast-intraday):
+    cek 3 kondisi filter (volume spike, bullish EMA, ADX explosive) hanya dari
+    data harga, TANPA memanggil Yahoo Finance .info.
+
+    Parameter bisa di-override untuk menyesuaikan timeframe/strategi yang berbeda
+    (gorengan: EMA5/10, volume 2.5x; fast-intraday: EMA5/13, volume 2.0x).
+    """
+    if df is None or df.empty or len(df) < min_data_points:
+        return False
+    df = df.copy()
+    df['_ema_pendek'] = df['Close'].ewm(span=ema_span_pendek, adjust=False).mean()
+    df['_ema_panjang'] = df['Close'].ewm(span=ema_span_panjang, adjust=False).mean()
+    df = hitung_indikator_lengkap(df)
+    t = df.iloc[-1]
+
+    vol_terakhir = t['Volume']
+    vol_rata2 = df['Volume'].iloc[:-1].tail(volume_lookback).mean()
+
+    is_volume_spike = vol_rata2 > 0 and vol_terakhir > (vol_rata2 * volume_multiplier)
+    is_bullish = t['Close'] > t['_ema_pendek'] and t['_ema_pendek'] > t['_ema_panjang']
+    is_explosive = t['ADX14'] > ADX_THRESHOLD_GORENGAN and t['+DI14'] > t['-DI14']
+
+    return bool(is_volume_spike and is_bullish and is_explosive)
 
 
 def bulatkan_ke_tick_idx(harga, ke_bawah=True):
@@ -431,28 +497,50 @@ def cek_kekuatan_support_dan_resisten(df, harga_sekarang, window_hari=60, tolera
 
 
 def cek_kondisi_market():
-    """Filter makro: cek tren IHSG sebelum sinyal per-saham dipakai."""
+    """
+    Filter makro: cek tren IHSG sebelum sinyal per-saham dipakai.
+
+    Hasil di-cache selama CACHE_TTL_MARKET_DETIK (default 5 menit) untuk menghindari
+    download ulang data ^JKSE yang sama saat banyak request masuk dalam waktu berdekatan
+    (misalnya screener dengan 50+ saham yang masing-masing membutuhkan kondisi market).
+    """
+    now = time.time()
+    if _cache_kondisi_market["data"] and (now - _cache_kondisi_market["waktu"]) < CACHE_TTL_MARKET_DETIK:
+        return _cache_kondisi_market["data"]
+
     try:
         index = yf.Ticker(MARKET_INDEX_TICKER)
         df = index.history(period="6mo", auto_adjust=False)
         if df.empty or len(df) < 50:
-            return {"status": "TIDAK DIKETAHUI", "market_bullish": True, "keterangan": "Data indeks tidak tersedia, filter market dilewati"}
-        df['EMA50'] = df['Close'].ewm(span=50, adjust=False).mean()
-        harga_terakhir = float(df['Close'].iloc[-1])
-        ema50_terakhir = float(df['EMA50'].iloc[-1])
-        bullish = harga_terakhir > ema50_terakhir
-        return {
-            "status": "BULLISH 📈" if bullish else "BEARISH 📉",
-            "market_bullish": bool(bullish),
-            "ihsg_saat_ini": round(harga_terakhir, 2),
-            "ihsg_ema50": round(ema50_terakhir, 2)
-        }
+            hasil = {"status": "TIDAK DIKETAHUI", "market_bullish": True, "keterangan": "Data indeks tidak tersedia, filter market dilewati"}
+        else:
+            df['EMA50'] = df['Close'].ewm(span=50, adjust=False).mean()
+            harga_terakhir = float(df['Close'].iloc[-1])
+            ema50_terakhir = float(df['EMA50'].iloc[-1])
+            bullish = harga_terakhir > ema50_terakhir
+            hasil = {
+                "status": "BULLISH 📈" if bullish else "BEARISH 📉",
+                "market_bullish": bool(bullish),
+                "ihsg_saat_ini": round(harga_terakhir, 2),
+                "ihsg_ema50": round(ema50_terakhir, 2)
+            }
     except Exception:
-        return {"status": "TIDAK DIKETAHUI", "market_bullish": True, "keterangan": "Gagal mengambil data indeks, filter market dilewati"}
+        hasil = {"status": "TIDAK DIKETAHUI", "market_bullish": True, "keterangan": "Gagal mengambil data indeks, filter market dilewati"}
+
+    _cache_kondisi_market["data"] = hasil
+    _cache_kondisi_market["waktu"] = now
+    return hasil
 
 
 def cek_guardrail_fundamental(saham, info):
-    """Circuit breaker fundamental sebagai pengganti stop-loss teknikal untuk average-down."""
+    """
+    Circuit breaker fundamental sebagai pengganti stop-loss teknikal untuk average-down.
+
+    PERBAIKAN: perbandingan dividen kini memperhitungkan bahwa bucket tahun berjalan
+    mungkin BELUM LENGKAP (emiten belum selesai membagikan dividen tahunan). Sebelumnya
+    perbandingan selalu memakai bucket terakhir vs sebelumnya, yang bisa menghasilkan
+    false positive "dividen turun >30%" padahal hanya belum dibagikan sepenuhnya.
+    """
     alasan = []
     aman = True
     try:
@@ -460,12 +548,29 @@ def cek_guardrail_fundamental(saham, info):
         if not divs.empty:
             per_tahun = divs.resample('YE').sum()
             if len(per_tahun) >= 2:
-                dividen_tahun_ini = float(per_tahun.iloc[-1])
-                dividen_tahun_lalu = float(per_tahun.iloc[-2])
-                if dividen_tahun_lalu > 0 and dividen_tahun_ini < dividen_tahun_lalu * (1 - BATAS_TOLERANSI_PENURUNAN_DIVIDEN):
-                    aman = False
-                    turun_persen = round((1 - (dividen_tahun_ini / dividen_tahun_lalu)) * 100, 1)
-                    alasan.append(f"Dividen turun {turun_persen}% dari tahun sebelumnya")
+                # Cek apakah bucket terakhir adalah tahun berjalan (belum lengkap).
+                tahun_sekarang = datetime.datetime.now().year
+                tahun_bucket_terakhir = per_tahun.index[-1].year
+
+                dividen_baru = None
+                dividen_lama = None
+
+                if tahun_bucket_terakhir == tahun_sekarang:
+                    # Tahun berjalan belum lengkap → bandingkan 2 tahun kalender
+                    # SEBELUMNYA yang sudah close-book, bukan tahun berjalan.
+                    if len(per_tahun) >= 3:
+                        dividen_baru = float(per_tahun.iloc[-2])
+                        dividen_lama = float(per_tahun.iloc[-3])
+                else:
+                    # Semua bucket sudah tahun lalu → aman bandingkan 2 terakhir
+                    dividen_baru = float(per_tahun.iloc[-1])
+                    dividen_lama = float(per_tahun.iloc[-2])
+
+                if dividen_lama is not None and dividen_baru is not None and dividen_lama > 0:
+                    if dividen_baru < dividen_lama * (1 - BATAS_TOLERANSI_PENURUNAN_DIVIDEN):
+                        aman = False
+                        turun_persen = round((1 - (dividen_baru / dividen_lama)) * 100, 1)
+                        alasan.append(f"Dividen turun {turun_persen}% dari tahun sebelumnya")
     except Exception:
         pass
 

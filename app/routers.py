@@ -3,14 +3,19 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import APIRouter, HTTPException, Query
 from app.services import (
     hitung_analisis_saham, hitung_momentum_gorengan, cek_kondisi_market,
-    ambil_riwayat_batch, hitung_sinyal_fast_intraday
+    ambil_riwayat_batch, hitung_sinyal_fast_intraday,
+    pre_filter_oversold_swing, pre_filter_momentum
 )
 from app.backtest import (
     backtest_swing_dividen, backtest_gorengan_momentum,
     backtest_watchlist_swing, backtest_watchlist_gorengan,
     backtest_fast_intraday, backtest_watchlist_fast_intraday
 )
-from app.config import INDEX_BLUECHIP_UTAMA, WATCHLIST_GORENGAN, WATCHLIST_FAST_INTRADAY, INTERVAL_FAST_INTRADAY, PERIODE_DATA_FAST_INTRADAY
+from app.config import (
+    INDEX_BLUECHIP_UTAMA, WATCHLIST_GORENGAN, WATCHLIST_FAST_INTRADAY,
+    INTERVAL_FAST_INTRADAY, PERIODE_DATA_FAST_INTRADAY,
+    VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY, JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY
+)
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
 
 router = APIRouter(prefix="/v1")
@@ -65,17 +70,30 @@ async def status_market():
 
 def _jalankan_screener_swing(daftar_ticker: list):
     """
-    Screener swing generik: fetch riwayat harga SEMUA ticker sekaligus lewat batch
-    download (lebih cepat & lebih hemat request dibanding satu-satu), lalu proses
-    tiap saham secara paralel (ThreadPoolExecutor) hanya untuk bagian .info yang
-    memang tidak bisa di-batch oleh yfinance.
+    Screener swing generik TEROPTIMASI: fetch riwayat harga SEMUA ticker sekaligus
+    lewat batch download, lalu PRE-FILTER teknikal secara lokal (CPU-only, tanpa HTTP).
+    Hanya saham yang lolos pre-filter yang diproses lengkap (termasuk fetch .info dari
+    Yahoo Finance) — menghemat puluhan HTTP request yang sebelumnya terbuang untuk
+    saham yang tidak lolos filter oversold.
     """
     kondisi_market = cek_kondisi_market()
     tickers_jk = [t if t.endswith(".JK") else f"{t.upper()}.JK" for t in daftar_ticker]
     data_riwayat = ambil_riwayat_batch(tickers_jk, period="1y", interval="1d")
 
-    saham_lolos = []
+    # TAHAP 1: Pre-filter teknikal (CPU-only, tanpa HTTP) — eliminasi saham yang
+    # jelas tidak lolos filter oversold sebelum membuang waktu download .info.
+    ticker_lolos_prefilter = []
     saham_gagal = []
+    for t in tickers_jk:
+        df = data_riwayat.get(t)
+        if df is None or df.empty or len(df) < 200:
+            saham_gagal.append(t.replace(".JK", ""))
+            continue
+        if pre_filter_oversold_swing(df):
+            ticker_lolos_prefilter.append(t)
+
+    # TAHAP 2: Analisis lengkap (termasuk .info) HANYA untuk yang lolos pre-filter.
+    saham_lolos = []
 
     def proses(ticker_jk):
         symbol = ticker_jk.replace(".JK", "")
@@ -86,7 +104,7 @@ def _jalankan_screener_swing(daftar_ticker: list):
             return symbol, None
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS_SCREENER) as executor:
-        futures = [executor.submit(proses, t) for t in tickers_jk]
+        futures = [executor.submit(proses, t) for t in ticker_lolos_prefilter]
         for future in as_completed(futures):
             symbol, data = future.result()
             if not data:
@@ -111,12 +129,24 @@ def _jalankan_screener_swing(daftar_ticker: list):
 
 
 def _jalankan_screener_gorengan(daftar_ticker: list):
-    """Screener gorengan generik dengan batch fetch data intraday."""
+    """Screener gorengan generik TEROPTIMASI dengan batch fetch + pre-filter teknikal."""
     tickers_jk = [t if t.endswith(".JK") else f"{t.upper()}.JK" for t in daftar_ticker]
     data_riwayat = ambil_riwayat_batch(tickers_jk, period="60d", interval="1h")
 
-    saham_lolos = []
+    # TAHAP 1: Pre-filter teknikal (CPU-only, tanpa HTTP)
+    ticker_lolos_prefilter = []
     saham_gagal = []
+    for t in tickers_jk:
+        df = data_riwayat.get(t)
+        if df is None or df.empty or len(df) < 40:
+            saham_gagal.append(t.replace(".JK", ""))
+            continue
+        if pre_filter_momentum(df, ema_span_pendek=5, ema_span_panjang=10,
+                                volume_multiplier=2.5, volume_lookback=35):
+            ticker_lolos_prefilter.append(t)
+
+    # TAHAP 2: Analisis lengkap HANYA untuk yang lolos pre-filter.
+    saham_lolos = []
 
     def proses(ticker_jk):
         symbol = ticker_jk.replace(".JK", "")
@@ -127,7 +157,7 @@ def _jalankan_screener_gorengan(daftar_ticker: list):
             return symbol, None
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS_SCREENER) as executor:
-        futures = [executor.submit(proses, t) for t in tickers_jk]
+        futures = [executor.submit(proses, t) for t in ticker_lolos_prefilter]
         for future in as_completed(futures):
             symbol, data = future.result()
             if not data:
@@ -254,12 +284,25 @@ async def backtest_gorengan_gabungan():
 
 
 def _jalankan_screener_fast_intraday(daftar_ticker: list):
-    """Screener fast-intraday generik dengan batch fetch data 15-menit."""
+    """Screener fast-intraday generik TEROPTIMASI dengan batch fetch + pre-filter teknikal."""
     tickers_jk = [t if t.endswith(".JK") else f"{t.upper()}.JK" for t in daftar_ticker]
     data_riwayat = ambil_riwayat_batch(tickers_jk, period=PERIODE_DATA_FAST_INTRADAY, interval=INTERVAL_FAST_INTRADAY)
 
-    saham_lolos = []
+    # TAHAP 1: Pre-filter teknikal (CPU-only, tanpa HTTP)
+    ticker_lolos_prefilter = []
     saham_gagal = []
+    for t in tickers_jk:
+        df = data_riwayat.get(t)
+        if df is None or df.empty or len(df) < 40:
+            saham_gagal.append(t.replace(".JK", ""))
+            continue
+        if pre_filter_momentum(df, ema_span_pendek=5, ema_span_panjang=13,
+                                volume_multiplier=VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY,
+                                volume_lookback=JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY):
+            ticker_lolos_prefilter.append(t)
+
+    # TAHAP 2: Analisis lengkap HANYA untuk yang lolos pre-filter.
+    saham_lolos = []
 
     def proses(ticker_jk):
         symbol = ticker_jk.replace(".JK", "")
@@ -270,7 +313,7 @@ def _jalankan_screener_fast_intraday(daftar_ticker: list):
             return symbol, None
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS_SCREENER) as executor:
-        futures = [executor.submit(proses, t) for t in tickers_jk]
+        futures = [executor.submit(proses, t) for t in ticker_lolos_prefilter]
         for future in as_completed(futures):
             symbol, data = future.result()
             if not data:
