@@ -101,6 +101,34 @@ ATR_MULTIPLIER_TP_FAST_INTRADAY = 2.0
 VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY = 2.0
 JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY = 20
 
+# --- KONFIGURASI STRATEGI 4: BSJP (Beli Sore Jual Pagi) ---
+# Metode scalping populer di komunitas saham Indonesia: BELI di sesi penutupan
+# (~15.00-15.50 WIB) hari ini, JUAL di pembukaan (~09.00-09.30 WIB) besok.
+# Target tipis (1-3%) tapi cepat, dengan risiko utama GAP DOWN semalam (berita
+# global/domestik di luar jam bursa). Screening klasiknya mengikuti 'uang besar':
+# harga menguat signifikan + volume meledak + nilai transaksi besar + close kuat
+# di posisi atas range harian.
+BSJP_GAIN_MIN_PERSEN = 3.0            # kenaikan harga hari ini minimal (%)
+BSJP_CLOSE_POSISI_RANGE_MIN = 0.70    # posisi close dalam range harian minimal (0-1)
+BSJP_VOLUME_MULTIPLIER = 2.0          # volume minimal x rata-rata 20 hari SEBELUMNYA
+BSJP_VALUE_MIN_RUPIAH = 5_000_000_000 # nilai transaksi minimal Rp (likuiditas)
+BSJP_RSI_MAKS = 85.0                  # guard: tolak kenaikan parabolik / jenuh ekstrem
+BSJP_ADX_MIN = 20.0                   # konfirmasi tren minimal
+BSJP_SL_PAGI_PERSEN = 2.0             # mental stop loss pagi jika gap down (%)
+BSJP_TARGET_PERSEN = 1.5              # patokan target jual pagi (hasil nyata = gap aktual)
+BSJP_PERIODE_DATA = "1y"              # data harian untuk deteksi sinyal & statistik gap
+
+# Watchlist BSJP: campuran saham likuid (BBRI dkk) + nama momentum, karena BSJP
+# butuh volatilitas harian yang cukup untuk menghasilkan gap pagi yang berarti.
+WATCHLIST_BSJP = [
+    "BBRI.JK", "BMRI.JK", "BBNI.JK", "BBCA.JK", "BRIS.JK",
+    "ASII.JK", "TLKM.JK", "ADRO.JK", "PTBA.JK", "ITMG.JK",
+    "ANTM.JK", "INCO.JK", "MDKA.JK", "AMMN.JK", "MEDC.JK",
+    "PGAS.JK", "HRUM.JK", "ACES.JK", "MAPI.JK", "EMTK.JK",
+    "AMRT.JK", "ICBP.JK", "INDF.JK", "GOTO.JK", "WIFI.JK",
+    "BRMS.JK", "BUMI.JK", "DEWA.JK", "DOOH.JK", "JGLE.JK"
+]
+
 # --- KONFIGURASI RETRY (ketahanan terhadap kegagalan sesaat Yahoo Finance) ---
 RETRY_PERCOBAAN_MAKSIMAL = 2
 RETRY_JEDA_DETIK = 1.5

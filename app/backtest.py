@@ -20,14 +20,15 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from app.services import hitung_indikator_lengkap
+from app.services import hitung_indikator_lengkap, evaluasi_sinyal_bsjp
 from app.config import (
     ADX_THRESHOLD_GORENGAN, ATR_MULTIPLIER_SL, ATR_MULTIPLIER_TP,
     INDEX_BLUECHIP_UTAMA, WATCHLIST_GORENGAN,
     WATCHLIST_FAST_INTRADAY, INTERVAL_FAST_INTRADAY, PERIODE_DATA_FAST_INTRADAY,
     ATR_MULTIPLIER_SL_FAST_INTRADAY, ATR_MULTIPLIER_TP_FAST_INTRADAY,
     VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY, JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY,
-    MAX_HOLD_BARS_FAST_INTRADAY
+    MAX_HOLD_BARS_FAST_INTRADAY,
+    FEE_TRANSAKSI_TOTAL_PERSEN, WATCHLIST_BSJP
 )
 
 
@@ -420,4 +421,88 @@ def backtest_watchlist_fast_intraday(max_workers: int = 5):
     ringkasan["strategi"] = "Fast Intraday Alert - Gabungan Watchlist"
     ringkasan["periode_data"] = "60 hari terakhir per saham, interval 15 menit"
     ringkasan["catatan"] = "⚠️⚠️ Sampel SANGAT kecil (data intraday pendek x strategi cepat x watchlist terbatas). Backtest paling tidak robust di seluruh aplikasi ini — jangan jadikan basis keputusan tunggal."
+    return ringkasan
+
+
+# =========================================================================
+# STRATEGI 4: BACKTEST BSJP (Beli Sore Jual Pagi)
+# =========================================================================
+
+def backtest_bsjp(ticker_symbol: str, fee_persen: float = None, periode_tahun: int = 2):
+    """
+    Simulasi BSJP: beli di CLOSE hari sinyal, jual di OPEN hari bursa berikutnya
+    (persis aturan BSJP sebenarnya). Fee transaksi bolak-balik dipotong dari tiap
+    hasil. Karena berbasis data harian, sampelnya jauh lebih panjang & lebih robust
+    dibanding backtest intraday lain di aplikasi ini.
+    """
+    fee = FEE_TRANSAKSI_TOTAL_PERSEN if fee_persen is None else fee_persen
+    if not ticker_symbol.endswith(".JK"):
+        ticker = f"{ticker_symbol.upper()}.JK"
+    else:
+        ticker = ticker_symbol.upper()
+
+    saham = yf.Ticker(ticker)
+    df = saham.history(period=f"{periode_tahun}y", interval="1d", auto_adjust=False)
+    if df.empty or len(df) < 120:
+        return None
+
+    df = df.reset_index()
+    df = evaluasi_sinyal_bsjp(df)
+
+    trades = []
+    for i in range(len(df) - 1):
+        val = df['sinyal_bsjp'].iloc[i]
+        if not (pd.notna(val) and val):
+            continue
+        row = df.iloc[i]
+        row_next = df.iloc[i + 1]
+        harga_beli = float(row['Close'])
+        harga_jual = float(row_next['Open'])
+        if harga_beli <= 0:
+            continue
+        gap_persen = round(((harga_jual - harga_beli) / harga_beli) * 100, 2)
+        trades.append({
+            "tanggal_sinyal": str(row['Date'].date()) if 'Date' in df.columns else str(i),
+            "tanggal_jual": str(row_next['Date'].date()) if 'Date' in df.columns else str(i + 1),
+            "harga_beli_close": round(harga_beli, 2),
+            "harga_jual_open": round(harga_jual, 2),
+            "gap_persen": gap_persen,
+            "return_persen": round(gap_persen - fee, 2),
+            "alasan_keluar": "Jual Pagi (Gap Up)" if harga_jual > harga_beli else "Jual Pagi (Gap Down)"
+        })
+
+    hasil = _ringkas_hasil(trades)
+    hasil["saham"] = ticker_symbol.upper()
+    hasil["strategi"] = "BSJP (Beli Sore Jual Pagi)"
+    hasil["fee_transaksi_persen"] = fee
+    hasil["periode_data_tahun"] = periode_tahun
+    hasil["catatan"] = (
+        f"Simulasi: beli di close hari sinyal -> jual di open hari berikutnya, fee {fee}% per transaksi. "
+        "Data harian -> sampel lebih panjang dari backtest intraday. Belum termasuk slippage eksekusi "
+        "(terutama market order pagi saat likuiditas tipis). Frekuensi sinyal BSJP di saham large-cap "
+        "seperti BBRI biasanya RENDAH — total transaksi kecil bukan bug, tapi realita pasar."
+    )
+    return hasil
+
+
+def backtest_watchlist_bsjp(max_workers: int = 5, periode_tahun: int = 2):
+    """Backtest BSJP di SELURUH watchlist BSJP sekaligus, digabungkan (lebih valid secara statistik)."""
+    hasil_per_saham = []
+
+    def proses(ticker):
+        symbol = ticker.replace(".JK", "")
+        try:
+            return backtest_bsjp(symbol, periode_tahun=periode_tahun)
+        except Exception:
+            return None
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(proses, t) for t in WATCHLIST_BSJP]
+        for future in as_completed(futures):
+            hasil_per_saham.append(future.result())
+
+    ringkasan = _gabungkan_hasil_backtest(hasil_per_saham)
+    ringkasan["strategi"] = "BSJP (Beli Sore Jual Pagi) - Gabungan Watchlist"
+    ringkasan["periode_data_tahun"] = periode_tahun
+    ringkasan["catatan"] = "Backtest tertimbang jumlah transaksi per saham. Saham large-cap cenderung jarang menghasilkan sinyal BSJP — lihat jumlah transaksi per saham untuk konteks."
     return ringkasan

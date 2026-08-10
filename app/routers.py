@@ -3,18 +3,20 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import APIRouter, HTTPException, Query
 from app.services import (
     hitung_analisis_saham, hitung_momentum_gorengan, cek_kondisi_market,
-    ambil_riwayat_batch, hitung_sinyal_fast_intraday,
+    ambil_riwayat_batch, hitung_sinyal_fast_intraday, hitung_sinyal_bsjp,
     pre_filter_oversold_swing, pre_filter_momentum
 )
 from app.backtest import (
     backtest_swing_dividen, backtest_gorengan_momentum,
     backtest_watchlist_swing, backtest_watchlist_gorengan,
-    backtest_fast_intraday, backtest_watchlist_fast_intraday
+    backtest_fast_intraday, backtest_watchlist_fast_intraday,
+    backtest_bsjp, backtest_watchlist_bsjp
 )
 from app.config import (
     INDEX_BLUECHIP_UTAMA, WATCHLIST_GORENGAN, WATCHLIST_FAST_INTRADAY,
     INTERVAL_FAST_INTRADAY, PERIODE_DATA_FAST_INTRADAY,
-    VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY, JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY
+    VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY, JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY,
+    WATCHLIST_BSJP, BSJP_PERIODE_DATA
 )
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
 
@@ -385,4 +387,114 @@ async def backtest_fast_intraday_endpoint(ticker: str):
 async def backtest_fast_intraday_gabungan():
     """Backtest strategi fast-intraday di SELURUH watchlist likuid sekaligus, digabungkan."""
     hasil = backtest_watchlist_fast_intraday()
+    return {"status": "success", "data": hasil}
+
+
+# =========================================================================
+# STRATEGI 4: BSJP (Beli Sore Jual Pagi)
+# =========================================================================
+
+@router.get("/analisis/bsjp/{ticker}")
+async def analisis_bsjp_saham(ticker: str):
+    """
+    Sinyal BSJP (Beli Sore Jual Pagi) satu saham: beli di sesi penutupan hari ini,
+    jual di pembukaan besok. Berbasis data harian + statistik gap historis.
+    """
+    data = hitung_sinyal_bsjp(ticker)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
+    return {"status": "success", "data": data}
+
+
+def _jalankan_screener_bsjp(daftar_ticker: list):
+    """
+    Screener BSJP: batch fetch data harian seluruh ticker sekaligus, lalu evaluasi
+    sinyal secara lokal (CPU-only, tanpa HTTP .info — BSJP murni teknikal).
+    """
+    tickers_jk = [t if t.endswith(".JK") else f"{t.upper()}.JK" for t in daftar_ticker]
+    data_riwayat = ambil_riwayat_batch(tickers_jk, period=BSJP_PERIODE_DATA, interval="1d")
+
+    saham_lolos = []
+    saham_gagal = []
+    for t in tickers_jk:
+        df = data_riwayat.get(t)
+        if df is None or df.empty or len(df) < 60:
+            saham_gagal.append(t.replace(".JK", ""))
+            continue
+        try:
+            data = hitung_sinyal_bsjp(t.replace(".JK", ""), df_riwayat=df)
+        except Exception:
+            data = None
+        if not data:
+            saham_gagal.append(t.replace(".JK", ""))
+            continue
+        if "LOLOS" in data.get("status_filter", ""):
+            saham_lolos.append({
+                "saham": data.get("saham"),
+                "harga_saat_ini": data.get("harga_saat_ini"),
+                "status": data.get("status_filter"),
+                "detail_sinyal": data.get("detail_sinyal_hari_ini"),
+                "rekomendasi_bsjp": data.get("rekomendasi_bsjp"),
+                "statistik_gap_historis": data.get("statistik_gap_historis")
+            })
+    return saham_lolos, saham_gagal
+
+
+@router.get("/screener/bsjp")
+async def run_screener_bsjp():
+    """
+    Screener BSJP atas watchlist (BBRI dkk). Jalankan ~15.30-15.45 WIB untuk
+    keputusan beli sebelum pasar tutup; exit besok pagi dilakukan manual.
+    """
+    saham_lolos, saham_gagal = _jalankan_screener_bsjp(WATCHLIST_BSJP)
+    return {
+        "status": "success",
+        "peringatan": (
+            "Sinyal BSJP berbasis data harian Yahoo (delay ~15-20 menit). Jalankan paling cepat "
+            "~15.30-15.45 WIB dan verifikasi harga real-time di broker sebelum eksekusi. "
+            "Exit besok pagi (09.00-09.30 WIB) manual."
+        ),
+        "radar_bsjp_aktif": saham_lolos,
+        "saham_gagal_dianalisis": saham_gagal
+    }
+
+
+@router.get("/screener/bsjp/semua-saham")
+async def run_screener_bsjp_semua_saham(offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=BATAS_LIMIT_MAKSIMAL_PER_PANGGILAN)):
+    """Screener BSJP atas SELURUH daftar saham BEI. Dipaginasi seperti screener lain."""
+    total_saham = len(SEMUA_SAHAM_BEI)
+    slice_ticker = SEMUA_SAHAM_BEI[offset: offset + limit]
+    if not slice_ticker:
+        raise HTTPException(status_code=404, detail=f"Offset {offset} di luar jangkauan. Total saham di daftar BEI: {total_saham}.")
+
+    saham_lolos, saham_gagal = _jalankan_screener_bsjp(slice_ticker)
+    offset_berikutnya = offset + limit if (offset + limit) < total_saham else None
+
+    return {
+        "status": "success",
+        "total_saham_di_daftar_bei": total_saham,
+        "diproses_offset": offset,
+        "diproses_limit": limit,
+        "offset_berikutnya": offset_berikutnya,
+        "radar_bsjp_aktif": saham_lolos,
+        "saham_gagal_dianalisis": saham_gagal
+    }
+
+
+@router.get("/backtest/bsjp/{ticker}")
+async def backtest_bsjp_endpoint(ticker: str, tahun: int = Query(2, ge=1, le=5)):
+    """
+    Backtest BSJP: beli di close hari sinyal -> jual di open hari berikutnya,
+    potong fee. Data harian -> sampel lebih robust dari backtest intraday.
+    """
+    hasil = backtest_bsjp(ticker, periode_tahun=tahun)
+    if not hasil:
+        raise HTTPException(status_code=404, detail=f"Data historis untuk {ticker.upper()} tidak cukup untuk backtest.")
+    return {"status": "success", "data": hasil}
+
+
+@router.get("/backtest/bsjp/watchlist/gabungan")
+async def backtest_bsjp_gabungan(tahun: int = Query(2, ge=1, le=5)):
+    """Backtest BSJP di SELURUH watchlist BSJP sekaligus, digabungkan (lebih valid secara statistik)."""
+    hasil = backtest_watchlist_bsjp(periode_tahun=tahun)
     return {"status": "success", "data": hasil}

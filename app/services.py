@@ -19,7 +19,10 @@ from app.config import (
     ATR_MULTIPLIER_TP_FAST_INTRADAY, VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY,
     JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY, INTERVAL_FAST_INTRADAY,
     PERIODE_DATA_FAST_INTRADAY,
-    CACHE_TTL_MARKET_DETIK
+    CACHE_TTL_MARKET_DETIK,
+    BSJP_GAIN_MIN_PERSEN, BSJP_CLOSE_POSISI_RANGE_MIN, BSJP_VOLUME_MULTIPLIER,
+    BSJP_VALUE_MIN_RUPIAH, BSJP_RSI_MAKS, BSJP_ADX_MIN, BSJP_SL_PAGI_PERSEN,
+    BSJP_TARGET_PERSEN, BSJP_PERIODE_DATA
 )
 import datetime
 
@@ -1251,5 +1254,234 @@ def hitung_sinyal_fast_intraday(ticker_symbol: str, df_riwayat: pd.DataFrame = N
             (f"JANGAN TRADING SAHAM INI SEKARANG — filter momentum 15-menit GAGAL ({alasan_gagal}). Tunggu seluruh syarat menyala bersamaan."
              if not filter_lolos else
              "JANGAN TRADING SAHAM INI SEKARANG — filter lolos tapi setup ditolak guard keamanan (lihat alasan di rekomendasi_entry_daytrading, biasanya profit potensial terlalu tipis setelah fee).")
+        )
+    }
+
+
+# =========================================================================
+# STRATEGI 4: BSJP (Beli Sore Jual Pagi)
+# =========================================================================
+
+def evaluasi_sinyal_bsjp(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Evaluasi sinyal BSJP di SETIAP baris data harian. Satu definisi kondisi dipakai
+    bersama oleh hitung_sinyal_bsjp (sinyal hari ini) dan backtest_bsjp (simulasi
+    historis) — tidak ada duplikasi logika yang bisa melenceng di antara keduanya.
+
+    Syarat BSJP (standar komunitas, versi ketat):
+    1. Kenaikan hari ini >= BSJP_GAIN_MIN_PERSEN
+    2. Close di posisi atas range harian (>= 70% dari High-Low) — close kuat,
+       bukan doji/pantulan lemah
+    3. Volume >= BSJP_VOLUME_MULTIPLIER x rata-rata volume 20 hari SEBELUMNYA
+       (rata-rata TIDAK termasuk hari ini — menghindari look-ahead bias)
+    4. Nilai transaksi (Close x Volume) >= BSJP_VALUE_MIN_RUPIAH (likuiditas)
+    5. Harga > SMA5 > SMA10 (momentum naik jangka pendek utuh)
+    6. RSI < BSJP_RSI_MAKS (tolak kenaikan parabolik/jenuh)
+    7. ADX > BSJP_ADX_MIN dengan DI+ dominan (tren terkonfirmasi)
+    """
+    df = df.copy()
+    df['SMA5'] = df['Close'].rolling(5).mean()
+    df['SMA10'] = df['Close'].rolling(10).mean()
+    df['prev_close'] = df['Close'].shift(1)
+    df['VolMA20_sebelum'] = df['Volume'].shift(1).rolling(20).mean().replace(0, np.nan)
+    df = hitung_indikator_lengkap(df)
+
+    rentang = (df['High'] - df['Low']).replace(0, np.nan)
+    df['posisi_close_range'] = (df['Close'] - df['Low']) / rentang
+    df['return_persen'] = (df['Close'] / df['prev_close'] - 1) * 100
+    df['rasio_volume'] = df['Volume'] / df['VolMA20_sebelum']
+    df['nilai_transaksi'] = df['Close'] * df['Volume']
+
+    sinyal = (
+        (df['return_persen'] >= BSJP_GAIN_MIN_PERSEN) &
+        (df['posisi_close_range'] >= BSJP_CLOSE_POSISI_RANGE_MIN) &
+        (df['rasio_volume'] >= BSJP_VOLUME_MULTIPLIER) &
+        (df['nilai_transaksi'] >= BSJP_VALUE_MIN_RUPIAH) &
+        (df['Close'] > df['SMA5']) & (df['SMA5'] > df['SMA10']) &
+        (df['RSI14'] < BSJP_RSI_MAKS) &
+        (df['ADX14'] > BSJP_ADX_MIN) & (df['+DI14'] > df['-DI14'])
+    )
+    df['sinyal_bsjp'] = sinyal
+    return df
+
+
+def hitung_statistik_gap_bsjp(df: pd.DataFrame) -> dict:
+    """
+    Statistik GAP historis: untuk semua hari sinyal BSJP di masa lalu, berapa
+    return jika beli di close hari sinyal lalu jual di open hari berikutnya
+    (persis aturan BSJP). Ini basis data empiris untuk ekspektasi besok pagi —
+    bukan jaminan, tapi frekuensi & distribusi sinyal ini di saham tersebut.
+    """
+    gap_list = []
+    for i in range(len(df) - 1):
+        val = df['sinyal_bsjp'].iloc[i]
+        if not (pd.notna(val) and val):
+            continue
+        close = float(df['Close'].iloc[i])
+        open_next = float(df['Open'].iloc[i + 1])
+        if close <= 0:
+            continue
+        gap_list.append(round((open_next / close - 1) * 100, 2))
+
+    if not gap_list:
+        return {
+            "jumlah_sinyal_sebelumnya": 0,
+            "keterangan": "Belum ada sinyal BSJP pada periode data ini — tunggu momentum, jangan paksakan entry."
+        }
+
+    arr = np.array(gap_list)
+    return {
+        "jumlah_sinyal_sebelumnya": len(gap_list),
+        "probabilitas_gap_up_persen": round(float((arr > 0).mean()) * 100, 2),
+        "probabilitas_open_diatas_target_persen": round(float((arr >= BSJP_TARGET_PERSEN).mean()) * 100, 2),
+        "rata_rata_gap_persen": round(float(arr.mean()), 2),
+        "median_gap_persen": round(float(np.median(arr)), 2),
+        "gap_terburuk_persen": round(float(arr.min()), 2),
+        "gap_terbaik_persen": round(float(arr.max()), 2),
+        "catatan": (
+            "⚠️ Sampel < 20 sinyal — hasil belum statistically robust, perlakukan sebagai indikasi awal saja."
+            if len(gap_list) < 20 else
+            "Sampel cukup (> 20 sinyal) — distribusi gap historis bisa dijadikan acuan ekspektasi kasar."
+        )
+    }
+
+
+def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None):
+    """
+    Sinyal BSJP (Beli Sore Jual Pagi) berbasis data harian.
+
+    KETERBATASAN YANG HARUS DISADARI (dibaca sebelum eksekusi):
+    - Data Yahoo Finance untuk saham IDX delay ~15-20 menit. Jika dipanggil
+      sebelum pasar tutup (15.50 WIB), candle hari ini BELUM FINAL — volume &
+      harga bisa berubah. Ambil data paling cepat ~15.30-15.45 WIB dan verifikasi
+      harga real-time di aplikasi broker sebelum eksekusi.
+    - Exit BSJP = jual di pembukaan besok (09.00-09.30 WIB) — harus manual,
+      tidak bisa diotomasi dari data delayed.
+    - Risiko utama = gap down semalam (berita global/domestik di luar jam bursa).
+      Patuhi mental stop loss pagi; jangan ubah posisi ini jadi swing hold.
+    """
+    if not ticker_symbol.endswith(".JK"):
+        ticker = f"{ticker_symbol.upper()}.JK"
+    else:
+        ticker = ticker_symbol.upper()
+
+    saham = yf.Ticker(ticker)
+    if df_riwayat is not None:
+        df = df_riwayat.copy()
+    else:
+        df = saham.history(period=BSJP_PERIODE_DATA, interval="1d", auto_adjust=False)
+
+    if df.empty or len(df) < 60:
+        return None
+
+    df = df.reset_index()
+    df = evaluasi_sinyal_bsjp(df)
+
+    terakhir = df.iloc[-1]
+    if pd.isna(terakhir['Close']):
+        return None
+
+    harga_sekarang = int(terakhir['Close'])
+    nilai_sinyal = terakhir['sinyal_bsjp']
+    sinyal_hari_ini = bool(pd.notna(nilai_sinyal) and nilai_sinyal)
+
+    detail_sinyal = {
+        "kenaikan_hari_ini_persen": round(float(terakhir['return_persen']), 2) if pd.notna(terakhir['return_persen']) else "N/A",
+        "posisi_close_di_range": round(float(terakhir['posisi_close_range']), 2) if pd.notna(terakhir['posisi_close_range']) else "N/A",
+        "rasio_volume_vs_rata20": round(float(terakhir['rasio_volume']), 1) if pd.notna(terakhir['rasio_volume']) else "N/A",
+        "nilai_transaksi_rupiah": int(terakhir['nilai_transaksi']) if pd.notna(terakhir['nilai_transaksi']) else "N/A",
+        "rsi_14": round(float(terakhir['RSI14']), 2) if pd.notna(terakhir['RSI14']) else "N/A",
+        "adx_14": round(float(terakhir['ADX14']), 2) if pd.notna(terakhir['ADX14']) else "N/A",
+        "arah_tren_adx": "BULLISH (DI+ > DI-)" if (pd.notna(terakhir['+DI14']) and pd.notna(terakhir['-DI14']) and terakhir['+DI14'] > terakhir['-DI14']) else "BEARISH (DI- >= DI+)",
+        "sma5": int(terakhir['SMA5']),
+        "sma10": int(terakhir['SMA10']),
+        "ambang_yang_dipakai": {
+            "kenaikan_min_persen": BSJP_GAIN_MIN_PERSEN,
+            "posisi_close_min": BSJP_CLOSE_POSISI_RANGE_MIN,
+            "volume_multiplier_min": BSJP_VOLUME_MULTIPLIER,
+            "nilai_transaksi_min_rupiah": BSJP_VALUE_MIN_RUPIAH,
+            "rsi_maks": BSJP_RSI_MAKS,
+            "adx_min": BSJP_ADX_MIN
+        }
+    }
+
+    if sinyal_hari_ini:
+        status_filter = "LOLOS SCREENING BSJP 🐂 (Beli Sore Hari Ini, Jual Pagi Besok)"
+        alasan_gagal = None
+    else:
+        syarat_gagal = []
+        rp = terakhir['return_persen']
+        if pd.notna(rp) and rp < BSJP_GAIN_MIN_PERSEN:
+            syarat_gagal.append(f"kenaikan hanya {round(float(rp), 2)}% (butuh >= {BSJP_GAIN_MIN_PERSEN}%)")
+        pcr = terakhir['posisi_close_range']
+        if pd.notna(pcr) and pcr < BSJP_CLOSE_POSISI_RANGE_MIN:
+            syarat_gagal.append(f"close di posisi {round(float(pcr), 2)} range (butuh >= {BSJP_CLOSE_POSISI_RANGE_MIN})")
+        rv = terakhir['rasio_volume']
+        if pd.notna(rv) and rv < BSJP_VOLUME_MULTIPLIER:
+            syarat_gagal.append(f"volume {round(float(rv), 1)}x rata-rata (butuh >= {BSJP_VOLUME_MULTIPLIER}x)")
+        nv = terakhir['nilai_transaksi']
+        if pd.notna(nv) and nv < BSJP_VALUE_MIN_RUPIAH:
+            syarat_gagal.append("nilai transaksi di bawah Rp5 miliar (likuiditas kurang)")
+        if not (pd.notna(terakhir['Close']) and pd.notna(terakhir['SMA5']) and pd.notna(terakhir['SMA10'])
+                and terakhir['Close'] > terakhir['SMA5'] and terakhir['SMA5'] > terakhir['SMA10']):
+            syarat_gagal.append("harga belum di atas SMA5 > SMA10 (momentum naik belum utuh)")
+        rsi = terakhir['RSI14']
+        if pd.notna(rsi) and rsi >= BSJP_RSI_MAKS:
+            syarat_gagal.append(f"RSI {round(float(rsi), 1)} sudah parabolik (>= {BSJP_RSI_MAKS})")
+        adx = terakhir['ADX14']
+        if not (pd.notna(adx) and pd.notna(terakhir['+DI14']) and pd.notna(terakhir['-DI14'])
+                and adx > BSJP_ADX_MIN and terakhir['+DI14'] > terakhir['-DI14']):
+            syarat_gagal.append("ADX/arah tren belum memenuhi (butuh ADX > 20 dengan DI+ dominan)")
+        if not syarat_gagal:
+            syarat_gagal.append("data indikator hari ini tidak lengkap (baris data belum stabil)")
+        status_filter = "GAGAL 💤"
+        alasan_gagal = syarat_gagal
+
+    statistik_gap = hitung_statistik_gap_bsjp(df)
+
+    if sinyal_hari_ini:
+        harga_beli = bulatkan_ke_tick_idx(harga_sekarang, ke_bawah=True)
+        target_jual = bulatkan_ke_tick_idx(harga_sekarang * (1 + BSJP_TARGET_PERSEN / 100), ke_bawah=True)
+        cut_loss = bulatkan_ke_tick_idx(harga_sekarang * (1 - BSJP_SL_PAGI_PERSEN / 100), ke_bawah=True)
+        prob_up = statistik_gap.get("probabilitas_gap_up_persen")
+        rekomendasi_bsjp = {
+            "aktif": True,
+            "aksi": "BELI SORE HARI INI sebelum pasar tutup (15.00-15.50 WIB) — JUAL BESOK PAGI di pembukaan (09.00-09.30 WIB)",
+            "harga_beli_acuan": harga_beli,
+            "target_jual_estimasi": target_jual,
+            "harga_cut_loss_pagi": cut_loss,
+            "mental_stop_loss_persen": BSJP_SL_PAGI_PERSEN,
+            "estimasi_profit_bersih_persen": round(BSJP_TARGET_PERSEN - FEE_TRANSAKSI_TOTAL_PERSEN, 2),
+            "keterangan": (
+                f"Antre beli di sekitar Rp{harga_beli} sore ini. Besok pagi jual di open (market order). "
+                f"Jika gap up >= +{BSJP_TARGET_PERSEN}%, langsung jual — estimasi bersih setelah fee "
+                f"{FEE_TRANSAKSI_TOTAL_PERSEN}% = {round(BSJP_TARGET_PERSEN - FEE_TRANSAKSI_TOTAL_PERSEN, 2)}%. "
+                f"Jika gap down, cut di area Rp{cut_loss} ({BSJP_SL_PAGI_PERSEN}%) — JANGAN ditahan jadi swing."
+            ),
+            "asumsi": (
+                "Hasil nyata = gap aktual besok pagi, bukan target. " +
+                (f"Probabilitas gap up historis: {prob_up}%." if prob_up is not None else "Belum ada data gap historis.")
+            )
+        }
+    else:
+        rekomendasi_bsjp = {
+            "aktif": False,
+            "aksi": "JANGAN BELI SORE INI",
+            "keterangan": "Syarat BSJP belum terpenuhi hari ini. Strategi ini hanya layak saat momentum kuat terbentuk di hari yang sama (kenaikan signifikan + volume meledak + close kuat)."
+        }
+
+    return {
+        "saham": ticker_symbol.upper(),
+        "harga_saat_ini": harga_sekarang,
+        "status_filter": status_filter,
+        "alasan_gagal": alasan_gagal,
+        "detail_sinyal_hari_ini": detail_sinyal,
+        "rekomendasi_bsjp": rekomendasi_bsjp,
+        "statistik_gap_historis": statistik_gap,
+        "peringatan_keamanan": (
+            "⚠️ Data Yahoo Finance delay ~15-20 menit untuk saham IDX. Jika dipanggil sebelum pasar tutup, "
+            "candle hari ini BELUM FINAL (volume bisa berubah) — jalankan paling cepat ~15.30-15.45 WIB dan "
+            "verifikasi harga real-time di broker sebelum eksekusi. Exit besok pagi (09.00-09.30) dilakukan "
+            "MANUAL; risiko utama adalah gap down semalam."
         )
     }
