@@ -22,7 +22,10 @@ from app.config import (
     CACHE_TTL_MARKET_DETIK,
     BSJP_GAIN_MIN_PERSEN, BSJP_CLOSE_POSISI_RANGE_MIN, BSJP_VOLUME_MULTIPLIER,
     BSJP_VALUE_MIN_RUPIAH, BSJP_RSI_MAKS, BSJP_ADX_MIN, BSJP_SL_PAGI_PERSEN,
-    BSJP_TARGET_PERSEN, BSJP_PERIODE_DATA
+    BSJP_TARGET_PERSEN, BSJP_PERIODE_DATA,
+    RANGE_PAGI_SORE_PERIODE, RANGE_PAGI_SORE_INTERVAL, RANGE_PAGI_SORE_JAM_PAGI,
+    RANGE_PAGI_SORE_JAM_SORE, RANGE_PAGI_SORE_WINDOW_HARI,
+    RANGE_PAGI_SORE_PERSENTIL_JUAL, RANGE_PAGI_SORE_PERSENTIL_BELI
 )
 import datetime
 
@@ -1262,7 +1265,9 @@ def hitung_sinyal_fast_intraday(ticker_symbol: str, df_riwayat: pd.DataFrame = N
 # STRATEGI 4: BSJP (Beli Sore Jual Pagi)
 # =========================================================================
 
-def evaluasi_sinyal_bsjp(df: pd.DataFrame) -> pd.DataFrame:
+def evaluasi_sinyal_bsjp(df: pd.DataFrame, gain_min_persen=None, close_posisi_min=None,
+                         volume_multiplier=None, value_min_rupiah=None, rsi_maks=None,
+                         adx_min=None) -> pd.DataFrame:
     """
     Evaluasi sinyal BSJP di SETIAP baris data harian. Satu definisi kondisi dipakai
     bersama oleh hitung_sinyal_bsjp (sinyal hari ini) dan backtest_bsjp (simulasi
@@ -1277,8 +1282,20 @@ def evaluasi_sinyal_bsjp(df: pd.DataFrame) -> pd.DataFrame:
     4. Nilai transaksi (Close x Volume) >= BSJP_VALUE_MIN_RUPIAH (likuiditas)
     5. Harga > SMA5 > SMA10 (momentum naik jangka pendek utuh)
     6. RSI < BSJP_RSI_MAKS (tolak kenaikan parabolik/jenuh)
-    7. ADX > BSJP_ADX_MIN dengan DI+ dominan (tren terkonfirmasi)
+    7. ADX > adx_min dengan DI+ dominan (tren terkonfirmasi)
+
+    Semua ambang OPSIONAL — kalau None, pakai konstanta default (ketat) di config.py.
+    Untuk varian LONGAR (cocok saham large-cap yang jarang meledak seperti BBRI):
+    gain_min_persen=2, close_posisi_min=0.6, volume_multiplier=1.5, rsi_maks=100
+    (guard RSI dinonaktifkan), adx_min=0 (guard ADX dinonaktifkan).
     """
+    gain_min_persen = BSJP_GAIN_MIN_PERSEN if gain_min_persen is None else gain_min_persen
+    close_posisi_min = BSJP_CLOSE_POSISI_RANGE_MIN if close_posisi_min is None else close_posisi_min
+    volume_multiplier = BSJP_VOLUME_MULTIPLIER if volume_multiplier is None else volume_multiplier
+    value_min_rupiah = BSJP_VALUE_MIN_RUPIAH if value_min_rupiah is None else value_min_rupiah
+    rsi_maks = BSJP_RSI_MAKS if rsi_maks is None else rsi_maks
+    adx_min = BSJP_ADX_MIN if adx_min is None else adx_min
+
     df = df.copy()
     df['SMA5'] = df['Close'].rolling(5).mean()
     df['SMA10'] = df['Close'].rolling(10).mean()
@@ -1293,25 +1310,29 @@ def evaluasi_sinyal_bsjp(df: pd.DataFrame) -> pd.DataFrame:
     df['nilai_transaksi'] = df['Close'] * df['Volume']
 
     sinyal = (
-        (df['return_persen'] >= BSJP_GAIN_MIN_PERSEN) &
-        (df['posisi_close_range'] >= BSJP_CLOSE_POSISI_RANGE_MIN) &
-        (df['rasio_volume'] >= BSJP_VOLUME_MULTIPLIER) &
-        (df['nilai_transaksi'] >= BSJP_VALUE_MIN_RUPIAH) &
+        (df['return_persen'] >= gain_min_persen) &
+        (df['posisi_close_range'] >= close_posisi_min) &
+        (df['rasio_volume'] >= volume_multiplier) &
+        (df['nilai_transaksi'] >= value_min_rupiah) &
         (df['Close'] > df['SMA5']) & (df['SMA5'] > df['SMA10']) &
-        (df['RSI14'] < BSJP_RSI_MAKS) &
-        (df['ADX14'] > BSJP_ADX_MIN) & (df['+DI14'] > df['-DI14'])
+        (df['RSI14'] < rsi_maks) &
+        (df['ADX14'] > adx_min) & (df['+DI14'] > df['-DI14'])
     )
     df['sinyal_bsjp'] = sinyal
     return df
 
 
-def hitung_statistik_gap_bsjp(df: pd.DataFrame) -> dict:
+def hitung_statistik_gap_bsjp(df: pd.DataFrame, target_persen: float = None) -> dict:
     """
     Statistik GAP historis: untuk semua hari sinyal BSJP di masa lalu, berapa
     return jika beli di close hari sinyal lalu jual di open hari berikutnya
     (persis aturan BSJP). Ini basis data empiris untuk ekspektasi besok pagi —
     bukan jaminan, tapi frekuensi & distribusi sinyal ini di saham tersebut.
+
+    target_persen: patokan "gap cukup untuk langsung jual" (default = BSJP_TARGET_PERSEN).
     """
+    target_persen = BSJP_TARGET_PERSEN if target_persen is None else target_persen
+
     gap_list = []
     for i in range(len(df) - 1):
         val = df['sinyal_bsjp'].iloc[i]
@@ -1333,7 +1354,7 @@ def hitung_statistik_gap_bsjp(df: pd.DataFrame) -> dict:
     return {
         "jumlah_sinyal_sebelumnya": len(gap_list),
         "probabilitas_gap_up_persen": round(float((arr > 0).mean()) * 100, 2),
-        "probabilitas_open_diatas_target_persen": round(float((arr >= BSJP_TARGET_PERSEN).mean()) * 100, 2),
+        "probabilitas_open_diatas_target_persen": round(float((arr >= target_persen).mean()) * 100, 2),
         "rata_rata_gap_persen": round(float(arr.mean()), 2),
         "median_gap_persen": round(float(np.median(arr)), 2),
         "gap_terburuk_persen": round(float(arr.min()), 2),
@@ -1346,9 +1367,15 @@ def hitung_statistik_gap_bsjp(df: pd.DataFrame) -> dict:
     }
 
 
-def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None):
+def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None,
+                       gain_min_persen=None, close_posisi_min=None,
+                       volume_multiplier=None, value_min_rupiah=None, rsi_maks=None,
+                       adx_min=None, target_persen=None):
     """
     Sinyal BSJP (Beli Sore Jual Pagi) berbasis data harian.
+
+    Parameter ambang OPSIONAL (None = pakai default ketat di config.py) — lihat
+    evaluasi_sinyal_bsjp untuk varian longgar yang cocok untuk BBRI.
 
     KETERBATASAN YANG HARUS DISADARI (dibaca sebelum eksekusi):
     - Data Yahoo Finance untuk saham IDX delay ~15-20 menit. Jika dipanggil
@@ -1374,8 +1401,20 @@ def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None):
     if df.empty or len(df) < 60:
         return None
 
+    gain_min_persen = BSJP_GAIN_MIN_PERSEN if gain_min_persen is None else gain_min_persen
+    close_posisi_min = BSJP_CLOSE_POSISI_RANGE_MIN if close_posisi_min is None else close_posisi_min
+    volume_multiplier = BSJP_VOLUME_MULTIPLIER if volume_multiplier is None else volume_multiplier
+    value_min_rupiah = BSJP_VALUE_MIN_RUPIAH if value_min_rupiah is None else value_min_rupiah
+    rsi_maks = BSJP_RSI_MAKS if rsi_maks is None else rsi_maks
+    adx_min = BSJP_ADX_MIN if adx_min is None else adx_min
+    target_persen = BSJP_TARGET_PERSEN if target_persen is None else target_persen
+
     df = df.reset_index()
-    df = evaluasi_sinyal_bsjp(df)
+    df = evaluasi_sinyal_bsjp(
+        df, gain_min_persen=gain_min_persen, close_posisi_min=close_posisi_min,
+        volume_multiplier=volume_multiplier, value_min_rupiah=value_min_rupiah,
+        rsi_maks=rsi_maks, adx_min=adx_min
+    )
 
     terakhir = df.iloc[-1]
     if pd.isna(terakhir['Close']):
@@ -1396,12 +1435,13 @@ def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None):
         "sma5": int(terakhir['SMA5']),
         "sma10": int(terakhir['SMA10']),
         "ambang_yang_dipakai": {
-            "kenaikan_min_persen": BSJP_GAIN_MIN_PERSEN,
-            "posisi_close_min": BSJP_CLOSE_POSISI_RANGE_MIN,
-            "volume_multiplier_min": BSJP_VOLUME_MULTIPLIER,
-            "nilai_transaksi_min_rupiah": BSJP_VALUE_MIN_RUPIAH,
-            "rsi_maks": BSJP_RSI_MAKS,
-            "adx_min": BSJP_ADX_MIN
+            "kenaikan_min_persen": gain_min_persen,
+            "posisi_close_min": close_posisi_min,
+            "volume_multiplier_min": volume_multiplier,
+            "nilai_transaksi_min_rupiah": value_min_rupiah,
+            "rsi_maks": rsi_maks,
+            "adx_min": adx_min,
+            "target_persen": target_persen
         }
     }
 
@@ -1411,37 +1451,37 @@ def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None):
     else:
         syarat_gagal = []
         rp = terakhir['return_persen']
-        if pd.notna(rp) and rp < BSJP_GAIN_MIN_PERSEN:
-            syarat_gagal.append(f"kenaikan hanya {round(float(rp), 2)}% (butuh >= {BSJP_GAIN_MIN_PERSEN}%)")
+        if pd.notna(rp) and rp < gain_min_persen:
+            syarat_gagal.append(f"kenaikan hanya {round(float(rp), 2)}% (butuh >= {gain_min_persen}%)")
         pcr = terakhir['posisi_close_range']
-        if pd.notna(pcr) and pcr < BSJP_CLOSE_POSISI_RANGE_MIN:
-            syarat_gagal.append(f"close di posisi {round(float(pcr), 2)} range (butuh >= {BSJP_CLOSE_POSISI_RANGE_MIN})")
+        if pd.notna(pcr) and pcr < close_posisi_min:
+            syarat_gagal.append(f"close di posisi {round(float(pcr), 2)} range (butuh >= {close_posisi_min})")
         rv = terakhir['rasio_volume']
-        if pd.notna(rv) and rv < BSJP_VOLUME_MULTIPLIER:
-            syarat_gagal.append(f"volume {round(float(rv), 1)}x rata-rata (butuh >= {BSJP_VOLUME_MULTIPLIER}x)")
+        if pd.notna(rv) and rv < volume_multiplier:
+            syarat_gagal.append(f"volume {round(float(rv), 1)}x rata-rata (butuh >= {volume_multiplier}x)")
         nv = terakhir['nilai_transaksi']
-        if pd.notna(nv) and nv < BSJP_VALUE_MIN_RUPIAH:
-            syarat_gagal.append("nilai transaksi di bawah Rp5 miliar (likuiditas kurang)")
+        if pd.notna(nv) and nv < value_min_rupiah:
+            syarat_gagal.append(f"nilai transaksi di bawah Rp{value_min_rupiah / 1e9:g} miliar (likuiditas kurang)")
         if not (pd.notna(terakhir['Close']) and pd.notna(terakhir['SMA5']) and pd.notna(terakhir['SMA10'])
                 and terakhir['Close'] > terakhir['SMA5'] and terakhir['SMA5'] > terakhir['SMA10']):
             syarat_gagal.append("harga belum di atas SMA5 > SMA10 (momentum naik belum utuh)")
         rsi = terakhir['RSI14']
-        if pd.notna(rsi) and rsi >= BSJP_RSI_MAKS:
-            syarat_gagal.append(f"RSI {round(float(rsi), 1)} sudah parabolik (>= {BSJP_RSI_MAKS})")
+        if pd.notna(rsi) and rsi >= rsi_maks:
+            syarat_gagal.append(f"RSI {round(float(rsi), 1)} sudah parabolik (>= {rsi_maks})")
         adx = terakhir['ADX14']
         if not (pd.notna(adx) and pd.notna(terakhir['+DI14']) and pd.notna(terakhir['-DI14'])
-                and adx > BSJP_ADX_MIN and terakhir['+DI14'] > terakhir['-DI14']):
-            syarat_gagal.append("ADX/arah tren belum memenuhi (butuh ADX > 20 dengan DI+ dominan)")
+                and adx > adx_min and terakhir['+DI14'] > terakhir['-DI14']):
+            syarat_gagal.append(f"ADX/arah tren belum memenuhi (butuh ADX > {adx_min} dengan DI+ dominan)")
         if not syarat_gagal:
             syarat_gagal.append("data indikator hari ini tidak lengkap (baris data belum stabil)")
         status_filter = "GAGAL 💤"
         alasan_gagal = syarat_gagal
 
-    statistik_gap = hitung_statistik_gap_bsjp(df)
+    statistik_gap = hitung_statistik_gap_bsjp(df, target_persen=target_persen)
 
     if sinyal_hari_ini:
         harga_beli = bulatkan_ke_tick_idx(harga_sekarang, ke_bawah=True)
-        target_jual = bulatkan_ke_tick_idx(harga_sekarang * (1 + BSJP_TARGET_PERSEN / 100), ke_bawah=True)
+        target_jual = bulatkan_ke_tick_idx(harga_sekarang * (1 + target_persen / 100), ke_bawah=True)
         cut_loss = bulatkan_ke_tick_idx(harga_sekarang * (1 - BSJP_SL_PAGI_PERSEN / 100), ke_bawah=True)
         prob_up = statistik_gap.get("probabilitas_gap_up_persen")
         rekomendasi_bsjp = {
@@ -1451,11 +1491,11 @@ def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None):
             "target_jual_estimasi": target_jual,
             "harga_cut_loss_pagi": cut_loss,
             "mental_stop_loss_persen": BSJP_SL_PAGI_PERSEN,
-            "estimasi_profit_bersih_persen": round(BSJP_TARGET_PERSEN - FEE_TRANSAKSI_TOTAL_PERSEN, 2),
+            "estimasi_profit_bersih_persen": round(target_persen - FEE_TRANSAKSI_TOTAL_PERSEN, 2),
             "keterangan": (
                 f"Antre beli di sekitar Rp{harga_beli} sore ini. Besok pagi jual di open (market order). "
-                f"Jika gap up >= +{BSJP_TARGET_PERSEN}%, langsung jual — estimasi bersih setelah fee "
-                f"{FEE_TRANSAKSI_TOTAL_PERSEN}% = {round(BSJP_TARGET_PERSEN - FEE_TRANSAKSI_TOTAL_PERSEN, 2)}%. "
+                f"Jika gap up >= +{target_persen}%, langsung jual — estimasi bersih setelah fee "
+                f"{FEE_TRANSAKSI_TOTAL_PERSEN}% = {round(target_persen - FEE_TRANSAKSI_TOTAL_PERSEN, 2)}%. "
                 f"Jika gap down, cut di area Rp{cut_loss} ({BSJP_SL_PAGI_PERSEN}%) — JANGAN ditahan jadi swing."
             ),
             "asumsi": (
@@ -1483,5 +1523,207 @@ def hitung_sinyal_bsjp(ticker_symbol: str, df_riwayat: pd.DataFrame = None):
             "candle hari ini BELUM FINAL (volume bisa berubah) — jalankan paling cepat ~15.30-15.45 WIB dan "
             "verifikasi harga real-time di broker sebelum eksekusi. Exit besok pagi (09.00-09.30) dilakukan "
             "MANUAL; risiko utama adalah gap down semalam."
+        )
+    }
+
+
+# =========================================================================
+# STRATEGI 5: RANGE PAGI-SORE (JUAL PAGI, BELI SORE)
+# Untuk pemegang saham (mis. BBRI) yang memanfaatkan pola intraday: harga
+# cenderung menyentuh titik tertinggi di sesi pagi dan melemah di sesi sore.
+# =========================================================================
+
+def tabel_harian_pagi_sore(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Bangun tabel harian (prev_close, morning high, afternoon low, close) dari data
+    intraday 15 menit, lengkap dengan peak/trough/spread relatif ke prev close.
+    Dipakai bersama oleh hitung_analisis_range_pagi_sore dan backtest_range_pagi_sore
+    sehingga definisi hari/pagi/sore konsisten di kedua sisi.
+
+    Hari yang tidak punya bar pagi atau bar sore (mis. masih parsial) otomatis
+    dibuang lewat dropna — jadi data hari berjalan yang belum lengkap tidak
+    mencemari statistik.
+    """
+    df = df.copy()
+    df = df.reset_index()
+    kolom_waktu = 'Datetime' if 'Datetime' in df.columns else 'Date'
+    waktu = pd.to_datetime(df[kolom_waktu])
+    df['tanggal'] = waktu.dt.date
+    df['jam_float'] = waktu.dt.hour + waktu.dt.minute / 60.0
+
+    pagi = df[df['jam_float'] < RANGE_PAGI_SORE_JAM_PAGI]
+    sore = df[df['jam_float'] >= RANGE_PAGI_SORE_JAM_SORE]
+    if pagi.empty or sore.empty:
+        return pd.DataFrame()
+
+    harian = pd.DataFrame({
+        'prev_close': df.groupby('tanggal')['Close'].last().shift(1),
+        'morn_high': pagi.groupby('tanggal')['High'].max(),
+        'aft_low': sore.groupby('tanggal')['Low'].min(),
+        'close': df.groupby('tanggal')['Close'].last(),
+    }).dropna()
+    harian['peak_persen'] = (harian['morn_high'] / harian['prev_close'] - 1) * 100
+    harian['trough_persen'] = (harian['aft_low'] / harian['prev_close'] - 1) * 100
+    harian['spread_persen'] = (harian['morn_high'] - harian['aft_low']) / harian['prev_close'] * 100
+    return harian
+
+
+def hitung_analisis_range_pagi_sore(ticker_symbol: str, df_riwayat: pd.DataFrame = None,
+                                    window_hari: int = None, persentil_jual: float = None,
+                                    persentil_beli: float = None):
+    """
+    Analisis pola intraday 'Range Pagi-Sore' untuk saham yang SUDAH ANDA PEGANG:
+
+    Berdasarkan N hari terakhir (default 30), hitung di harga berapa pasang order
+    JUAL di sesi pagi (titik tertinggi pagi) dan di harga berapa pasang order BELI
+    di sesi sore (titik terendah sore), lengkap dengan estimasi peluang terisi.
+
+    Level jual = persentil ke-persentil_jual dari distribusi 'peak pagi' (semakin
+    kecil persentil, level makin dekat ke prev close -> makin sering terisi).
+    Level beli = persentil ke-persentil_beli dari distribusi 'trough sore'.
+
+    CATATAN PENTING:
+    - Ini SARAN level, bukan eksekusi otomatis. Pasang order manual di broker.
+    - Data Yahoo Finance delay ~15-20 menit utk saham IDX — verifikasi harga
+      real-time sebelum memutuskan.
+    - IDX settlement T+2: menjual saham yang sudah Anda pegang lalu membeli kembali
+      di hari yang sama diperbolehkan, tapi dana beli memakai cash terpisah (bukan
+      hasil jual yang belum settle).
+    - Jika order beli sore tidak terisi, JANGAN paksakan beli — pilih antara beli
+      saat penutupan atau tahan cash.
+    """
+    if not ticker_symbol.endswith(".JK"):
+        ticker = f"{ticker_symbol.upper()}.JK"
+    else:
+        ticker = ticker_symbol.upper()
+
+    window_hari = RANGE_PAGI_SORE_WINDOW_HARI if window_hari is None else window_hari
+    persentil_jual = RANGE_PAGI_SORE_PERSENTIL_JUAL if persentil_jual is None else persentil_jual
+    persentil_beli = RANGE_PAGI_SORE_PERSENTIL_BELI if persentil_beli is None else persentil_beli
+
+    saham = yf.Ticker(ticker)
+    if df_riwayat is not None:
+        df = df_riwayat.copy()
+    else:
+        df = saham.history(period=RANGE_PAGI_SORE_PERIODE, interval=RANGE_PAGI_SORE_INTERVAL, auto_adjust=False)
+
+    if df is None or df.empty or len(df) < 100:
+        return None
+
+    df = df.reset_index()
+    harian = tabel_harian_pagi_sore(df)
+    if harian.empty or len(harian) < 15:
+        return None
+
+    # Jika sesi hari ini masih berjalan (belum 15.50 WIB), buang hari ini dari
+    # statistik supaya trough/peak parsial tidak mencemari pola historis.
+    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7)))
+    tanggal_terakhir = harian.index[-1]
+    sesi_sedang_berjalan = (
+        tanggal_terakhir == now.date() and
+        (now.hour < 15 or (now.hour == 15 and now.minute < 50))
+    )
+    if sesi_sedang_berjalan and len(harian) > 1:
+        harian = harian.iloc[:-1]
+
+    window = min(window_hari, len(harian))
+    if window < 15:
+        window = len(harian)
+    harian_w = harian.tail(window)
+    acuan = float(harian['close'].iloc[-1])  # close hari selesai terakhir
+
+    level_jual_pct = float(harian_w['peak_persen'].quantile(persentil_jual))
+    level_beli_pct = float(harian_w['trough_persen'].quantile(persentil_beli))
+    level_jual_pct = max(level_jual_pct, 0.05)  # jangan sampai jual di bawah acuan
+
+    harga_jual = bulatkan_ke_tick_idx(acuan * (1 + level_jual_pct / 100), ke_bawah=True)
+    harga_beli = bulatkan_ke_tick_idx(acuan * (1 + level_beli_pct / 100), ke_bawah=False)
+
+    hit_jual = round(float((harian_w['peak_persen'] >= level_jual_pct).mean()) * 100, 1)
+    hit_beli = round(float((harian_w['trough_persen'] <= level_beli_pct).mean()) * 100, 1)
+    kedua_terisi = round(float(
+        ((harian_w['peak_persen'] >= level_jual_pct) & (harian_w['trough_persen'] <= level_beli_pct)).mean()
+    ) * 100, 1)
+
+    spread_bruto = round((harga_jual - harga_beli) / harga_beli * 100, 2)
+    spread_bersih = round(spread_bruto - FEE_TRANSAKSI_TOTAL_PERSEN, 2)
+
+    # --- Premise: kapan day-high & day-low terjadi? ---
+    kolom_waktu = 'Datetime' if 'Datetime' in df.columns else 'Date'
+    waktu = pd.to_datetime(df[kolom_waktu])
+    df_tmp = df.copy()
+    df_tmp['jam_float'] = waktu.dt.hour + waktu.dt.minute / 60.0
+    idx_high = df_tmp.loc[df_tmp.groupby(pd.to_datetime(df_tmp[kolom_waktu]).dt.date)['High'].idxmax()]
+    idx_low = df_tmp.loc[df_tmp.groupby(pd.to_datetime(df_tmp[kolom_waktu]).dt.date)['Low'].idxmin()]
+    pct_high_pagi = round(float((idx_high['jam_float'] < RANGE_PAGI_SORE_JAM_PAGI).mean()) * 100, 1)
+    pct_low_sore = round(float((idx_low['jam_float'] >= RANGE_PAGI_SORE_JAM_SORE).mean()) * 100, 1)
+
+    def ringkas(s):
+        return {
+            "rata2_persen": round(float(s.mean()), 2),
+            "median_persen": round(float(s.median()), 2),
+            "p10_persen": round(float(s.quantile(0.10)), 2),
+            "p90_persen": round(float(s.quantile(0.90)), 2),
+        }
+
+    if harga_beli >= harga_jual:
+        status = "TIDAK LAYAK"
+        keterangan = ("Spread antara level jual dan level beli tidak positif — pola range pagi-sore tidak "
+                      "bisa dimanfaatkan dengan parameter ini. Coba persentil jual lebih kecil / beli lebih besar.")
+    elif spread_bersih <= 0:
+        status = "LAYAK TAPI TIPIS ⚠️"
+        keterangan = (f"Spread bruto {spread_bruto}% hanya sedikit di atas fee {FEE_TRANSAKSI_TOTAL_PERSEN}% — "
+                      "margin bersih tipis, pastikan level terisi dan jangan lupa biaya.")
+    else:
+        status = "LAYAK ✅"
+        keterangan = (
+            f"Pasang SELL LIMIT Rp{harga_jual} SEBELUM market buka (09.00 WIB). Jika terisi, pasang "
+            f"BUY LIMIT Rp{harga_beli} di sesi sore (setelah 13.30 WIB). Estimasi: jual terisi {hit_jual}% hari, "
+            f"beli terisi {hit_beli}% hari, dua-duanya terisi {kedua_terisi}% hari. Spread bruto {spread_bruto}%, "
+            f"bersih setelah fee {FEE_TRANSAKSI_TOTAL_PERSEN}% = {spread_bersih}%. Jika beli tidak terisi, jangan "
+            "paksakan beli — pilih beli saat penutupan atau tahan cash."
+        )
+
+    return {
+        "saham": ticker_symbol.upper(),
+        "strategi": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+        "harga_acuan_prev_close": int(round(acuan)),
+        "status": status,
+        "jendela_hari_dipakai": int(window),
+        "rekomendasi_order": {
+            "harga_set_jual_pagi": harga_jual,
+            "level_jual_persen": round(level_jual_pct, 2),
+            "estimasi_terisi_pagi_persen": hit_jual,
+            "harga_set_beli_sore": harga_beli,
+            "level_beli_persen": round(level_beli_pct, 2),
+            "estimasi_terisi_sore_persen": hit_beli,
+            "estimasi_roundtrip_terisi_persen": kedua_terisi,
+            "spread_bruto_persen": spread_bruto,
+            "spread_bersih_setelah_fee_persen": spread_bersih,
+            "keterangan": keterangan
+        },
+        "statistik_pola": {
+            "persen_day_high_di_pagi": pct_high_pagi,
+            "persen_day_low_di_sore": pct_low_sore,
+            "peak_pagi": ringkas(harian_w['peak_persen']),
+            "trough_sore": ringkas(harian_w['trough_persen']),
+            "spread_pagi_sore": ringkas(harian_w['spread_persen']),
+        },
+        "contoh_hari_terakhir": [
+            {
+                "tanggal": str(idx),
+                "prev_close": int(round(float(r['prev_close']))),
+                "morning_high": int(round(float(r['morn_high']))),
+                "afternoon_low": int(round(float(r['aft_low']))),
+                "peak_persen": round(float(r['peak_persen']), 2),
+                "trough_persen": round(float(r['trough_persen']), 2),
+            }
+            for idx, r in harian_w.tail(5).iterrows()
+        ],
+        "asumsi": f"Fee transaksi bolak-balik {FEE_TRANSAKSI_TOTAL_PERSEN}%. Harga dibulatkan ke fraksi harga resmi BEI.",
+        "peringatan": (
+            "⚠️ Data Yahoo Finance delay ~15-20 menit untuk saham IDX — verifikasi harga real-time di broker. "
+            "IDX settlement T+2: dana beli sore memakai cash terpisah dari hasil jual pagi (belum settle). "
+            "Pola ini statistik historis, bukan jaminan."
         )
     }

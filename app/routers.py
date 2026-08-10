@@ -4,13 +4,15 @@ from fastapi import APIRouter, HTTPException, Query
 from app.services import (
     hitung_analisis_saham, hitung_momentum_gorengan, cek_kondisi_market,
     ambil_riwayat_batch, hitung_sinyal_fast_intraday, hitung_sinyal_bsjp,
+    hitung_analisis_range_pagi_sore,
     pre_filter_oversold_swing, pre_filter_momentum
 )
 from app.backtest import (
     backtest_swing_dividen, backtest_gorengan_momentum,
     backtest_watchlist_swing, backtest_watchlist_gorengan,
     backtest_fast_intraday, backtest_watchlist_fast_intraday,
-    backtest_bsjp, backtest_watchlist_bsjp
+    backtest_bsjp, backtest_watchlist_bsjp,
+    backtest_range_pagi_sore
 )
 from app.config import (
     INDEX_BLUECHIP_UTAMA, WATCHLIST_GORENGAN, WATCHLIST_FAST_INTRADAY,
@@ -395,12 +397,28 @@ async def backtest_fast_intraday_gabungan():
 # =========================================================================
 
 @router.get("/analisis/bsjp/{ticker}")
-async def analisis_bsjp_saham(ticker: str):
+async def analisis_bsjp_saham(
+    ticker: str,
+    gain_min: float = Query(None, ge=0, le=30, description="Kenaikan min % (None = default 3)"),
+    close_pos: float = Query(None, ge=0, le=1, description="Posisi close min (None = default 0.7)"),
+    vol_mult: float = Query(None, ge=0, le=50, description="Volume min x rata-rata (None = default 2)"),
+    value_min: float = Query(None, ge=0, description="Nilai transaksi min Rupiah (None = default 5 miliar)"),
+    rsi_max: float = Query(None, ge=0, le=100, description="RSI maks (None = default 85; 100 = nonaktif)"),
+    adx_min: float = Query(None, ge=0, le=100, description="ADX min (None = default 20; 0 = nonaktif)"),
+    tp_persen: float = Query(None, ge=0, le=50, description="Target TP % (None = default 3)")
+):
     """
     Sinyal BSJP (Beli Sore Jual Pagi) satu saham: beli di sesi penutupan hari ini,
     jual di pembukaan besok. Berbasis data harian + statistik gap historis.
+
+    Kriteria bisa dilonggarkan via query params — contoh varian longgar BBRI:
+    ?gain_min=2&close_pos=0.6&vol_mult=1.5&rsi_max=100&adx_min=0&tp_persen=3
     """
-    data = hitung_sinyal_bsjp(ticker)
+    data = hitung_sinyal_bsjp(
+        ticker, gain_min_persen=gain_min, close_posisi_min=close_pos,
+        volume_multiplier=vol_mult, value_min_rupiah=value_min,
+        rsi_maks=rsi_max, adx_min=adx_min, target_persen=tp_persen
+    )
     if not data:
         raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
     return {"status": "success", "data": data}
@@ -482,12 +500,30 @@ async def run_screener_bsjp_semua_saham(offset: int = Query(0, ge=0), limit: int
 
 
 @router.get("/backtest/bsjp/{ticker}")
-async def backtest_bsjp_endpoint(ticker: str, tahun: int = Query(2, ge=1, le=5)):
+async def backtest_bsjp_endpoint(
+    ticker: str,
+    tahun: int = Query(2, ge=1, le=5),
+    gain_min: float = Query(None, ge=0, le=30),
+    close_pos: float = Query(None, ge=0, le=1),
+    vol_mult: float = Query(None, ge=0, le=50),
+    value_min: float = Query(None, ge=0),
+    rsi_max: float = Query(None, ge=0, le=100),
+    adx_min: float = Query(None, ge=0, le=100),
+    tp_persen: float = Query(None, ge=0, le=50, description="Target TP % untuk statistik ketercapaian")
+):
     """
     Backtest BSJP: beli di close hari sinyal -> jual di open hari berikutnya,
     potong fee. Data harian -> sampel lebih robust dari backtest intraday.
+
+    Kriteria bisa dilonggarkan via query params — contoh varian longgar BBRI:
+    ?gain_min=2&close_pos=0.6&vol_mult=1.5&rsi_max=100&adx_min=0&tp_persen=3
     """
-    hasil = backtest_bsjp(ticker, periode_tahun=tahun)
+    hasil = backtest_bsjp(
+        ticker, periode_tahun=tahun,
+        gain_min_persen=gain_min, close_posisi_min=close_pos,
+        volume_multiplier=vol_mult, value_min_rupiah=value_min,
+        rsi_maks=rsi_max, adx_min=adx_min, target_persen=tp_persen
+    )
     if not hasil:
         raise HTTPException(status_code=404, detail=f"Data historis untuk {ticker.upper()} tidak cukup untuk backtest.")
     return {"status": "success", "data": hasil}
@@ -497,4 +533,49 @@ async def backtest_bsjp_endpoint(ticker: str, tahun: int = Query(2, ge=1, le=5))
 async def backtest_bsjp_gabungan(tahun: int = Query(2, ge=1, le=5)):
     """Backtest BSJP di SELURUH watchlist BSJP sekaligus, digabungkan (lebih valid secara statistik)."""
     hasil = backtest_watchlist_bsjp(periode_tahun=tahun)
+    return {"status": "success", "data": hasil}
+
+
+# =========================================================================
+# STRATEGI 5: RANGE PAGI-SORE (JUAL PAGI, BELI SORE)
+# =========================================================================
+
+@router.get("/analisis/range-pagi-sore/{ticker}")
+async def analisis_range_pagi_sore_saham(
+    ticker: str,
+    window_hari: int = Query(None, ge=10, le=120, description="Jendela hari statistik (default 30)"),
+    persentil_jual: float = Query(None, gt=0, lt=1, description="Persentil peak pagi -> level jual (default 0.3)"),
+    persentil_beli: float = Query(None, gt=0, lt=1, description="Persentil trough sore -> level beli (default 0.5)")
+):
+    """
+    Analisis pola Range Pagi-Sore untuk pemegang saham: rekomendasi harga pasang
+    JUAL sebelum market buka (titik tinggi pagi) dan harga pasang BELI di sesi sore
+    (titik rendah sore), berdasarkan statistik N hari sebelumnya + estimasi peluang
+    terisi. Contoh: /v1/analisis/range-pagi-sore/BBRI
+    """
+    data = hitung_analisis_range_pagi_sore(
+        ticker, window_hari=window_hari, persentil_jual=persentil_jual, persentil_beli=persentil_beli
+    )
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk analisis pola.")
+    return {"status": "success", "data": data}
+
+
+@router.get("/backtest/range-pagi-sore/{ticker}")
+async def backtest_range_pagi_sore_endpoint(
+    ticker: str,
+    window_hari: int = Query(None, ge=10, le=120, description="Jendela hari walk-forward (default 30)"),
+    persentil_jual: float = Query(None, gt=0, lt=1),
+    persentil_beli: float = Query(None, gt=0, lt=1)
+):
+    """
+    Backtest walk-forward strategi Range Pagi-Sore: level jual/beli tiap hari
+    dihitung dari data hari-hari SEBELUMNYA (tanpa look-ahead), lalu dicek apakah
+    jual pagi & beli sore terisi. Contoh: /v1/backtest/range-pagi-sore/BBRI
+    """
+    hasil = backtest_range_pagi_sore(
+        ticker, window_hari=window_hari, persentil_jual=persentil_jual, persentil_beli=persentil_beli
+    )
+    if not hasil:
+        raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk backtest.")
     return {"status": "success", "data": hasil}

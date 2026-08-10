@@ -20,7 +20,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from app.services import hitung_indikator_lengkap, evaluasi_sinyal_bsjp
+from app.services import hitung_indikator_lengkap, evaluasi_sinyal_bsjp, tabel_harian_pagi_sore
 from app.config import (
     ADX_THRESHOLD_GORENGAN, ATR_MULTIPLIER_SL, ATR_MULTIPLIER_TP,
     INDEX_BLUECHIP_UTAMA, WATCHLIST_GORENGAN,
@@ -28,7 +28,9 @@ from app.config import (
     ATR_MULTIPLIER_SL_FAST_INTRADAY, ATR_MULTIPLIER_TP_FAST_INTRADAY,
     VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY, JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY,
     MAX_HOLD_BARS_FAST_INTRADAY,
-    FEE_TRANSAKSI_TOTAL_PERSEN, WATCHLIST_BSJP
+    FEE_TRANSAKSI_TOTAL_PERSEN, WATCHLIST_BSJP, BSJP_TARGET_PERSEN,
+    RANGE_PAGI_SORE_PERIODE, RANGE_PAGI_SORE_INTERVAL, RANGE_PAGI_SORE_WINDOW_HARI,
+    RANGE_PAGI_SORE_PERSENTIL_JUAL, RANGE_PAGI_SORE_PERSENTIL_BELI
 )
 
 
@@ -428,14 +430,22 @@ def backtest_watchlist_fast_intraday(max_workers: int = 5):
 # STRATEGI 4: BACKTEST BSJP (Beli Sore Jual Pagi)
 # =========================================================================
 
-def backtest_bsjp(ticker_symbol: str, fee_persen: float = None, periode_tahun: int = 2):
+def backtest_bsjp(ticker_symbol: str, fee_persen: float = None, periode_tahun: int = 2,
+                  gain_min_persen=None, close_posisi_min=None, volume_multiplier=None,
+                  value_min_rupiah=None, rsi_maks=None, adx_min=None, target_persen=None):
     """
     Simulasi BSJP: beli di CLOSE hari sinyal, jual di OPEN hari bursa berikutnya
     (persis aturan BSJP sebenarnya). Fee transaksi bolak-balik dipotong dari tiap
     hasil. Karena berbasis data harian, sampelnya jauh lebih panjang & lebih robust
     dibanding backtest intraday lain di aplikasi ini.
+
+    Ambang kriteria OPSIONAL (None = default ketat di config.py). Untuk varian
+    LONGAR (BBRI dkk yang jarang meledak): gain_min_persen=2, close_posisi_min=0.6,
+    volume_multiplier=1.5, rsi_maks=100, adx_min=0. target_persen dipakai untuk
+    menghitung persentase trade yang gap-nya mencapai target jual.
     """
     fee = FEE_TRANSAKSI_TOTAL_PERSEN if fee_persen is None else fee_persen
+    target_persen = BSJP_TARGET_PERSEN if target_persen is None else target_persen
     if not ticker_symbol.endswith(".JK"):
         ticker = f"{ticker_symbol.upper()}.JK"
     else:
@@ -447,7 +457,11 @@ def backtest_bsjp(ticker_symbol: str, fee_persen: float = None, periode_tahun: i
         return None
 
     df = df.reset_index()
-    df = evaluasi_sinyal_bsjp(df)
+    df = evaluasi_sinyal_bsjp(
+        df, gain_min_persen=gain_min_persen, close_posisi_min=close_posisi_min,
+        volume_multiplier=volume_multiplier, value_min_rupiah=value_min_rupiah,
+        rsi_maks=rsi_maks, adx_min=adx_min
+    )
 
     trades = []
     for i in range(len(df) - 1):
@@ -468,6 +482,7 @@ def backtest_bsjp(ticker_symbol: str, fee_persen: float = None, periode_tahun: i
             "harga_jual_open": round(harga_jual, 2),
             "gap_persen": gap_persen,
             "return_persen": round(gap_persen - fee, 2),
+            "mencapai_target_persen": bool(gap_persen >= target_persen),
             "alasan_keluar": "Jual Pagi (Gap Up)" if harga_jual > harga_beli else "Jual Pagi (Gap Down)"
         })
 
@@ -476,6 +491,10 @@ def backtest_bsjp(ticker_symbol: str, fee_persen: float = None, periode_tahun: i
     hasil["strategi"] = "BSJP (Beli Sore Jual Pagi)"
     hasil["fee_transaksi_persen"] = fee
     hasil["periode_data_tahun"] = periode_tahun
+    hasil["target_persen"] = target_persen
+    if trades:
+        tercapai = sum(1 for t in trades if t.get("mencapai_target_persen"))
+        hasil["persentase_trade_mencapai_target_persen"] = round(tercapai / len(trades) * 100, 2)
     hasil["catatan"] = (
         f"Simulasi: beli di close hari sinyal -> jual di open hari berikutnya, fee {fee}% per transaksi. "
         "Data harian -> sampel lebih panjang dari backtest intraday. Belum termasuk slippage eksekusi "
@@ -506,3 +525,110 @@ def backtest_watchlist_bsjp(max_workers: int = 5, periode_tahun: int = 2):
     ringkasan["periode_data_tahun"] = periode_tahun
     ringkasan["catatan"] = "Backtest tertimbang jumlah transaksi per saham. Saham large-cap cenderung jarang menghasilkan sinyal BSJP — lihat jumlah transaksi per saham untuk konteks."
     return ringkasan
+
+
+# =========================================================================
+# STRATEGI 5: BACKTEST RANGE PAGI-SORE (JUAL PAGI, BELI SORE)
+# =========================================================================
+
+def backtest_range_pagi_sore(ticker_symbol: str, window_hari: int = None,
+                             persentil_jual: float = None, persentil_beli: float = None,
+                             fee_persen: float = None):
+    """
+    Simulasi walk-forward strategi Range Pagi-Sore untuk pemegang saham:
+    - Setiap hari, level jual/beli dihitung dari window_hari hari SEBELUMNYA
+      (rolling, tanpa look-ahead bias).
+    - Jual dianggap terisi jika morning high >= level jual; beli terisi jika
+      afternoon low <= level beli. Round-trip dihitung hanya saat KEDUANYA terisi.
+
+    KETERBATASAN: data intraday yfinance hanya ~60 hari, jadi sampel terbatas.
+    Belum termasuk slippage dan asumsi eksekusi limit sempurna.
+    """
+    fee = FEE_TRANSAKSI_TOTAL_PERSEN if fee_persen is None else fee_persen
+    window_hari = RANGE_PAGI_SORE_WINDOW_HARI if window_hari is None else window_hari
+    persentil_jual = RANGE_PAGI_SORE_PERSENTIL_JUAL if persentil_jual is None else persentil_jual
+    persentil_beli = RANGE_PAGI_SORE_PERSENTIL_BELI if persentil_beli is None else persentil_beli
+
+    if not ticker_symbol.endswith(".JK"):
+        ticker = f"{ticker_symbol.upper()}.JK"
+    else:
+        ticker = ticker_symbol.upper()
+
+    saham = yf.Ticker(ticker)
+    df = saham.history(period=RANGE_PAGI_SORE_PERIODE, interval=RANGE_PAGI_SORE_INTERVAL, auto_adjust=False)
+    if df is None or df.empty or len(df) < 100:
+        return None
+
+    harian = tabel_harian_pagi_sore(df)
+    if harian.empty or len(harian) < window_hari + 10:
+        return None
+
+    window = min(window_hari, len(harian) - 10)
+    hari_list = list(harian.index)
+
+    trades = []
+    n_test = 0
+    n_jual_terisi = 0
+    n_beli_terisi = 0
+    n_roundtrip = 0
+
+    for i in range(window, len(hari_list)):
+        hari_ini = hari_list[i]
+        prior = harian.iloc[max(0, i - window):i]
+        if len(prior) < 10:
+            continue
+        lvl_jual = max(float(prior['peak_persen'].quantile(persentil_jual)), 0.05)
+        lvl_beli = float(prior['trough_persen'].quantile(persentil_beli))
+        row = harian.loc[hari_ini]
+
+        n_test += 1
+        sell_fill = bool(row['peak_persen'] >= lvl_jual)
+        buy_fill = bool(row['trough_persen'] <= lvl_beli)
+        if sell_fill:
+            n_jual_terisi += 1
+        if buy_fill:
+            n_beli_terisi += 1
+        if sell_fill and buy_fill:
+            n_roundtrip += 1
+            harga_jual = row['prev_close'] * (1 + lvl_jual / 100)
+            harga_beli = row['prev_close'] * (1 + lvl_beli / 100)
+            gross = (harga_jual - harga_beli) / harga_jual * 100
+            trades.append({
+                "tanggal": str(hari_ini),
+                "level_jual_persen": round(lvl_jual, 2),
+                "level_beli_persen": round(lvl_beli, 2),
+                "harga_jual": int(round(harga_jual)),
+                "harga_beli": int(round(harga_beli)),
+                "spread_bruto_persen": round(gross, 2),
+                "return_persen": round(gross - fee, 2),
+                "alasan_keluar": "Roundtrip pagi-sore terisi"
+            })
+
+    if n_test == 0:
+        return {
+            "saham": ticker_symbol.upper(),
+            "strategi": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+            "keterangan": "Data tidak cukup untuk backtest walk-forward."
+        }
+
+    rata_net = round(float(np.mean([t["return_persen"] for t in trades])), 2) if trades else 0.0
+    ekspektasi_per_hari = round(rata_net * n_roundtrip / n_test, 2) if trades else 0.0
+
+    return {
+        "saham": ticker_symbol.upper(),
+        "strategi": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+        "jumlah_hari_diuji": n_test,
+        "fee_transaksi_persen": fee,
+        "persen_hari_jual_terisi": round(n_jual_terisi / n_test * 100, 1),
+        "persen_hari_beli_terisi": round(n_beli_terisi / n_test * 100, 1),
+        "persen_hari_roundtrip_terisi": round(n_roundtrip / n_test * 100, 1),
+        "jumlah_roundtrip": len(trades),
+        "rata_rata_net_per_roundtrip_persen": rata_net,
+        "ekspektasi_per_hari_persen": ekspektasi_per_hari,
+        "detail_roundtrip_terakhir": trades[-10:],
+        "catatan": (
+            "Walk-forward: level jual/beli tiap hari dihitung dari window hari SEBELUMNYA (tanpa look-ahead). "
+            "Round-trip dihitung hanya saat jual pagi DAN beli sore keduanya terisi. Sampel kecil (data intraday "
+            "~60 hari) — anggap sanity-check, bukan validasi final. Belum termasuk slippage."
+        )
+    }

@@ -115,7 +115,7 @@ BSJP_VALUE_MIN_RUPIAH = 5_000_000_000 # nilai transaksi minimal Rp (likuiditas)
 BSJP_RSI_MAKS = 85.0                  # guard: tolak kenaikan parabolik / jenuh ekstrem
 BSJP_ADX_MIN = 20.0                   # konfirmasi tren minimal
 BSJP_SL_PAGI_PERSEN = 2.0             # mental stop loss pagi jika gap down (%)
-BSJP_TARGET_PERSEN = 1.5              # patokan target jual pagi (hasil nyata = gap aktual)
+BSJP_TARGET_PERSEN = 3.0              # target TP jual pagi default (rentang komunitas 1-3%; diset 3% per preferensi user)
 BSJP_PERIODE_DATA = "1y"              # data harian untuk deteksi sinyal & statistik gap
 
 # Watchlist BSJP: campuran saham likuid (BBRI dkk) + nama momentum, karena BSJP
@@ -128,6 +128,19 @@ WATCHLIST_BSJP = [
     "AMRT.JK", "ICBP.JK", "INDF.JK", "GOTO.JK", "WIFI.JK",
     "BRMS.JK", "BUMI.JK", "DEWA.JK", "DOOH.JK", "JGLE.JK"
 ]
+
+# --- KONFIGURASI STRATEGI 5: RANGE PAGI-SORE (JUAL PAGI, BELI SORE) ---
+# Untuk pemegang saham yang memanfaatkan pola intraday: harga cenderung menyentuh
+# titik tertinggi di sesi pagi dan melemah di sesi sore (tervalidasi utk BBRI:
+# day-high di pagi ~82%, spread peak-pagi vs trough-sore median ~2%).
+# Sesi pasar IDX: pagi 09.00-12.00 WIB, sore 13.30-15.50 WIB.
+RANGE_PAGI_SORE_PERIODE = "60d"       # data intraday 15 menit (batas maksimal yfinance)
+RANGE_PAGI_SORE_INTERVAL = "15m"
+RANGE_PAGI_SORE_JAM_PAGI = 12.0       # batas jam sesi pagi (12:00)
+RANGE_PAGI_SORE_JAM_SORE = 13.5       # awal sesi sore (13:30)
+RANGE_PAGI_SORE_WINDOW_HARI = 30      # jendela hari untuk statistik pola
+RANGE_PAGI_SORE_PERSENTIL_JUAL = 0.30 # persentil peak pagi -> level jual (0.30 => terisi ~70% hari)
+RANGE_PAGI_SORE_PERSENTIL_BELI = 0.50 # persentil trough sore -> level beli (0.50 => terisi ~50% hari)
 
 # --- KONFIGURASI RETRY (ketahanan terhadap kegagalan sesaat Yahoo Finance) ---
 RETRY_PERCOBAAN_MAKSIMAL = 2
