@@ -1637,6 +1637,12 @@ def hitung_analisis_range_pagi_sore(ticker_symbol: str, df_riwayat: pd.DataFrame
     level_jual_pct = max(level_jual_pct, 0.05)  # jangan sampai jual di bawah acuan
 
     harga_jual = bulatkan_ke_tick_idx(acuan * (1 + level_jual_pct / 100), ke_bawah=True)
+    # Guard: level jual minimal 1 tick DI ATAS harga acuan. Untuk saham harga murah
+    # (mis. TLKM 2620, tick 10), persentil kecil bisa membulat ke harga acuan sendiri
+    # — order jual di harga yang sama dengan acuan tidak berguna.
+    acuan_tick = bulatkan_ke_tick_idx(acuan, ke_bawah=True)
+    min_jual_satu_tick = bulatkan_ke_tick_idx(int(acuan_tick) + 1, ke_bawah=False)
+    harga_jual = max(harga_jual, min_jual_satu_tick)
     harga_beli = bulatkan_ke_tick_idx(acuan * (1 + level_beli_pct / 100), ke_bawah=False)
 
     hit_jual = round(float((harian_w['peak_persen'] >= level_jual_pct).mean()) * 100, 1)
