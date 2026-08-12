@@ -23,7 +23,10 @@ from app.config import (
     WATCHLIST_BSJP, BSJP_PERIODE_DATA
 )
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
-from app.most_active import top_pasar, rekomendasi_intraday_likuid, digest_pagi, konteks_pasar_saham
+from app.most_active import (
+    top_pasar, rekomendasi_intraday_likuid, digest_pagi, konteks_pasar_saham,
+    screener_range_pagi_sore,
+)
 from app.riwayat import ambil_riwayat_digest
 
 router = APIRouter(prefix="/v1")
@@ -581,6 +584,63 @@ async def analisis_range_pagi_sore_saham(
     if not data:
         raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk analisis pola.")
     return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
+
+
+@router.get("/screener/range-pagi-sore")
+async def run_screener_range_pagi_sore(
+    n: int = Query(25, ge=5, le=60, description="Berapa kandidat likuid teratas yang dianalisis (default 25)"),
+    jenis: str = Query("active", description="active (most active) | value (top value)"),
+    min_range_persen: float = Query(None, ge=0, le=20, description="Rata-rata range harian (High-Low) minimal % (default 1.2)"),
+    min_high_pagi: float = Query(None, ge=0, le=100, description="% hari dgn day-high di sesi pagi minimal (default 55)"),
+    min_low_sore: float = Query(None, ge=0, le=100, description="% hari dgn day-low di sesi sore minimal (default 55)"),
+    min_spread_bersih: float = Query(None, ge=0, le=10, description="Spread bersih minimal % setelah fee (default 0.3)")
+):
+    """
+    SCREENER RANGE PAGI-SORE: cari saham PALING COCOK untuk strategi jual-pagi /
+    beli-sore di antara kandidat likuid (nilai transaksi >= Rp5 miliar).
+
+    Kriteria lolos: rata-rata range harian LEBAR (default >= 1.2%), day-high
+    sering terjadi di pagi (>= 55%), day-low sering di sore (>= 25% — kalibrasi
+    empiris: saham likuid BEI day-low-di-sore median 25%, max 36%), dan spread
+    bersih setelah fee positif. Diurutkan dari spread bersih terbesar.
+
+    Contoh: /v1/screener/range-pagi-sore?n=30&min_range_persen=1.5
+    """
+    data = screener_range_pagi_sore(
+        n=n, jenis=jenis, min_range_persen=min_range_persen, min_high_pagi=min_high_pagi,
+        min_low_sore=min_low_sore, min_spread_bersih=min_spread_bersih,
+    )
+    return {"status": "success", "data": data}
+
+
+@router.get("/screener/range-pagi-sore/semua-saham")
+async def run_screener_range_pagi_sore_semua_saham(
+    offset: int = Query(0, ge=0),
+    limit: int = Query(15, ge=1, le=30, description="Batas per batch (default 15 — tiap saham dianalisis penuh, cukup berat)"),
+    min_range_persen: float = Query(None, ge=0, le=20),
+    min_high_pagi: float = Query(None, ge=0, le=100),
+    min_low_sore: float = Query(None, ge=0, le=100),
+    min_spread_bersih: float = Query(None, ge=0, le=10)
+):
+    """
+    Screener Range Pagi-Sore atas seluruh daftar BEI (dipaginasi). Lebih lambat
+    dari versi default karena tiap saham dianalisis penuh (data intraday 15 menit).
+    """
+    total = len(SEMUA_SAHAM_BEI)
+    slice_ticker = SEMUA_SAHAM_BEI[offset: offset + limit]
+    if not slice_ticker:
+        raise HTTPException(status_code=404, detail=f"Offset {offset} di luar jangkauan. Total saham di daftar BEI: {total}.")
+    data = screener_range_pagi_sore(
+        daftar_ticker=slice_ticker, min_range_persen=min_range_persen,
+        min_high_pagi=min_high_pagi, min_low_sore=min_low_sore,
+        min_spread_bersih=min_spread_bersih,
+    )
+    offset_berikutnya = offset + limit if (offset + limit) < total else None
+    data["total_saham_di_daftar_bei"] = total
+    data["diproses_offset"] = offset
+    data["diproses_limit"] = limit
+    data["offset_berikutnya"] = offset_berikutnya
+    return {"status": "success", "data": data}
 
 
 @router.get("/backtest/range-pagi-sore/{ticker}")
