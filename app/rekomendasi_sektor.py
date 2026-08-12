@@ -24,6 +24,7 @@ menampilkan performa historis sebagai sanity-check — perhatikan flag 'andal'
 import json
 import os
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from app.services import rekomendasi_strategi_gabungan
@@ -112,10 +113,18 @@ def daftar_saham_sektor(kata_kunci: str) -> list:
 
 
 def _proses_satu_saham(t):
-    try:
-        return t, rekomendasi_strategi_gabungan(t)
-    except Exception:
-        return t, None
+    # Rate-limit Yahoo di IP serverless/berbagi itu FLUKTUATIF (sekali jalan lancar,
+    # sekali semua 429). Retry pendek dengan backoff menyerap throttle sesaat.
+    # Catatan: hanya retry untuk EXCEPTION (mis. HTTPError 429). Jika fungsi
+    # mengembalikan None = data memang tidak cukup — itu bukan rate-limit,
+    # tidak perlu retry.
+    for percobaan in range(3):
+        try:
+            return t, rekomendasi_strategi_gabungan(t)
+        except Exception:
+            if percobaan < 2:
+                time.sleep(1.5 * (percobaan + 1))
+    return t, None
 
 
 def rekomendasi_top_per_strategi(tickers: list, top_n: int = 3,
@@ -147,7 +156,12 @@ def rekomendasi_top_per_strategi(tickers: list, top_n: int = 3,
     gagal = []
 
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
-        futures = [ex.submit(_proses_satu_saham, t) for t in tickers]
+        futures = []
+        for t in tickers:
+            futures.append(ex.submit(_proses_satu_saham, t))
+            # Space antar submit: sebarkan burst request supaya Yahoo tidak
+            # menolak semuanya sekaligus (terutama di IP publik serverless).
+            time.sleep(0.3)
         for fut in as_completed(futures):
             t, r = fut.result()
             if r:

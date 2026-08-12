@@ -704,9 +704,22 @@ async def rekomendasi_sektor_endpoint(
     if dibatasi:
         tickers = tickers[:max_saham]
 
+    # max_workers dikurangi (vs screener lain) karena tiap saham memicu BANYAK
+    # request ke Yahoo (history + intraday + info) — paralelisme tinggi di IP
+    # serverless cepat kena rate-limit Yahoo (429). 3 worker + retry backoff di
+    # rekomendasi_top_per_strategi jauh lebih tahan.
     hasil = rekomendasi_top_per_strategi(
-        tickers, top_n=top, max_workers=MAX_WORKERS_SCREENER, backtest=backtest
+        tickers, top_n=top, max_workers=min(MAX_WORKERS_SCREENER, 3), backtest=backtest
     )
+
+    if hasil['jumlah_saham_berhasil'] == 0 and hasil['saham_gagal']:
+        peringatan = (
+            "Semua saham gagal dianalisis — kemungkinan besar rate-limit data Yahoo "
+            "pada IP server. Coba lagi 1-2 menit kemudian, atau kurangi max_saham "
+            "(contoh: max_saham=5) untuk memangkas beban request."
+        )
+    else:
+        peringatan = None
 
     return {
         "status": "success",
@@ -720,6 +733,7 @@ async def rekomendasi_sektor_endpoint(
                 "untuk cakupan penuh."
                 if dibatasi else None
             ),
+            "peringatan": peringatan,
             **hasil,
         }
     }
