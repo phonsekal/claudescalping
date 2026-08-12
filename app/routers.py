@@ -23,7 +23,7 @@ from app.config import (
     WATCHLIST_BSJP, BSJP_PERIODE_DATA
 )
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
-from app.most_active import top_pasar, rekomendasi_intraday_likuid
+from app.most_active import top_pasar, rekomendasi_intraday_likuid, digest_pagi
 
 router = APIRouter(prefix="/v1")
 
@@ -796,4 +796,25 @@ async def rekomendasi_intraday(
     if jenis not in ("active", "value"):
         raise HTTPException(status_code=400, detail="jenis hanya mendukung: active | value")
     data = rekomendasi_intraday_likuid(n=n, jenis=jenis)
+    return {"status": "success", "data": data}
+
+
+@router.get("/pasar/digest-pagi")
+async def pasar_digest_pagi(
+    limit_active: int = Query(10, ge=1, le=30, description="Berapa saham most-active yang ditampilkan"),
+    n_intraday: int = Query(5, ge=1, le=15, description="Berapa kandidat likuid yang diskor strategi intraday"),
+    jenis: str = Query("active", description="active (most active) | value (top value)")
+):
+    """
+    DIGEST PAGI: Most Active + Rekomendasi Intraday dalam SATU request.
+
+    Dibuat untuk notifikasi WA otomatis tiap pagi — batch download 941 saham BEI
+    dijalankan SEKALI lalu dipakai bersama untuk dua output (hemat waktu &
+    mengurangi risiko rate-limit Yahoo). Data = hari trading lengkap terakhir.
+
+    Contoh: /v1/pasar/digest-pagi?limit_active=10&n_intraday=5
+    """
+    if jenis not in ("active", "value"):
+        raise HTTPException(status_code=400, detail="jenis hanya mendukung: active | value")
+    data = digest_pagi(limit_active=limit_active, n_intraday=n_intraday, jenis=jenis)
     return {"status": "success", "data": data}

@@ -176,14 +176,18 @@ def ambil_metrik_pasar() -> dict:
     }
 
 
-def top_pasar(jenis: str = "active", limit: int = 10) -> dict:
+def top_pasar(jenis: str = "active", limit: int = 10, metrik_pasar: dict = None) -> dict:
     """
     Dashboard pasar: top saham per kategori metrik.
 
     jenis: active (volume terbesar) | value (nilai transaksi terbesar) |
            gainer (perubahan % tertinggi) | loser (perubahan % terendah)
+
+    metrik_pasar (opsional): hasil ambil_metrik_pasar() yang sudah di-fetch,
+    dipakai digest_pagi() supaya batch download 941 saham hanya terjadi SEKALI
+    untuk beberapa output (hemat waktu + anti rate-limit).
     """
-    hasil = ambil_metrik_pasar()
+    hasil = metrik_pasar if metrik_pasar is not None else ambil_metrik_pasar()
     metrik = hasil["metrik"]
     daftar = list(metrik.values())
 
@@ -232,7 +236,8 @@ def top_pasar(jenis: str = "active", limit: int = 10) -> dict:
     }
 
 
-def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: int = 3) -> dict:
+def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: int = 3,
+                                metrik_pasar: dict = None) -> dict:
     """
     Rekomendasi saham UNTUK STRATEGI INTRADAY, berbasis filter most-active.
 
@@ -247,8 +252,11 @@ def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: 
     backtest sengaja TIDAK dijalankan (beban request besar di serverless) —
     skor + sinyal aktif sudah cukup untuk rekomendasi; validasi historis bisa
     dilakukan per saham lewat /v1/backtest/validasi-strategi/{ticker}.
+
+    metrik_pasar (opsional): hasil ambil_metrik_pasar() yang sudah di-fetch,
+    dipakai digest_pagi() supaya batch pasar tidak di-download dua kali.
     """
-    pasar = ambil_metrik_pasar()
+    pasar = metrik_pasar if metrik_pasar is not None else ambil_metrik_pasar()
     metrik = pasar["metrik"]
 
     # Filter likuiditas minimum: nilai transaksi >= Rp 5 miliar (layak intraday).
@@ -360,4 +368,28 @@ def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: 
         ],
         "leaderboard_per_strategi_intraday": leaderboard,
         "peringatan": peringatan,
+    }
+
+
+def digest_pagi(limit_active: int = 10, n_intraday: int = 5, jenis: str = "active",
+                max_workers: int = 3) -> dict:
+    """
+    DIGEST PAGI: Most Active + Rekomendasi Intraday dalam SATU request.
+
+    Dipakai notifikasi WA otomatis tiap pagi. Kunci efisiensi: batch download
+    seluruh BEI (941 ticker, ~16-21 dtk) hanya dijalankan SEKALI, lalu dipakai
+    bersama oleh top_pasar() dan rekomendasi_intraday_likuid() via param
+    metrik_pasar — kalau dipanggil terpisah, batch dijalankan dua kali.
+    """
+    pasar = ambil_metrik_pasar()
+    most_active = top_pasar(jenis="active", limit=limit_active, metrik_pasar=pasar)
+    intraday = rekomendasi_intraday_likuid(
+        n=n_intraday, jenis=jenis, max_workers=max_workers, metrik_pasar=pasar
+    )
+    return {
+        "tanggal_data": pasar.get("tanggal_data"),
+        "jumlah_saham_dianalisis": pasar.get("jumlah_berhasil"),
+        "chunk_gagal": pasar.get("chunk_gagal") or [],
+        "most_active": most_active,
+        "rekomendasi_intraday": intraday,
     }

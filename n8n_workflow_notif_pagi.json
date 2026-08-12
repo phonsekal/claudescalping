@@ -1,0 +1,129 @@
+{
+  "name": "Notifikasi Pagi Saham (WA)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "cronExpression": "0 7 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "notif-schedule-001",
+      "name": "Jadwal Pagi 07:00 WIB",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://claudesahamfinal.vercel.app/v1/pasar/digest-pagi?limit_active=10&n_intraday=5&jenis=active",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 90000
+        }
+      },
+      "id": "notif-http-001",
+      "name": "Panggil Digest Pagi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// === FORMAT NOTIFIKASI PAGI (Most Active + Rekomendasi Intraday) ===\n// ⚠️ GANTI nomor ini dengan nomor WA tujuan kamu (format 62xxxxxxxxxx)\nconst NOMOR_TUJUAN = 'GANTI-DENGAN-NOMOR-WA';\n\nconst BATAS_KARAKTER_WA = 3500;\nfunction splitPesan(pesan, batas = BATAS_KARAKTER_WA) {\n  if (pesan.length <= batas) return [pesan];\n  const hasil = [];\n  let sisa = pesan;\n  while (sisa.length > batas) {\n    let potong = sisa.lastIndexOf('\\n', batas);\n    if (potong <= 0) potong = batas;\n    hasil.push(sisa.slice(0, potong));\n    sisa = sisa.slice(potong);\n  }\n  if (sisa.length > 0) hasil.push(sisa);\n  return hasil;\n}\n\nfunction rp(angka) {\n  if (angka === undefined || angka === null || angka === '') return 'N/A';\n  return `Rp${Number(angka).toLocaleString('id-ID')}`;\n}\n\nfunction formatJumlah(angka) {\n  if (angka === undefined || angka === null || angka === '') return '-';\n  if (angka >= 1e9) return `${(angka / 1e9).toFixed(1)} M`;\n  if (angka >= 1e6) return `${(angka / 1e6).toFixed(1)} jt`;\n  return Number(angka).toLocaleString('id-ID');\n}\n\nconst rawInput = $input.first().json;\nconst inputHttp = rawInput || {};\nconst gagal = Boolean(inputHttp.error) || inputHttp.status !== 'success';\n\nif (gagal) {\n  const e = inputHttp.error || {};\n  const detailError = inputHttp.detail || e.message || e.description || (typeof inputHttp.error === 'string' ? inputHttp.error : '') || 'Server tidak merespons.';\n  const pesan = `⚠️ *Notifikasi pagi gagal.*\\n${detailError}\\n\\nPeriksa endpoint /v1/pasar/digest-pagi.`;\n  return [{ json: { pesan_wa: pesan, to: NOMOR_TUJUAN } }];\n}\n\nconst data = inputHttp.data || inputHttp;\n\nlet t = `🌅 *DIGEST PAGI SAHAM*${data.tanggal_data ? ` (per ${data.tanggal_data})` : ''}\\n`;\nt += `━━━━━━━━━━━━━━━━━━━━\\n`;\nt += `Analisis: ${data.jumlah_saham_dianalisis} saham BEI\\n\\n`;\n\n// --- MOST ACTIVE ---\nconst ma = data.most_active || {};\nt += `🔥 *MOST ACTIVE (Top 10)*\\n`;\n(ma.list || []).forEach((m, i) => {\n  const pct = (m.pct_change_hari !== null && m.pct_change_hari !== undefined)\n    ? `${m.pct_change_hari > 0 ? '+' : ''}${m.pct_change_hari}%` : '-';\n  t += `${i + 1}. *${m.ticker}* — ${rp(m.harga)} (${pct})\\n`;\n  t += `   Vol: ${formatJumlah(m.volume)} | Nilai: Rp${(m.nilai_transaksi / 1e9).toFixed(1)} M\\n`;\n});\n\n// --- REKOMENDASI INTRADAY ---\nconst ri = data.rekomendasi_intraday || {};\nt += `\\n⚡ *REKOMENDASI INTRADAY* (kandidat likuid ≥ Rp5 M)\\n`;\nt += `Berhasil diskor: ${ri.jumlah_saham_berhasil || 0}/${ri.jumlah_saham_diproses || 0}\\n\\n`;\n(ri.leaderboard_per_strategi_intraday || []).forEach((lb) => {\n  t += `📌 *${lb.nama}*\\n`;\n  const best = lb.terbaik || [];\n  if (best.length === 0) {\n    t += `   (tidak ada saham ber-skor)\\n\\n`;\n  } else {\n    best.forEach((f) => {\n      const sy = f.sinyal_aktif ? ' ✅ aktif' : ' ⏸ standby';\n      t += `   • *${f.ticker}* — skor ${f.skor}${sy}\\n`;\n    });\n    t += `\\n`;\n  }\n});\n\n// --- PERINGATAN ---\nif (ma.peringatan) t += `⚠️ ${ma.peringatan}\\n`;\nif (ri.peringatan) t += `⚠️ ${ri.peringatan}\\n`;\n\nt += `\\n💡 *Aksi lanjut:* ketik *scan <TICKER> strategi* untuk detail, atau *scan <TICKER> bpjs/bsjp* untuk eksekusi harian.\\n`;\nt += `📌 _Data hari trading terakhir (anti look-ahead). Bukan ajakan beli — terapkan manajemen risiko._`;\n\nreturn splitPesan(t).map((p) => ({ json: { pesan_wa: p, to: NOMOR_TUJUAN } }));\n"
+      },
+      "id": "notif-format-001",
+      "name": "Format Notifikasi Pagi",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "750965801424563",
+        "recipientPhoneNumber": "={{ $json.to }}",
+        "textBody": "={{ $json.pesan_wa }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ],
+      "id": "notif-send-001",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lD70QlU2lqHbGHW6",
+          "name": "WhatsApp account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Jadwal Pagi 07:00 WIB": {
+      "main": [
+        [
+          {
+            "node": "Panggil Digest Pagi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Panggil Digest Pagi": {
+      "main": [
+        [
+          {
+            "node": "Format Notifikasi Pagi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Notifikasi Pagi": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timezone": "Asia/Jakarta"
+  },
+  "tags": []
+}
