@@ -23,7 +23,7 @@
     },
     {
       "parameters": {
-        "url": "https://claudesahamfinal.vercel.app/v1/pasar/digest-pagi?limit_active=10&n_intraday=5&jenis=active",
+        "url": "https://claudescalping.vercel.app/v1/pasar/digest-pagi?limit_active=10&n_intraday=5&jenis=active",
         "options": {
           "response": {
             "response": {

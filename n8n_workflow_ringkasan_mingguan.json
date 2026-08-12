@@ -23,7 +23,7 @@
     },
     {
       "parameters": {
-        "url": "https://claudesahamfinal.vercel.app/v1/rekomendasi/ringkasan-mingguan?hari=7&n_saham=2&backtest=true",
+        "url": "https://claudescalping.vercel.app/v1/rekomendasi/ringkasan-mingguan?hari=7&n_saham=2&backtest=true",
         "options": {
           "response": {
             "response": {
