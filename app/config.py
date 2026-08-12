@@ -148,6 +148,20 @@ RANGE_PAGI_SORE_WINDOW_HARI = 20      # jendela hari untuk statistik pola
 RANGE_PAGI_SORE_PERSENTIL_JUAL = 0.10 # persentil peak pagi -> level jual (0.10 => terisi ~91% hari)
 RANGE_PAGI_SORE_PERSENTIL_BELI = 0.30 # persentil trough sore -> level beli (0.30 => beli lebih dalam, net/RT lebih besar)
 
+# --- KONFIGURASI STRATEGI 6: BPJS (Beli Pagi Jual Sore) ---
+# Kebalikan dari BSJP: BELI di sesi pagi (titik terendah pagi) lalu JUAL di sesi
+# sore (titik tertinggi sore) di HARI YANG SAMA. Cocok untuk saham yang polanya
+# terbalik dari Range Pagi-Sore: day-low cenderung terjadi di pagi dan day-high
+# di sore (pantulan siang/sore). Sama-sama berbasis data intraday 15 menit.
+BPJS_PERIODE = "60d"
+BPJS_INTERVAL = "15m"
+BPJS_WINDOW_HARI = 20
+# Setting awal (dapat di-override per-request): beli pagi di persentil 30 dari
+# distribusi trough pagi (level cukup dalam tapi masih sering terisi), jual sore
+# di persentil 50 dari distribusi peak sore (target wajar, tidak terlalu tinggi).
+BPJS_PERSENTIL_BELI = 0.30
+BPJS_PERSENTIL_JUAL = 0.50
+
 # --- KONFIGURASI RETRY (ketahanan terhadap kegagalan sesaat Yahoo Finance) ---
 RETRY_PERCOBAAN_MAKSIMAL = 2
 RETRY_JEDA_DETIK = 1.5

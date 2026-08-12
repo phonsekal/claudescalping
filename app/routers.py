@@ -4,7 +4,8 @@ from fastapi import APIRouter, HTTPException, Query
 from app.services import (
     hitung_analisis_saham, hitung_momentum_gorengan, cek_kondisi_market,
     ambil_riwayat_batch, hitung_sinyal_fast_intraday, hitung_sinyal_bsjp,
-    hitung_analisis_range_pagi_sore,
+    hitung_analisis_range_pagi_sore, hitung_analisis_bpjs,
+    rekomendasi_strategi_gabungan,
     pre_filter_oversold_swing, pre_filter_momentum
 )
 from app.backtest import (
@@ -12,8 +13,9 @@ from app.backtest import (
     backtest_watchlist_swing, backtest_watchlist_gorengan,
     backtest_fast_intraday, backtest_watchlist_fast_intraday,
     backtest_bsjp, backtest_watchlist_bsjp,
-    backtest_range_pagi_sore
+    backtest_range_pagi_sore, backtest_bpjs
 )
+from app.validasi_strategi import validasi_kecocokan_satu_saham
 from app.config import (
     INDEX_BLUECHIP_UTAMA, WATCHLIST_GORENGAN, WATCHLIST_FAST_INTRADAY,
     INTERVAL_FAST_INTRADAY, PERIODE_DATA_FAST_INTRADAY,
@@ -579,3 +581,87 @@ async def backtest_range_pagi_sore_endpoint(
     if not hasil:
         raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk backtest.")
     return {"status": "success", "data": hasil}
+
+
+# =========================================================================
+# STRATEGI 6: BPJS (Beli Pagi Jual Sore)
+# =========================================================================
+
+@router.get("/analisis/bpjs/{ticker}")
+async def analisis_bpjs_saham(
+    ticker: str,
+    window_hari: int = Query(None, ge=10, le=120, description="Jendela hari statistik (default 20)"),
+    persentil_beli: float = Query(None, gt=0, lt=1, description="Persentil trough pagi -> level beli (default 0.3)"),
+    persentil_jual: float = Query(None, gt=0, lt=1, description="Persentil peak sore -> level jual (default 0.5)")
+):
+    """
+    Analisis pola BPJS (Beli Pagi Jual Sore): rekomendasi harga pasang BELI di sesi
+    pagi (morning low) dan JUAL di sesi sore (afternoon high) di HARI YANG SAMA,
+    berdasarkan statistik N hari sebelumnya + estimasi peluang terisi.
+    Contoh: /v1/analisis/bpjs/BBRI
+    """
+    data = hitung_analisis_bpjs(
+        ticker, window_hari=window_hari, persentil_beli=persentil_beli, persentil_jual=persentil_jual
+    )
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk analisis pola.")
+    return {"status": "success", "data": data}
+
+
+# =========================================================================
+# STRATEGI GABUNGAN: REKOMENDASI STRATEGI PALING COCOK UNTUK 1 SAHAM
+# =========================================================================
+
+@router.get("/analisis/strategi-gabungan/{ticker}")
+async def analisis_strategi_gabungan(ticker: str):
+    """
+    Analisis GABUNGAN satu saham: semua strategi (swing-dividen, momentum gorengan,
+    fast-intraday, BSJP, range pagi-sore, BPJS) dijalankan dari data yang sama,
+    lalu diberikan skor kecocokan berdasarkan profil saham + sinyal aktif.
+    Output: peringkat strategi, strategi terbaik, dan langkah eksekusi.
+    Contoh: /v1/analisis/strategi-gabungan/BBRI
+    """
+    data = rekomendasi_strategi_gabungan(ticker)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
+    return {"status": "success", "data": data}
+
+
+@router.get("/backtest/bpjs/{ticker}")
+async def backtest_bpjs_endpoint(
+    ticker: str,
+    window_hari: int = Query(None, ge=10, le=120, description="Jendela hari walk-forward (default 20)"),
+    persentil_beli: float = Query(None, gt=0, lt=1),
+    persentil_jual: float = Query(None, gt=0, lt=1)
+):
+    """
+    Backtest walk-forward strategi BPJS: level beli pagi & jual sore tiap hari
+    dihitung dari data hari-hari SEBELUMNYA (tanpa look-ahead), lalu dicek apakah
+    beli pagi & jual sore terisi. Contoh: /v1/backtest/bpjs/BBRI
+    """
+    hasil = backtest_bpjs(
+        ticker, window_hari=window_hari, persentil_beli=persentil_beli, persentil_jual=persentil_jual
+    )
+    if not hasil:
+        raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk backtest.")
+    return {"status": "success", "data": hasil}
+
+
+# =========================================================================
+# VALIDASI: SKOR KECOCOKAN vs PERFORMA BACKTEST HISTORIS
+# =========================================================================
+
+@router.get("/backtest/validasi-strategi/{ticker}")
+async def validasi_strategi_kecocokan(ticker: str):
+    """
+    Validasi skor kecocokan: bandingkan strategi terbaik versi skor (dari
+    /analisis/strategi-gabungan) dengan strategi terbaik versi performa backtest
+    historis (semua strategi dijalankan dari data historis). Output: peringkat
+    skor vs peringkat backtest, cocok_top1, korelasi Spearman, dan catatan.
+
+    Contoh: /v1/backtest/validasi-strategi/BBRI
+    """
+    data = validasi_kecocokan_satu_saham(ticker)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak cukup untuk validasi.")
+    return {"status": "success", "data": data}

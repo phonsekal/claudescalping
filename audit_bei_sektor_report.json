@@ -1,0 +1,640 @@
+{
+  "jumlah_dianalisis": 887,
+  "jumlah_perlu_kajian": 157,
+  "analisis_sektor": [
+    {
+      "sektor": "Financial Services",
+      "jumlah_saham": 98,
+      "jumlah_perlu_kajian": 28,
+      "persen_perlu_kajian_persen": 28.6,
+      "jumlah_tidak_dapat_dihitung": 17,
+      "jumlah_dapat_dihitung": 53
+    },
+    {
+      "sektor": "Industrials",
+      "jumlah_saham": 157,
+      "jumlah_perlu_kajian": 23,
+      "persen_perlu_kajian_persen": 14.6,
+      "jumlah_tidak_dapat_dihitung": 64,
+      "jumlah_dapat_dihitung": 70
+    },
+    {
+      "sektor": "Consumer Cyclical",
+      "jumlah_saham": 135,
+      "jumlah_perlu_kajian": 18,
+      "persen_perlu_kajian_persen": 13.3,
+      "jumlah_tidak_dapat_dihitung": 72,
+      "jumlah_dapat_dihitung": 45
+    },
+    {
+      "sektor": "Real Estate",
+      "jumlah_saham": 87,
+      "jumlah_perlu_kajian": 18,
+      "persen_perlu_kajian_persen": 20.7,
+      "jumlah_tidak_dapat_dihitung": 35,
+      "jumlah_dapat_dihitung": 34
+    },
+    {
+      "sektor": "Basic Materials",
+      "jumlah_saham": 85,
+      "jumlah_perlu_kajian": 15,
+      "persen_perlu_kajian_persen": 17.6,
+      "jumlah_tidak_dapat_dihitung": 24,
+      "jumlah_dapat_dihitung": 46
+    },
+    {
+      "sektor": "Consumer Defensive",
+      "jumlah_saham": 113,
+      "jumlah_perlu_kajian": 13,
+      "persen_perlu_kajian_persen": 11.5,
+      "jumlah_tidak_dapat_dihitung": 34,
+      "jumlah_dapat_dihitung": 66
+    },
+    {
+      "sektor": "Energy",
+      "jumlah_saham": 53,
+      "jumlah_perlu_kajian": 13,
+      "persen_perlu_kajian_persen": 24.5,
+      "jumlah_tidak_dapat_dihitung": 11,
+      "jumlah_dapat_dihitung": 29
+    },
+    {
+      "sektor": "Communication Services",
+      "jumlah_saham": 47,
+      "jumlah_perlu_kajian": 11,
+      "persen_perlu_kajian_persen": 23.4,
+      "jumlah_tidak_dapat_dihitung": 18,
+      "jumlah_dapat_dihitung": 18
+    },
+    {
+      "sektor": "Technology",
+      "jumlah_saham": 32,
+      "jumlah_perlu_kajian": 8,
+      "persen_perlu_kajian_persen": 25.0,
+      "jumlah_tidak_dapat_dihitung": 17,
+      "jumlah_dapat_dihitung": 7
+    },
+    {
+      "sektor": "Healthcare",
+      "jumlah_saham": 35,
+      "jumlah_perlu_kajian": 4,
+      "persen_perlu_kajian_persen": 11.4,
+      "jumlah_tidak_dapat_dihitung": 12,
+      "jumlah_dapat_dihitung": 19
+    },
+    {
+      "sektor": "Utilities",
+      "jumlah_saham": 12,
+      "jumlah_perlu_kajian": 3,
+      "persen_perlu_kajian_persen": 25.0,
+      "jumlah_tidak_dapat_dihitung": 4,
+      "jumlah_dapat_dihitung": 5
+    },
+    {
+      "sektor": "TANPA_SEKTOR",
+      "jumlah_saham": 33,
+      "jumlah_perlu_kajian": 3,
+      "persen_perlu_kajian_persen": 9.1,
+      "jumlah_tidak_dapat_dihitung": 17,
+      "jumlah_dapat_dihitung": 13
+    }
+  ],
+  "analisis_industry_teratas": [
+    {
+      "industry": "Financial Services | Banks - Regional",
+      "jumlah": 14
+    },
+    {
+      "industry": "Industrials | Marine Shipping",
+      "jumlah": 10
+    },
+    {
+      "industry": "Real Estate | Real Estate - Development",
+      "jumlah": 10
+    },
+    {
+      "industry": "Energy | Thermal Coal",
+      "jumlah": 8
+    },
+    {
+      "industry": "Consumer Defensive | Farm Products",
+      "jumlah": 7
+    },
+    {
+      "industry": "Real Estate | Real Estate Services",
+      "jumlah": 7
+    },
+    {
+      "industry": "Basic Materials | Other Industrial Metals & Mining",
+      "jumlah": 6
+    },
+    {
+      "industry": "Communication Services | Telecom Services",
+      "jumlah": 5
+    },
+    {
+      "industry": "Financial Services | Insurance - Life",
+      "jumlah": 4
+    },
+    {
+      "industry": "Financial Services | Credit Services",
+      "jumlah": 4
+    },
+    {
+      "industry": "Healthcare | Medical Care Facilities",
+      "jumlah": 4
+    },
+    {
+      "industry": "Technology | Software - Application",
+      "jumlah": 4
+    },
+    {
+      "industry": "Consumer Cyclical | Lodging",
+      "jumlah": 3
+    },
+    {
+      "industry": "Energy | Oil & Gas Equipment & Services",
+      "jumlah": 3
+    },
+    {
+      "industry": "Consumer Cyclical | Packaging & Containers",
+      "jumlah": 3
+    },
+    {
+      "industry": "Consumer Defensive | Household & Personal Products",
+      "jumlah": 3
+    },
+    {
+      "industry": "Financial Services | Insurance - Diversified",
+      "jumlah": 3
+    },
+    {
+      "industry": "? | ?",
+      "jumlah": 3
+    },
+    {
+      "industry": "Basic Materials | Chemicals",
+      "jumlah": 2
+    },
+    {
+      "industry": "Utilities | Utilities - Renewable",
+      "jumlah": 2
+    }
+  ],
+  "hipotesis_ukuran_eps": {
+    "bucket_eps": [
+      {
+        "bucket": "EPS 0-2",
+        "jumlah": 47,
+        "perlu_kajian": 42,
+        "persen_perlu_kajian_persen": 89.4
+      },
+      {
+        "bucket": "EPS 2-10",
+        "jumlah": 105,
+        "perlu_kajian": 55,
+        "persen_perlu_kajian_persen": 52.4
+      },
+      {
+        "bucket": "EPS 10-50",
+        "jumlah": 186,
+        "perlu_kajian": 45,
+        "persen_perlu_kajian_persen": 24.2
+      },
+      {
+        "bucket": "EPS 50-200",
+        "jumlah": 140,
+        "perlu_kajian": 12,
+        "persen_perlu_kajian_persen": 8.6
+      },
+      {
+        "bucket": "EPS 200+",
+        "jumlah": 84,
+        "perlu_kajian": 3,
+        "persen_perlu_kajian_persen": 3.6
+      }
+    ],
+    "median_eps_perlu_kajian": 4.98,
+    "median_eps_dapat_dihitung": 53.0,
+    "kesimpulan": "Rate PERLU KAJIAN nyaris monoton turun seiring naiknya EPS trailing: EPS<2 = 89%, EPS>200 = 4%. Ukuran EPS adalah determinan utama, bukan label sektor."
+  },
+  "cluster_yang_ditanya_user": [
+    {
+      "cluster": "BATUBARA",
+      "jumlah_saham_bei": 32,
+      "perlu_kajian": [
+        {
+          "ticker": "SMMT.JK",
+          "beda_persen": 776.2,
+          "eps": 14.33
+        },
+        {
+          "ticker": "MBAP.JK",
+          "beda_persen": 450.6,
+          "eps": 17.81
+        },
+        {
+          "ticker": "IATA.JK",
+          "beda_persen": 411.5,
+          "eps": 1.78
+        },
+        {
+          "ticker": "INDY.JK",
+          "beda_persen": 239.1,
+          "eps": 49.95
+        },
+        {
+          "ticker": "DSSA.JK",
+          "beda_persen": 162.0,
+          "eps": 24.95
+        },
+        {
+          "ticker": "CUAN.JK",
+          "beda_persen": 125.3,
+          "eps": 22.97
+        },
+        {
+          "ticker": "SGER.JK",
+          "beda_persen": 118.5,
+          "eps": 14.42
+        },
+        {
+          "ticker": "BUMI.JK",
+          "beda_persen": 109.2,
+          "eps": 5.84
+        }
+      ],
+      "tidak_dapat_dihitung": [
+        "COAL.JK",
+        "DOID.JK",
+        "GTBO.JK",
+        "RMKO.JK",
+        "TOBA.JK"
+      ]
+    },
+    {
+      "cluster": "TEKNOLOGI/SOFTWARE",
+      "jumlah_saham_bei": 10,
+      "perlu_kajian": [
+        {
+          "ticker": "CYBR.JK",
+          "beda_persen": 4323.1,
+          "eps": 0.87
+        },
+        {
+          "ticker": "DIVA.JK",
+          "beda_persen": 820.0,
+          "eps": 1.01
+        },
+        {
+          "ticker": "IRSX.JK",
+          "beda_persen": 484.4,
+          "eps": 4.33
+        },
+        {
+          "ticker": "KIOS.JK",
+          "beda_persen": 452.9,
+          "eps": 1.15
+        },
+        {
+          "ticker": "UVCR.JK",
+          "beda_persen": 188.2,
+          "eps": 3.45
+        }
+      ],
+      "tidak_dapat_dihitung": [
+        "GOTO.JK",
+        "HDIT.JK",
+        "MPIX.JK",
+        "RUNS.JK",
+        "TOSK.JK"
+      ]
+    },
+    {
+      "cluster": "PROPERTI",
+      "jumlah_saham_bei": 87,
+      "perlu_kajian": [
+        {
+          "ticker": "REAL.JK",
+          "beda_persen": 5200.0,
+          "eps": 0.13
+        },
+        {
+          "ticker": "DCII.JK",
+          "beda_persen": 2664.4,
+          "eps": 474.03
+        },
+        {
+          "ticker": "INPP.JK",
+          "beda_persen": 1812.5,
+          "eps": 2.7
+        },
+        {
+          "ticker": "GRIA.JK",
+          "beda_persen": 984.6,
+          "eps": 0.92
+        },
+        {
+          "ticker": "SMDM.JK",
+          "beda_persen": 882.5,
+          "eps": 3.83
+        },
+        {
+          "ticker": "LAND.JK",
+          "beda_persen": 875.0,
+          "eps": 0.59
+        },
+        {
+          "ticker": "NZIA.JK",
+          "beda_persen": 642.1,
+          "eps": 1.31
+        },
+        {
+          "ticker": "TRIN.JK",
+          "beda_persen": 638.1,
+          "eps": 2.86
+        },
+        {
+          "ticker": "ROCK.JK",
+          "beda_persen": 567.7,
+          "eps": 21.1
+        },
+        {
+          "ticker": "GMTD.JK",
+          "beda_persen": 537.5,
+          "eps": 13.39
+        },
+        {
+          "ticker": "POLL.JK",
+          "beda_persen": 489.5,
+          "eps": 1.31
+        },
+        {
+          "ticker": "RISE.JK",
+          "beda_persen": 467.1,
+          "eps": 10.94
+        },
+        {
+          "ticker": "SUPR.JK",
+          "beda_persen": 208.7,
+          "eps": 947.16
+        },
+        {
+          "ticker": "IPAC.JK",
+          "beda_persen": 196.5,
+          "eps": 3.82
+        },
+        {
+          "ticker": "PANI.JK",
+          "beda_persen": 182.6,
+          "eps": 142.78
+        },
+        {
+          "ticker": "CITY.JK",
+          "beda_persen": 173.4,
+          "eps": 4.33
+        },
+        {
+          "ticker": "KOTA.JK",
+          "beda_persen": 154.8,
+          "eps": 4.9
+        },
+        {
+          "ticker": "UANG.JK",
+          "beda_persen": 116.1,
+          "eps": 74.73
+        }
+      ],
+      "tidak_dapat_dihitung": [
+        "ADCP.JK",
+        "BAPI.JK",
+        "BAPA.JK",
+        "BIPP.JK",
+        "BKDP.JK",
+        "CBPE.JK",
+        "DART.JK",
+        "DFAM.JK",
+        "ELTY.JK",
+        "EMDE.JK",
+        "FMII.JK",
+        "HBAT.JK",
+        "HOMI.JK",
+        "KIJA.JK",
+        "KOCI.JK",
+        "MDLN.JK",
+        "MPRO.JK",
+        "MSIE.JK",
+        "MTSM.JK",
+        "NASA.JK",
+        "NIRO.JK",
+        "OMRE.JK",
+        "PAMG.JK",
+        "PPRO.JK",
+        "PUDP.JK",
+        "RBMS.JK",
+        "RELF.JK",
+        "RODA.JK",
+        "SAGE.JK",
+        "SATU.JK",
+        "SWID.JK",
+        "TAMA.JK",
+        "TARA.JK",
+        "URBN.JK",
+        "VAST.JK"
+      ]
+    },
+    {
+      "cluster": "MINERAL/METAL",
+      "jumlah_saham_bei": 17,
+      "perlu_kajian": [
+        {
+          "ticker": "MDKA.JK",
+          "beda_persen": 11169.2,
+          "eps": 1.75
+        },
+        {
+          "ticker": "BRMS.JK",
+          "beda_persen": 731.1,
+          "eps": 4.98
+        },
+        {
+          "ticker": "PTRO.JK",
+          "beda_persen": 576.5,
+          "eps": 51.77
+        },
+        {
+          "ticker": "NICL.JK",
+          "beda_persen": 205.3,
+          "eps": 10.17
+        },
+        {
+          "ticker": "IFSH.JK",
+          "beda_persen": 178.1,
+          "eps": 30.84
+        },
+        {
+          "ticker": "ITMA.JK",
+          "beda_persen": 178.1,
+          "eps": 32.01
+        }
+      ],
+      "tidak_dapat_dihitung": [
+        "HILL.JK",
+        "NICE.JK",
+        "SMGA.JK"
+      ]
+    },
+    {
+      "cluster": "PELAYARAN",
+      "jumlah_saham_bei": 33,
+      "perlu_kajian": [
+        {
+          "ticker": "INDX.JK",
+          "beda_persen": 5900.0,
+          "eps": 0.08
+        },
+        {
+          "ticker": "BESS.JK",
+          "beda_persen": 1764.6,
+          "eps": 3.26
+        },
+        {
+          "ticker": "HUMI.JK",
+          "beda_persen": 1750.0,
+          "eps": 0.54
+        },
+        {
+          "ticker": "KARW.JK",
+          "beda_persen": 1530.8,
+          "eps": 0.89
+        },
+        {
+          "ticker": "BSML.JK",
+          "beda_persen": 951.0,
+          "eps": 3.3
+        },
+        {
+          "ticker": "TCPI.JK",
+          "beda_persen": 850.2,
+          "eps": 26.81
+        },
+        {
+          "ticker": "HATM.JK",
+          "beda_persen": 616.0,
+          "eps": 5.46
+        },
+        {
+          "ticker": "MITI.JK",
+          "beda_persen": 260.4,
+          "eps": 3.59
+        },
+        {
+          "ticker": "ELPI.JK",
+          "beda_persen": 216.4,
+          "eps": 15.08
+        },
+        {
+          "ticker": "BLTA.JK",
+          "beda_persen": 106.2,
+          "eps": 1.09
+        }
+      ],
+      "tidak_dapat_dihitung": [
+        "CANI.JK",
+        "CBRE.JK",
+        "GTSI.JK",
+        "KLAS.JK",
+        "LEAD.JK",
+        "PGJO.JK",
+        "PSSI.JK",
+        "PTIS.JK",
+        "TAMU.JK"
+      ]
+    },
+    {
+      "cluster": "BANK",
+      "jumlah_saham_bei": 48,
+      "perlu_kajian": [
+        {
+          "ticker": "BMAS.JK",
+          "beda_persen": 24100.0,
+          "eps": 0.2
+        },
+        {
+          "ticker": "BNBA.JK",
+          "beda_persen": 1040.6,
+          "eps": 5.4
+        },
+        {
+          "ticker": "BBSI.JK",
+          "beda_persen": 717.4,
+          "eps": 47.94
+        },
+        {
+          "ticker": "MAYA.JK",
+          "beda_persen": 560.0,
+          "eps": 2.58
+        },
+        {
+          "ticker": "BSWD.JK",
+          "beda_persen": 397.8,
+          "eps": 18.9
+        },
+        {
+          "ticker": "ARTO.JK",
+          "beda_persen": 342.3,
+          "eps": 23.86
+        },
+        {
+          "ticker": "BSIM.JK",
+          "beda_persen": 323.8,
+          "eps": 13.69
+        },
+        {
+          "ticker": "BTPN.JK",
+          "beda_persen": 322.3,
+          "eps": 41.9
+        },
+        {
+          "ticker": "BANK.JK",
+          "beda_persen": 309.0,
+          "eps": 5.59
+        },
+        {
+          "ticker": "BBHI.JK",
+          "beda_persen": 176.9,
+          "eps": 27.15
+        },
+        {
+          "ticker": "BVIC.JK",
+          "beda_persen": 170.6,
+          "eps": 2.89
+        },
+        {
+          "ticker": "BABP.JK",
+          "beda_persen": 127.3,
+          "eps": 1.86
+        },
+        {
+          "ticker": "BBMD.JK",
+          "beda_persen": 125.4,
+          "eps": 74.74
+        },
+        {
+          "ticker": "PNBS.JK",
+          "beda_persen": 117.4,
+          "eps": 1.93
+        }
+      ],
+      "tidak_dapat_dihitung": [
+        "AGRO.JK",
+        "BBKP.JK",
+        "BCIC.JK",
+        "BINA.JK",
+        "BKSW.JK",
+        "INPC.JK",
+        "SDRA.JK"
+      ]
+    }
+  ]
+}

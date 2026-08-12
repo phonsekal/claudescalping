@@ -1,0 +1,391 @@
+{
+  "jumlah_saham_diproses": 48,
+  "jumlah_saham_berhasil": 48,
+  "saham_gagal": [],
+  "leaderboard_per_strategi": [
+    {
+      "kode": "swing",
+      "nama": "Swing-Investment Dividen",
+      "terbaik": [
+        {
+          "ticker": "BJBR.JK",
+          "skor": 65,
+          "kecocokan": "COCOK 👍",
+          "sinyal_aktif": false,
+          "harga": 785,
+          "backtest": null
+        },
+        {
+          "ticker": "BNGA.JK",
+          "skor": 65,
+          "kecocokan": "COCOK 👍",
+          "sinyal_aktif": false,
+          "harga": 1655,
+          "backtest": {
+            "kode": "swing",
+            "nama": "Swing-Investment Dividen",
+            "metrik_asli_persen": -0.55,
+            "metrik_per_hari_persen": -0.038,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 14.5 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 2,
+            "andal": false,
+            "win_rate_persen": 50.0,
+            "max_drawdown_persen": -3.26,
+            "catatan_backtest": "Backtest sederhana, belum memperhitungkan fee broker & slippage. Data harian, sampel relatif lebih dapat diandalkan dibanding backtest gorengan."
+          }
+        },
+        {
+          "ticker": "BSWD.JK",
+          "skor": 60,
+          "kecocokan": "COCOK 👍",
+          "sinyal_aktif": true,
+          "harga": 1125,
+          "backtest": {
+            "kode": "swing",
+            "nama": "Swing-Investment Dividen",
+            "metrik_asli_persen": -18.48,
+            "metrik_per_hari_persen": -0.616,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 30.0 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 1,
+            "andal": false,
+            "win_rate_persen": 0.0,
+            "max_drawdown_persen": 0.0,
+            "catatan_backtest": "Backtest sederhana, belum memperhitungkan fee broker & slippage. Data harian, sampel relatif lebih dapat diandalkan dibanding backtest gorengan."
+          }
+        }
+      ]
+    },
+    {
+      "kode": "gorengan",
+      "nama": "Momentum Gorengan (Day Trading)",
+      "terbaik": [
+        {
+          "ticker": "ARTO.JK",
+          "skor": 25,
+          "kecocokan": "KURANG COCOK ❌ (tunggu kondisi lebih baik)",
+          "sinyal_aktif": false,
+          "harga": 1255,
+          "backtest": {
+            "kode": "gorengan",
+            "nama": "Momentum Gorengan (Day Trading)",
+            "metrik_asli_persen": -0.97,
+            "metrik_per_hari_persen": -0.7,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 1.385 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 9,
+            "andal": true,
+            "win_rate_persen": 44.44,
+            "max_drawdown_persen": -12.85,
+            "catatan_backtest": "⚠️ Sampel backtest kecil karena keterbatasan data intraday, hasil TIDAK statistically robust. Gunakan sebagai sanity-check kasar, bukan validasi final."
+          }
+        },
+        {
+          "ticker": "BANK.JK",
+          "skor": 25,
+          "kecocokan": "KURANG COCOK ❌ (tunggu kondisi lebih baik)",
+          "sinyal_aktif": false,
+          "harga": 276,
+          "backtest": {
+            "kode": "gorengan",
+            "nama": "Momentum Gorengan (Day Trading)",
+            "metrik_asli_persen": -0.2,
+            "metrik_per_hari_persen": -0.186,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 1.077 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 6,
+            "andal": true,
+            "win_rate_persen": 16.67,
+            "max_drawdown_persen": -8.79,
+            "catatan_backtest": "⚠️ Sampel backtest kecil karena keterbatasan data intraday, hasil TIDAK statistically robust. Gunakan sebagai sanity-check kasar, bukan validasi final."
+          }
+        },
+        {
+          "ticker": "BBKP.JK",
+          "skor": 25,
+          "kecocokan": "KURANG COCOK ❌ (tunggu kondisi lebih baik)",
+          "sinyal_aktif": false,
+          "harga": 55,
+          "backtest": {
+            "kode": "gorengan",
+            "nama": "Momentum Gorengan (Day Trading)",
+            "metrik_asli_persen": -0.23,
+            "metrik_per_hari_persen": -0.154,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 1.495 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 7,
+            "andal": true,
+            "win_rate_persen": 42.86,
+            "max_drawdown_persen": -5.35,
+            "catatan_backtest": "⚠️ Sampel backtest kecil karena keterbatasan data intraday, hasil TIDAK statistically robust. Gunakan sebagai sanity-check kasar, bukan validasi final."
+          }
+        }
+      ]
+    },
+    {
+      "kode": "fast_intraday",
+      "nama": "Fast Intraday Alert (15 menit)",
+      "terbaik": [
+        {
+          "ticker": "BBHI.JK",
+          "skor": 70,
+          "kecocokan": "SANGAT COCOK ✅",
+          "sinyal_aktif": false,
+          "harga": 910,
+          "backtest": {
+            "kode": "fast_intraday",
+            "nama": "Fast Intraday Alert (15 menit)",
+            "metrik_asli_persen": 0.39,
+            "metrik_per_hari_persen": 2.155,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 0.181 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 13,
+            "andal": true,
+            "win_rate_persen": 46.15,
+            "max_drawdown_persen": -6.92,
+            "catatan_backtest": "⚠️⚠️ Sampel backtest SANGAT kecil (keterbatasan data 15-menit + strategi cepat). Ini bukan scalping asli — anggap sanity-check paling kasar, bukan validasi. Verifikasi dengan backtest_watchlist_fast_intraday sebelum percaya pola apa pun."
+          }
+        },
+        {
+          "ticker": "BBNI.JK",
+          "skor": 35,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": false,
+          "harga": 3560,
+          "backtest": {
+            "kode": "fast_intraday",
+            "nama": "Fast Intraday Alert (15 menit)",
+            "metrik_asli_persen": -0.32,
+            "metrik_per_hari_persen": -1.768,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 0.181 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 25,
+            "andal": true,
+            "win_rate_persen": 24.0,
+            "max_drawdown_persen": -7.11,
+            "catatan_backtest": "⚠️⚠️ Sampel backtest SANGAT kecil (keterbatasan data 15-menit + strategi cepat). Ini bukan scalping asli — anggap sanity-check paling kasar, bukan validasi. Verifikasi dengan backtest_watchlist_fast_intraday sebelum percaya pola apa pun."
+          }
+        },
+        {
+          "ticker": "BMRI.JK",
+          "skor": 35,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": false,
+          "harga": 4120,
+          "backtest": {
+            "kode": "fast_intraday",
+            "nama": "Fast Intraday Alert (15 menit)",
+            "metrik_asli_persen": -0.07,
+            "metrik_per_hari_persen": -0.405,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 0.173 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 27,
+            "andal": true,
+            "win_rate_persen": 37.04,
+            "max_drawdown_persen": -4.79,
+            "catatan_backtest": "⚠️⚠️ Sampel backtest SANGAT kecil (keterbatasan data 15-menit + strategi cepat). Ini bukan scalping asli — anggap sanity-check paling kasar, bukan validasi. Verifikasi dengan backtest_watchlist_fast_intraday sebelum percaya pola apa pun."
+          }
+        }
+      ]
+    },
+    {
+      "kode": "bsjp",
+      "nama": "BSJP (Beli Sore Jual Pagi)",
+      "terbaik": [
+        {
+          "ticker": "ARTO.JK",
+          "skor": 40,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": false,
+          "harga": 1255,
+          "backtest": {
+            "kode": "bsjp",
+            "nama": "BSJP (Beli Sore Jual Pagi)",
+            "metrik_asli_persen": -0.02,
+            "metrik_per_hari_persen": -0.02,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 1.0 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 4,
+            "andal": false,
+            "win_rate_persen": 25.0,
+            "max_drawdown_persen": -0.42,
+            "catatan_backtest": "Simulasi: beli di close hari sinyal -> jual di open hari berikutnya, fee 0.4% per transaksi. Data harian -> sampel lebih panjang dari backtest intraday. Belum termasuk slippage eksekusi (terutama market order pagi saat likuiditas tipis). Frekuensi sinyal BSJP di saham large-cap seperti BBRI biasanya RENDAH — total transaksi kecil bukan bug, tapi realita pasar."
+          }
+        },
+        {
+          "ticker": "BANK.JK",
+          "skor": 40,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": false,
+          "harga": 276,
+          "backtest": {
+            "kode": "bsjp",
+            "nama": "BSJP (Beli Sore Jual Pagi)",
+            "metrik_asli_persen": 0.12,
+            "metrik_per_hari_persen": 0.12,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 1.0 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 1,
+            "andal": false,
+            "win_rate_persen": 100.0,
+            "max_drawdown_persen": 0.0,
+            "catatan_backtest": "Simulasi: beli di close hari sinyal -> jual di open hari berikutnya, fee 0.4% per transaksi. Data harian -> sampel lebih panjang dari backtest intraday. Belum termasuk slippage eksekusi (terutama market order pagi saat likuiditas tipis). Frekuensi sinyal BSJP di saham large-cap seperti BBRI biasanya RENDAH — total transaksi kecil bukan bug, tapi realita pasar."
+          }
+        },
+        {
+          "ticker": "BBKP.JK",
+          "skor": 40,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": false,
+          "harga": 55,
+          "backtest": {
+            "kode": "bsjp",
+            "nama": "BSJP (Beli Sore Jual Pagi)",
+            "metrik_asli_persen": 2.79,
+            "metrik_per_hari_persen": 2.79,
+            "satuan_metrik_asli": "rata-rata return per transaksi (%)",
+            "asumsi_per_hari": "return per transaksi / 1.0 hari bursa (rata-rata hold real dari detail backtest)",
+            "sample": 3,
+            "andal": false,
+            "win_rate_persen": 66.67,
+            "max_drawdown_persen": 0.0,
+            "catatan_backtest": "Simulasi: beli di close hari sinyal -> jual di open hari berikutnya, fee 0.4% per transaksi. Data harian -> sampel lebih panjang dari backtest intraday. Belum termasuk slippage eksekusi (terutama market order pagi saat likuiditas tipis). Frekuensi sinyal BSJP di saham large-cap seperti BBRI biasanya RENDAH — total transaksi kecil bukan bug, tapi realita pasar."
+          }
+        }
+      ]
+    },
+    {
+      "kode": "range_pagi_sore",
+      "nama": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+      "terbaik": [
+        {
+          "ticker": "BANK.JK",
+          "skor": 70,
+          "kecocokan": "SANGAT COCOK ✅",
+          "sinyal_aktif": true,
+          "harga": 276,
+          "backtest": {
+            "kode": "range_pagi_sore",
+            "nama": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+            "metrik_asli_persen": 0.21,
+            "metrik_per_hari_persen": 0.21,
+            "satuan_metrik_asli": "ekspektasi bersih per hari (walk-forward)",
+            "asumsi_per_hari": "ekspektasi bersih per hari dari backtest walk-forward (sudah per hari)",
+            "sample": 34,
+            "andal": true,
+            "win_rate_persen": 8.8,
+            "max_drawdown_persen": null,
+            "catatan_backtest": "Walk-forward: level jual/beli tiap hari dihitung dari window hari SEBELUMNYA (tanpa look-ahead). Round-trip dihitung hanya saat jual pagi DAN beli sore keduanya terisi. Sampel kecil (data intraday ~60 hari) — anggap sanity-check, bukan validasi final. Belum termasuk slippage."
+          }
+        },
+        {
+          "ticker": "BINA.JK",
+          "skor": 70,
+          "kecocokan": "SANGAT COCOK ✅",
+          "sinyal_aktif": true,
+          "harga": 4080,
+          "backtest": {
+            "kode": "range_pagi_sore",
+            "nama": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+            "metrik_asli_persen": 0.1,
+            "metrik_per_hari_persen": 0.1,
+            "satuan_metrik_asli": "ekspektasi bersih per hari (walk-forward)",
+            "asumsi_per_hari": "ekspektasi bersih per hari dari backtest walk-forward (sudah per hari)",
+            "sample": 34,
+            "andal": true,
+            "win_rate_persen": 5.9,
+            "max_drawdown_persen": null,
+            "catatan_backtest": "Walk-forward: level jual/beli tiap hari dihitung dari window hari SEBELUMNYA (tanpa look-ahead). Round-trip dihitung hanya saat jual pagi DAN beli sore keduanya terisi. Sampel kecil (data intraday ~60 hari) — anggap sanity-check, bukan validasi final. Belum termasuk slippage."
+          }
+        },
+        {
+          "ticker": "BRIS.JK",
+          "skor": 70,
+          "kecocokan": "SANGAT COCOK ✅",
+          "sinyal_aktif": true,
+          "harga": 1795,
+          "backtest": {
+            "kode": "range_pagi_sore",
+            "nama": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+            "metrik_asli_persen": 0.27,
+            "metrik_per_hari_persen": 0.27,
+            "satuan_metrik_asli": "ekspektasi bersih per hari (walk-forward)",
+            "asumsi_per_hari": "ekspektasi bersih per hari dari backtest walk-forward (sudah per hari)",
+            "sample": 34,
+            "andal": true,
+            "win_rate_persen": 14.7,
+            "max_drawdown_persen": null,
+            "catatan_backtest": "Walk-forward: level jual/beli tiap hari dihitung dari window hari SEBELUMNYA (tanpa look-ahead). Round-trip dihitung hanya saat jual pagi DAN beli sore keduanya terisi. Sampel kecil (data intraday ~60 hari) — anggap sanity-check, bukan validasi final. Belum termasuk slippage."
+          }
+        }
+      ]
+    },
+    {
+      "kode": "bpjs",
+      "nama": "BPJS (Beli Pagi Jual Sore)",
+      "terbaik": [
+        {
+          "ticker": "ARTO.JK",
+          "skor": 45,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": true,
+          "harga": 1255,
+          "backtest": {
+            "kode": "bpjs",
+            "nama": "BPJS (Beli Pagi Jual Sore)",
+            "metrik_asli_persen": 0.38,
+            "metrik_per_hari_persen": 0.38,
+            "satuan_metrik_asli": "ekspektasi bersih per hari (walk-forward)",
+            "asumsi_per_hari": "ekspektasi bersih per hari dari backtest walk-forward (sudah per hari)",
+            "sample": 34,
+            "andal": true,
+            "win_rate_persen": 8.8,
+            "max_drawdown_persen": null,
+            "catatan_backtest": "Walk-forward: level beli pagi & jual sore tiap hari dihitung dari window hari SEBELUMNYA (tanpa look-ahead). Round-trip dihitung hanya saat beli pagi DAN jual sore keduanya terisi. Sampel kecil (data intraday ~60 hari) — anggap sanity-check, bukan validasi final. Belum termasuk slippage."
+          }
+        },
+        {
+          "ticker": "AMAR.JK",
+          "skor": 45,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": true,
+          "harga": 214,
+          "backtest": {
+            "kode": "bpjs",
+            "nama": "BPJS (Beli Pagi Jual Sore)",
+            "metrik_asli_persen": 0.0,
+            "metrik_per_hari_persen": 0.0,
+            "satuan_metrik_asli": "ekspektasi bersih per hari (walk-forward)",
+            "asumsi_per_hari": "ekspektasi bersih per hari dari backtest walk-forward (sudah per hari)",
+            "sample": 34,
+            "andal": true,
+            "win_rate_persen": 0.0,
+            "max_drawdown_persen": null,
+            "catatan_backtest": "Walk-forward: level beli pagi & jual sore tiap hari dihitung dari window hari SEBELUMNYA (tanpa look-ahead). Round-trip dihitung hanya saat beli pagi DAN jual sore keduanya terisi. Sampel kecil (data intraday ~60 hari) — anggap sanity-check, bukan validasi final. Belum termasuk slippage."
+          }
+        },
+        {
+          "ticker": "BANK.JK",
+          "skor": 45,
+          "kecocokan": "CUKUP / KONDISIONAL ⚠️",
+          "sinyal_aktif": true,
+          "harga": 276,
+          "backtest": {
+            "kode": "bpjs",
+            "nama": "BPJS (Beli Pagi Jual Sore)",
+            "metrik_asli_persen": 0.0,
+            "metrik_per_hari_persen": 0.0,
+            "satuan_metrik_asli": "ekspektasi bersih per hari (walk-forward)",
+            "asumsi_per_hari": "ekspektasi bersih per hari dari backtest walk-forward (sudah per hari)",
+            "sample": 34,
+            "andal": true,
+            "win_rate_persen": 0.0,
+            "max_drawdown_persen": null,
+            "catatan_backtest": "Walk-forward: level beli pagi & jual sore tiap hari dihitung dari window hari SEBELUMNYA (tanpa look-ahead). Round-trip dihitung hanya saat beli pagi DAN jual sore keduanya terisi. Sampel kecil (data intraday ~60 hari) — anggap sanity-check, bukan validasi final. Belum termasuk slippage."
+          }
+        }
+      ]
+    }
+  ]
+}

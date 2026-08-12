@@ -25,7 +25,8 @@ from app.config import (
     BSJP_TARGET_PERSEN, BSJP_PERIODE_DATA,
     RANGE_PAGI_SORE_PERIODE, RANGE_PAGI_SORE_INTERVAL, RANGE_PAGI_SORE_JAM_PAGI,
     RANGE_PAGI_SORE_JAM_SORE, RANGE_PAGI_SORE_WINDOW_HARI,
-    RANGE_PAGI_SORE_PERSENTIL_JUAL, RANGE_PAGI_SORE_PERSENTIL_BELI
+    RANGE_PAGI_SORE_PERSENTIL_JUAL, RANGE_PAGI_SORE_PERSENTIL_BELI,
+    BPJS_PERIODE, BPJS_INTERVAL, BPJS_WINDOW_HARI, BPJS_PERSENTIL_BELI, BPJS_PERSENTIL_JUAL
 )
 import datetime
 
@@ -712,13 +713,51 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
     # Fallback berjenjang untuk harga acuan (beberapa saham kecil tidak selalu punya
     # semua field ini terisi di Yahoo Finance)
     harga_acuan = info.get('previousClose') or info.get('currentPrice') or info.get('regularMarketPrice') or 0
-    harga_wajar = int(eps * pe_acuan) if eps > 0 else int(harga_acuan)
+    # PERBAIKAN KONSISTENSI: harga wajar HANYA dihitung kalau EPS positif. Dulu kalau
+    # EPS <= 0 (perusahaan rugi) harga_wajar di-fallback ke harga pasar — akibatnya
+    # premi terhadap wajar selalu 0% dan sistem terkesan bilang "pas wajar" padahal
+    # sebenarnya valuasi fundamental TIDAK bisa dihitung (kasus GOTO wajar = harga).
+    # Sekarang di-set None + status eksplisit supaya analisis jujur.
+    if eps and eps > 0:
+        harga_wajar = int(eps * pe_acuan)
+        # PERBAIKAN KONSISTENSI (keluhan user: "harga wajar tidak sesuai analisis lain"):
+        # EPS trailing positif tapi SANGAT KECIL (umumnya emiten siklikal di titik bawah
+        # siklus — MDKA, BRMS, BUMI) tetap menghasilkan harga wajar PE-based yang melenceng
+        # ekstrem dari harga pasar (MDKA: wajar 26 vs harga ~2930). Angka itu bukan salah
+        # hitung, tapi mengukur nilai berdasar laba 12 bulan terakhir yang di pasar memang
+        # di-pricing ulang untuk prospek pertumbuhan/siklus. Kalau deviasinya ekstrem
+        # (harga >2x wajar — selaras dengan ambang 'melenceng >100%' di app/kajian_valuasi.py),
+        # tandai status-nya secara eksplisit supaya tidak disalahartikan sebagai error.
+        if harga_wajar <= 0:
+            # EPS positif tapi SUPER KECIL sampai wajar PE < Rp1 (mis. 0.065 x 15 = 0.975 -> int=0).
+            # Angka 0 tidak berguna & rawan ZeroDivisionError di pembagian premi — perlakukan
+            # seperti tidak bisa dihitung (kasus BELL & puluhan micro-cap lain di audit 941 saham).
+            harga_wajar = None
+            status_harga_wajar = "TIDAK DAPAT DIHITUNG (EPS terlalu kecil — wajar PE < Rp1)"
+        elif harga_acuan > 0 and (harga_acuan / harga_wajar) > 2:
+            status_harga_wajar = (
+                "PERLU KAJIAN (harga pasar >2x wajar PE trailing — kemungkinan pasar "
+                "mem-pricing pertumbuhan/siklus; wajar ini kurang andal)"
+            )
+        else:
+            status_harga_wajar = "DAPAT DIHITUNG (PE-based)"
+    else:
+        harga_wajar = None
+        status_harga_wajar = "TIDAK DAPAT DIHITUNG (EPS non-positif / tidak tersedia di Yahoo)"
+
+    # Wajar PE trailing dianggap ANDAL hanya kalau deviasinya wajar (lihat blok di atas).
+    # Wajar berstatus PERLU KAJIAN tidak boleh dipakai untuk: basis harga_maks_layak_beli,
+    # menurunkan rekomendasi (guard valuasi), maupun memicu peringatan premi.
+    harga_wajar_andal = bool(status_harga_wajar.startswith("DAPAT DIHITUNG"))
 
     if total_dividen > 0:
         dividend_yield_persen = round((total_dividen / (harga_acuan or 1)) * 100, 2)
         if (dividend_yield_persen / 100) >= YIELD_MINIMAL_UNTUK_VALUASI_DIVIDEN:
-            # Yield cukup signifikan untuk dijadikan basis valuasi utama
-            harga_maks_layak_beli = int(total_dividen / TARGET_DIVIDEND_YIELD)
+            # Yield cukup signifikan untuk dijadikan basis valuasi utama.
+            # round() PENTING: int(210/0.07) = int(2999.99999...) = 2999 padahal
+            # matematisnya 3000 — tanpa round, harga yang PERSIS di layak beli bisa
+            # dianggap 'di atas layak' (false positive guard valuasi).
+            harga_maks_layak_beli = int(round(total_dividen / TARGET_DIVIDEND_YIELD))
             status_dividen = f"LAYAK ({dividend_yield_persen}% Yield)"
             is_dividend_stock = True
         else:
@@ -726,11 +765,12 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
             # menghasilkan angka tidak masuk akal (jauh di bawah harga wajar fundamental),
             # jadi fallback ke valuasi PE-based, dan diperlakukan sebagai bukan-dividend-stock
             # untuk keperluan guardrail risiko (nggak ada 'bantalan dividen' yang berarti).
-            harga_maks_layak_beli = int(harga_wajar * 0.85)
+            # Fallback acuan: harga_wajar kalau ada, kalau tidak pakai diskon harga pasar.
+            harga_maks_layak_beli = int((harga_wajar if harga_wajar_andal else harga_acuan) * 0.85)
             status_dividen = f"ADA DIVIDEN TAPI KECIL ({dividend_yield_persen}% Yield, di bawah ambang {int(YIELD_MINIMAL_UNTUK_VALUASI_DIVIDEN * 100)}%) ⚠️"
             is_dividend_stock = False
     else:
-        harga_maks_layak_beli = int(harga_wajar * 0.85)
+        harga_maks_layak_beli = int((harga_wajar if harga_wajar_andal else harga_acuan) * 0.85)
         status_dividen = "TIDAK ADA DIVIDEN ❌"
         is_dividend_stock = False
 
@@ -762,7 +802,8 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
     is_volume_strong = volume_terakhir > (volume_rata_rata * 1.5)
 
     klasifikasi_support, resisten_terdekat, area_support_kuat = cek_kekuatan_support_dan_resisten(df, harga_sekarang)
-    jarak_ke_resisten = round(((resisten_terdekat - harga_sekarang) / harga_sekarang) * 100, 2)
+    # Guard harga 0 (saham tersuspensi dengan close 0): hindari ZeroDivisionError
+    jarak_ke_resisten = round(((resisten_terdekat - harga_sekarang) / harga_sekarang) * 100, 2) if harga_sekarang > 0 else 0.0
 
     # --- C. DETEKSI TEKANAN JUAL INSTITUSI & FORUM MATCH ---
     is_panic_selling = (harga_sekarang < ema50) and is_volume_strong
@@ -806,6 +847,23 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
     # --- D. LOGIKA GUARDRAIL & STRATEGI ---
     wajib_stop_loss = beta > 1.3 or not is_dividend_stock
 
+    # --- GUARD VALUASI (dihitung SEKARANG supaya dipakai oleh semua jalur rekomendasi:
+    # tren, f1 oversold, maupun f2 momentum) ---
+    # Dulu rekomendasi tetap bilang "BUY/STRONG BUY" dan kontradiksinya cuma muncul di
+    # field peringatan_valuasi terpisah — membingungkan (keluhan user). Sekarang teks
+    # rekomendasinya sendiri diturunkan supaya konsisten dengan valuasi.
+    # PENTING: leg 'layak beli' hanya aktif untuk saham DIVIDEN (di sana harga_maks_layak_beli
+    # memang berbasis yield: dividend/TARGET_YIELD). Untuk saham non-dividen, layak beli
+    # cuma 0.85 x harga_wajar (target konservatif, bukan batas 'mahal') — kalau dipakai,
+    # saham yang diskon 15% dari wajar pun akan di-downgrade (over-suppression).
+    # Leg 'harga wajar' hanya dipakai kalau statusnya ANDAL (DAPAT DIHITUNG); wajar yang
+    # berstatus PERLU KAJIAN tidak boleh menurunkan rekomendasi maupun memicu peringatan
+    # (definisi harga_wajar_andal ada di blok fundamental, dipakai juga di sana).
+    valuasi_mahal = bool(
+        (is_dividend_stock and harga_maks_layak_beli > 0 and harga_sekarang > harga_maks_layak_beli)
+        or (harga_wajar_andal and harga_wajar and harga_wajar > 0 and harga_sekarang > harga_wajar)
+    )
+
     if wajib_stop_loss:
         alasan_risiko = "Beta tinggi" if beta > 1.3 else "tanpa bantalan dividen yang berarti"
         kategori_risiko = f"TINGGI ({alasan_risiko}; Beta: {round(beta, 2)}) 🔥"
@@ -821,7 +879,10 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
             rekomendasi = "ANTRE BELI SUPER PASIF (Institusi sedang jualan, tunggu reda)"
         elif harga_sekarang > ema20 and ema20 > ema50:
             status_tren = "UPTREND 📈"
-            rekomendasi = "BUY ON WEAKNESS (Antre Beli di GROWIN dekat EMA20)" if harga_sekarang <= (ema20 * 1.015) else "HOLD (Tunggu Koreksi Sehat)"
+            if valuasi_mahal:
+                rekomendasi = "UPTREND TAPI HARGA DI ATAS LAYAK BELI ⚠️ (jangan kejar — tunggu koreksi ke bawah harga wajar/layak beli, atau antre jauh lebih rendah)"
+            else:
+                rekomendasi = "BUY ON WEAKNESS (Antre Beli di GROWIN dekat EMA20)" if harga_sekarang <= (ema20 * 1.015) else "HOLD (Tunggu Koreksi Sehat)"
         elif harga_sekarang < ema20 and harga_sekarang > ema50:
             status_tren = "KOREKSI DALAM 📉"
             rekomendasi = "WAIT AND SEE (Tunggu Sentuh EMA50)"
@@ -839,9 +900,15 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
         status_tren += " — JANGKA MENENGAH (harga masih di bawah EMA200, tren besar belum pulih ⚠️)"
 
     if f1_kondisi and not wajib_stop_loss and not is_panic_selling:
-        rekomendasi = "BUY ON WEAKNESS ★★★ (Konfirmasi Oversold Forum Aktif!)"
+        if valuasi_mahal:
+            rekomendasi = "OVERSOLD TEKNIKAL TAPI HARGA DI ATAS LAYAK BELI ⚠️ (jangan kejar — tunggu koreksi ke bawah harga wajar/layak beli, atau kurangi ukuran)"
+        else:
+            rekomendasi = "BUY ON WEAKNESS ★★★ (Konfirmasi Oversold Forum Aktif!)"
     elif f2_kondisi and not wajib_stop_loss:
-        rekomendasi = "STRONG BUY / MOMENTUM RIDE 🚀 (Konfirmasi Tren ADX Meledak!)"
+        if valuasi_mahal:
+            rekomendasi = "MOMENTUM KUAT TAPI SUDAH MAHAL ⚠️ (harga di atas harga wajar/layak beli — JANGAN kejar; tunggu koreksi sebelum entry)"
+        else:
+            rekomendasi = "STRONG BUY / MOMENTUM RIDE 🚀 (Konfirmasi Tren ADX Meledak!)"
 
     if kondisi_market is None:
         kondisi_market = cek_kondisi_market()
@@ -856,15 +923,23 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
     # alih-alih tersembunyi di 2 angka berbeda yang harus dibandingkan manual oleh user.
     premi_terhadap_wajar_persen = None
     peringatan_valuasi = None
-    if harga_wajar > 0:
+    # Premi hanya dihitung kalau wajar ANDAL — untuk wajar PERLU KAJIAN, persen premi
+    # bisa meledak (MDKA +11207%) dan justru menyesatkan.
+    if harga_wajar_andal and harga_wajar and harga_wajar > 0:
         premi_terhadap_wajar_persen = round(((harga_sekarang - harga_wajar) / harga_wajar) * 100, 2)
-        if premi_terhadap_wajar_persen > 20 and ("BUY" in rekomendasi or "STRONG" in rekomendasi):
-            peringatan_valuasi = (
-                f"⚠️ Harga saat ini {premi_terhadap_wajar_persen}% DI ATAS estimasi harga wajar fundamental (Rp{harga_wajar}). "
-                f"Sinyal beli di atas murni berbasis momentum teknikal, BUKAN valuasi murah — "
-                f"risiko koreksi lebih besar kalau momentum berbalik arah."
-            )
-        elif "BUY" in rekomendasi and harga_maks_layak_beli > 0 and harga_sekarang > harga_maks_layak_beli:
+
+    # Flag sinyal beli teknikal (bukan cek teks rekomendasi — teks sudah bisa ter-downgrade
+    # jadi 'MOMENTUM KUAT TAPI MAHAL' yang tidak mengandung kata BUY, tapi peringatan
+    # valuasi tetap harus terisi supaya konsumen API & skor strategi gabungan tahu).
+    sinyal_beli_teknikal = bool(
+        (f1_kondisi and not wajib_stop_loss and not is_panic_selling)
+        or (f2_kondisi and not wajib_stop_loss)
+        or "BUY" in rekomendasi
+        or "STRONG" in rekomendasi
+    )
+
+    if sinyal_beli_teknikal:
+        if is_dividend_stock and harga_maks_layak_beli > 0 and harga_sekarang > harga_maks_layak_beli:
             # Guard khusus strategi dividen: sinyal beli teknikal boleh muncul, tapi kalau
             # harga sudah di atas batas layak beli, yield efektif yang dikunci makin tipis —
             # dulu kasus ini lolos tanpa peringatan selama premi < 20% (kasus BBCA +12.6%).
@@ -872,6 +947,23 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
                 f"⚠️ Harga saat ini (Rp{harga_sekarang}) DI ATAS batas maks layak beli (Rp{harga_maks_layak_beli}). "
                 f"Sinyal beli ini murni soal TIMING teknikal — untuk strategi dividen, menambah posisi di harga ini "
                 f"mengunci yield efektif yang lebih rendah. Pertimbangkan menunggu harga kembali ke bawah batas layak beli."
+            )
+        elif harga_wajar_andal and premi_terhadap_wajar_persen is not None and premi_terhadap_wajar_persen > 20:
+            peringatan_valuasi = (
+                f"⚠️ Harga saat ini {premi_terhadap_wajar_persen}% DI ATAS estimasi harga wajar fundamental (Rp{harga_wajar}). "
+                f"Sinyal beli di atas murni berbasis momentum teknikal, BUKAN valuasi murah — "
+                f"risiko koreksi lebih besar kalau momentum berbalik arah."
+            )
+        elif not harga_wajar_andal:
+            peringatan_valuasi = (
+                "⚠️ Harga wajar fundamental kurang andal (harga pasar jauh di atas wajar PE trailing — "
+                "kemungkinan pasar mem-pricing pertumbuhan/siklus). Sinyal beli murni berbasis "
+                "teknikal, tanpa konfirmasi valuasi murah."
+            )
+        elif harga_wajar is None:
+            peringatan_valuasi = (
+                "⚠️ Harga wajar fundamental TIDAK dapat dihitung (EPS non-positif / data Yahoo tidak "
+                "lengkap) — sinyal beli murni berbasis teknikal, tanpa konfirmasi valuasi murah."
             )
 
     # --- E. TEXT PENJELASAN OTOMATIS ---
@@ -939,6 +1031,8 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
         "harga_saat_ini": harga_sekarang,
         "fundamental": {
             "harga_wajar": harga_wajar,
+            "status_harga_wajar": status_harga_wajar,
+            "trailing_eps": round(eps, 2) if isinstance(eps, (int, float)) else eps,
             "harga_maks_layak_beli": harga_maks_layak_beli,
             "pbv_ratio": round(pbv_ratio, 2) if pbv_ratio else "N/A",
             "return_on_equity": f"{round(return_on_equity * 100, 2)}%" if return_on_equity else "N/A",
@@ -1556,15 +1650,24 @@ def tabel_harian_pagi_sore(df: pd.DataFrame) -> pd.DataFrame:
     if pagi.empty or sore.empty:
         return pd.DataFrame()
 
+    # morn_low & aft_high ditambahkan untuk mendukung strategi BPJS (Beli Pagi
+    # Jual Sore) — kebalikan dari Range Pagi-Sore: beli di trough pagi, jual di
+    # peak sore. Tabel bersama ini dipakai oleh ketiga fungsi (range pagi-sore,
+    # BPJS, dan backtest keduanya) supaya definisi hari/pagi/sore tetap konsisten.
     harian = pd.DataFrame({
         'prev_close': df.groupby('tanggal')['Close'].last().shift(1),
         'morn_high': pagi.groupby('tanggal')['High'].max(),
+        'morn_low': pagi.groupby('tanggal')['Low'].min(),
+        'aft_high': sore.groupby('tanggal')['High'].max(),
         'aft_low': sore.groupby('tanggal')['Low'].min(),
         'close': df.groupby('tanggal')['Close'].last(),
     }).dropna()
     harian['peak_persen'] = (harian['morn_high'] / harian['prev_close'] - 1) * 100
     harian['trough_persen'] = (harian['aft_low'] / harian['prev_close'] - 1) * 100
+    harian['trough_pagi_persen'] = (harian['morn_low'] / harian['prev_close'] - 1) * 100
+    harian['peak_sore_persen'] = (harian['aft_high'] / harian['prev_close'] - 1) * 100
     harian['spread_persen'] = (harian['morn_high'] - harian['aft_low']) / harian['prev_close'] * 100
+    harian['spread_reverse_persen'] = (harian['aft_high'] - harian['morn_low']) / harian['prev_close'] * 100
     return harian
 
 
@@ -1731,5 +1834,668 @@ def hitung_analisis_range_pagi_sore(ticker_symbol: str, df_riwayat: pd.DataFrame
             "⚠️ Data Yahoo Finance delay ~15-20 menit untuk saham IDX — verifikasi harga real-time di broker. "
             "IDX settlement T+2: dana beli sore memakai cash terpisah dari hasil jual pagi (belum settle). "
             "Pola ini statistik historis, bukan jaminan."
+        )
+    }
+
+
+# =========================================================================
+# STRATEGI 6: BPJS (Beli Pagi Jual Sore) — kebalikan dari BSJP
+# =========================================================================
+
+def hitung_analisis_bpjs(ticker_symbol: str, df_riwayat: pd.DataFrame = None,
+                         window_hari: int = None, persentil_beli: float = None,
+                         persentil_jual: float = None):
+    """
+    Analisis pola intraday 'BPJS (Beli Pagi Jual Sore)': BELI di sesi pagi saat
+    harga menyentuh titik terendah pagi (morning low), JUAL di sesi sore saat harga
+    naik ke titik tertinggi sore (afternoon high) — SAMA HARI, kebalikan dari
+    Range Pagi-Sore dan BSJP.
+
+    Level beli  = persentil ke-persentil_beli dari distribusi 'trough pagi'.
+    Level jual  = persentil ke-persentil_jual dari distribusi 'peak sore'.
+
+    Dipakai untuk trader intraday (bukan pemegang saham). CATATAN PENTING:
+    - Ini SARAN level, bukan eksekusi otomatis. Pasang order manual di broker.
+    - Data Yahoo Finance delay ~15-20 menit utk saham IDX — verifikasi real-time.
+    - IDX settlement T+2: dana beli pagi harus CASH tersedia (hasil jual sore belum
+      settle di hari yang sama untuk membiayai pembelian lagi).
+    - Jika order beli pagi tidak terisi, JANGAN paksakan beli — lewati hari itu.
+    """
+    if not ticker_symbol.endswith(".JK"):
+        ticker = f"{ticker_symbol.upper()}.JK"
+    else:
+        ticker = ticker_symbol.upper()
+
+    window_hari = BPJS_WINDOW_HARI if window_hari is None else window_hari
+    persentil_beli = BPJS_PERSENTIL_BELI if persentil_beli is None else persentil_beli
+    persentil_jual = BPJS_PERSENTIL_JUAL if persentil_jual is None else persentil_jual
+
+    saham = yf.Ticker(ticker)
+    if df_riwayat is not None:
+        df = df_riwayat.copy()
+    else:
+        df = saham.history(period=BPJS_PERIODE, interval=BPJS_INTERVAL, auto_adjust=False)
+
+    if df is None or df.empty or len(df) < 100:
+        return None
+
+    df = df.reset_index()
+    harian = tabel_harian_pagi_sore(df)
+    if harian.empty or len(harian) < 15:
+        return None
+
+    # Jika sesi hari ini masih berjalan (belum 15.50 WIB), buang hari ini dari
+    # statistik supaya trough/peak parsial tidak mencemari pola historis.
+    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7)))
+    tanggal_terakhir = harian.index[-1]
+    sesi_sedang_berjalan = (
+        tanggal_terakhir == now.date() and
+        (now.hour < 15 or (now.hour == 15 and now.minute < 50))
+    )
+    if sesi_sedang_berjalan and len(harian) > 1:
+        harian = harian.iloc[:-1]
+
+    window = min(window_hari, len(harian))
+    if window < 15:
+        window = len(harian)
+    harian_w = harian.tail(window)
+    acuan = float(harian['close'].iloc[-1])  # close hari selesai terakhir
+
+    level_beli_pct = float(harian_w['trough_pagi_persen'].quantile(persentil_beli))
+    level_jual_pct = float(harian_w['peak_sore_persen'].quantile(persentil_jual))
+    level_jual_pct = max(level_jual_pct, 0.05)  # jangan sampai jual di bawah acuan
+
+    harga_beli = bulatkan_ke_tick_idx(acuan * (1 + level_beli_pct / 100), ke_bawah=False)
+    harga_jual = bulatkan_ke_tick_idx(acuan * (1 + level_jual_pct / 100), ke_bawah=True)
+    # Guard: level jual minimal 1 tick DI ATAS harga acuan (analog Range Pagi-Sore).
+    acuan_tick = bulatkan_ke_tick_idx(acuan, ke_bawah=True)
+    min_jual_satu_tick = bulatkan_ke_tick_idx(int(acuan_tick) + 1, ke_bawah=False)
+    harga_jual = max(harga_jual, min_jual_satu_tick)
+
+    hit_beli = round(float((harian_w['trough_pagi_persen'] <= level_beli_pct).mean()) * 100, 1)
+    hit_jual = round(float((harian_w['peak_sore_persen'] >= level_jual_pct).mean()) * 100, 1)
+    kedua_terisi = round(float(
+        ((harian_w['trough_pagi_persen'] <= level_beli_pct) & (harian_w['peak_sore_persen'] >= level_jual_pct)).mean()
+    ) * 100, 1)
+
+    spread_bruto = round((harga_jual - harga_beli) / harga_beli * 100, 2)
+    spread_bersih = round(spread_bruto - FEE_TRANSAKSI_TOTAL_PERSEN, 2)
+
+    # --- Premise: kapan day-low & day-high terjadi? ---
+    kolom_waktu = 'Datetime' if 'Datetime' in df.columns else 'Date'
+    waktu = pd.to_datetime(df[kolom_waktu])
+    df_tmp = df.copy()
+    df_tmp['jam_float'] = waktu.dt.hour + waktu.dt.minute / 60.0
+    idx_high = df_tmp.loc[df_tmp.groupby(pd.to_datetime(df_tmp[kolom_waktu]).dt.date)['High'].idxmax()]
+    idx_low = df_tmp.loc[df_tmp.groupby(pd.to_datetime(df_tmp[kolom_waktu]).dt.date)['Low'].idxmin()]
+    pct_low_pagi = round(float((idx_low['jam_float'] < RANGE_PAGI_SORE_JAM_PAGI).mean()) * 100, 1)
+    pct_high_sore = round(float((idx_high['jam_float'] >= RANGE_PAGI_SORE_JAM_SORE).mean()) * 100, 1)
+
+    def ringkas(s):
+        return {
+            "rata2_persen": round(float(s.mean()), 2),
+            "median_persen": round(float(s.median()), 2),
+            "p10_persen": round(float(s.quantile(0.10)), 2),
+            "p90_persen": round(float(s.quantile(0.90)), 2),
+        }
+
+    if harga_beli >= harga_jual:
+        status = "TIDAK LAYAK"
+        keterangan = ("Spread antara level jual dan level beli tidak positif — pola beli pagi jual sore "
+                      "tidak bisa dimanfaatkan dengan parameter ini. Coba persentil beli lebih besar / jual lebih kecil.")
+    elif spread_bersih <= 0:
+        status = "LAYAK TAPI TIPIS ⚠️"
+        keterangan = (f"Spread bruto {spread_bruto}% hanya sedikit di atas fee {FEE_TRANSAKSI_TOTAL_PERSEN}% — "
+                      "margin bersih tipis, pastikan level terisi dan jangan lupa biaya.")
+    else:
+        status = "LAYAK ✅"
+        keterangan = (
+            f"Pasang BUY LIMIT Rp{harga_beli} di sesi pagi (09.00-12.00 WIB). Jika terisi, pasang "
+            f"SELL LIMIT Rp{harga_jual} di sesi sore (setelah 13.30 WIB). Estimasi: beli terisi {hit_beli}% hari, "
+            f"jual terisi {hit_jual}% hari, dua-duanya terisi {kedua_terisi}% hari. Spread bruto {spread_bruto}%, "
+            f"bersih setelah fee {FEE_TRANSAKSI_TOTAL_PERSEN}% = {spread_bersih}%. Jika beli pagi tidak terisi, "
+            "jangan paksakan beli — lewati hari itu."
+        )
+
+    return {
+        "saham": ticker_symbol.upper(),
+        "strategi": "BPJS (Beli Pagi Jual Sore)",
+        "harga_acuan_prev_close": int(round(acuan)),
+        "status": status,
+        "jendela_hari_dipakai": int(window),
+        "rekomendasi_order": {
+            "harga_set_beli_pagi": harga_beli,
+            "level_beli_persen": round(level_beli_pct, 2),
+            "estimasi_terisi_pagi_persen": hit_beli,
+            "harga_set_jual_sore": harga_jual,
+            "level_jual_persen": round(level_jual_pct, 2),
+            "estimasi_terisi_sore_persen": hit_jual,
+            "estimasi_roundtrip_terisi_persen": kedua_terisi,
+            "spread_bruto_persen": spread_bruto,
+            "spread_bersih_setelah_fee_persen": spread_bersih,
+            "keterangan": keterangan
+        },
+        "statistik_pola": {
+            "persen_day_low_di_pagi": pct_low_pagi,
+            "persen_day_high_di_sore": pct_high_sore,
+            "trough_pagi": ringkas(harian_w['trough_pagi_persen']),
+            "peak_sore": ringkas(harian_w['peak_sore_persen']),
+            "spread_reverse_pagi_sore": ringkas(harian_w['spread_reverse_persen']),
+        },
+        "contoh_hari_terakhir": [
+            {
+                "tanggal": str(idx),
+                "prev_close": int(round(float(r['prev_close']))),
+                "morning_low": int(round(float(r['morn_low']))),
+                "afternoon_high": int(round(float(r['aft_high']))),
+                "trough_pagi_persen": round(float(r['trough_pagi_persen']), 2),
+                "peak_sore_persen": round(float(r['peak_sore_persen']), 2),
+            }
+            for idx, r in harian_w.tail(5).iterrows()
+        ],
+        "asumsi": f"Fee transaksi bolak-balik {FEE_TRANSAKSI_TOTAL_PERSEN}%. Harga dibulatkan ke fraksi harga resmi BEI.",
+        "peringatan": (
+            "⚠️ Data Yahoo Finance delay ~15-20 menit untuk saham IDX — verifikasi harga real-time di broker. "
+            "IDX settlement T+2: dana beli pagi harus CASH tersedia (hasil jual sore belum settle di hari yang sama). "
+            "Pola ini statistik historis, bukan jaminan."
+        )
+    }
+
+
+# =========================================================================
+# STRATEGI GABUNGAN: REKOMENDASI STRATEGI PALING COCOK UNTUK 1 SAHAM
+# =========================================================================
+
+def _skor_normalisasi(poin: int) -> int:
+    """Batasi skor strategi ke rentang 0-100."""
+    return max(0, min(100, poin))
+
+
+def rekomendasi_strategi_gabungan(ticker_symbol: str, kondisi_market: dict = None,
+                                  df_harian: pd.DataFrame = None,
+                                  df_intraday: pd.DataFrame = None):
+    """
+    Analisis GABUNGAN seluruh strategi untuk SATU saham: jalankan semua sinyal
+    (swing-dividen, momentum gorengan, fast-intraday, BSJP, range pagi-sore, BPJS)
+    dari data yang ditarik SEKALI, lalu beri skor kecocokan tiap strategi
+    berdasarkan (a) profil saham (likuiditas, volatilitas, dividen, beta) dan
+    (b) status sinyal yang sedang aktif. Output: peringkat strategi + strategi
+    terbaik + langkah eksekusi.
+
+    KONSEP PENILAIAN: skor = gabungan 'profil fit' (seberapa cocok KARAKTER saham
+    ini dengan strategi) + 'sinyal fit' (seberapa aktif sinyal strategi itu saat
+    ini). Contoh: saham dividen likuid otomatis cocok swing/BSJP/range walau belum
+    ada sinyal hari ini; saham penny volatile cocok gorengan/BPJS. Dengan begitu
+    rekomendasi tidak hanya mengikuti 'sinyal paling berisik', tapi yang paling
+    masuk akal untuk profil sahamnya.
+    """
+    if not ticker_symbol.endswith(".JK"):
+        ticker = f"{ticker_symbol.upper()}.JK"
+    else:
+        ticker = ticker_symbol.upper()
+
+    saham = yf.Ticker(ticker)
+
+    # Tarik data SEKALI dan pakai bersama untuk semua strategi (hemat request,
+    # konsisten — semua strategi melihat data yang sama).
+    if df_harian is None:
+        df_harian = saham.history(period="1y", interval="1d", auto_adjust=False)
+    if df_intraday is None:
+        df_intraday = saham.history(period=RANGE_PAGI_SORE_PERIODE, interval=RANGE_PAGI_SORE_INTERVAL, auto_adjust=False)
+
+    if df_harian is None or df_harian.empty or len(df_harian) < 200:
+        return None
+
+    if kondisi_market is None:
+        kondisi_market = cek_kondisi_market()
+
+    # --- PROFIL SAHAM (dipakai untuk skor 'profil fit' semua strategi) ---
+    # Likuiditas diukur dari nilai transaksi harian (harga x volume) rata-rata 20
+    # hari terakhir. Saham yang nilainya < ~1 miliar/hari sulit dieksekusi intraday.
+    df_profil = df_harian.tail(20).copy()
+    nilai_transaksi_harian = float((df_profil['Close'] * df_profil['Volume']).mean())
+    likuid_miliar = round(nilai_transaksi_harian / 1e9, 2)
+
+    df_vol = df_harian.tail(30).copy()
+    df_vol = hitung_indikator_lengkap(df_vol)
+    atr_terakhir = float(df_vol['ATR14'].iloc[-1]) if pd.notna(df_vol['ATR14'].iloc[-1]) else 0.0
+    harga_terakhir = float(df_harian['Close'].iloc[-1])
+    volatilitas_atr_persen = round(atr_terakhir / harga_terakhir * 100, 2) if harga_terakhir > 0 else 0.0
+
+    info = None
+    try:
+        info = saham.info
+    except Exception:
+        info = None
+    # `or 1.0` penting: Yahoo Finance sering mengisi beta dengan None untuk saham IDX
+    # — float(None) akan melempar TypeError dan merusak seluruh analisis gabungan.
+    beta = float(info.get('beta') or 1.0) if info else 1.0
+    market_cap = info.get('marketCap') if info else None
+
+    kategori_profil = "LIQUID 🏦" if likuid_miliar >= 1 else "KURANG LIKUID 🐢"
+    profil = {
+        "likuiditas_nilai_transaksi_harian_miliar": likuid_miliar,
+        "volatilitas_atr_harian_persen": volatilitas_atr_persen,
+        "beta": round(beta, 2),
+        "market_cap_rupiah": market_cap,
+        "kategori": kategori_profil,
+        "penjelasan": (
+            f"Nilai transaksi harian rata-rata Rp{likuid_miliar} miliar — "
+            + ("cukup likuid untuk strategi intraday/fast." if likuid_miliar >= 1 else
+               "berisiko tinggi untuk eksekusi intraday (spread lebar, order sulit keluar).")
+        )
+    }
+
+    hasil = {}
+
+    # 1) SWING-INVESTMENT DIVIDEN (data harian 1y)
+    try:
+        hasil['swing'] = hitung_analisis_saham(ticker_symbol, kondisi_market=kondisi_market, df_riwayat=df_harian)
+    except Exception:
+        hasil['swing'] = None
+
+    # 2) MOMENTUM GORENGAN (data per-jam 60d)
+    df_jam = None
+    try:
+        df_jam = saham.history(period="60d", interval="1h", auto_adjust=False)
+        hasil['gorengan'] = hitung_momentum_gorengan(ticker_symbol, df_riwayat=df_jam) if df_jam is not None and len(df_jam) >= 40 else None
+    except Exception:
+        hasil['gorengan'] = None
+
+    # 3) FAST INTRADAY (data 15 menit)
+    try:
+        hasil['fast_intraday'] = hitung_sinyal_fast_intraday(ticker_symbol, df_riwayat=df_intraday) if df_intraday is not None and len(df_intraday) >= 40 else None
+    except Exception:
+        hasil['fast_intraday'] = None
+
+    # 4) BSJP (data harian 1y)
+    try:
+        hasil['bsjp'] = hitung_sinyal_bsjp(ticker_symbol, df_riwayat=df_harian)
+    except Exception:
+        hasil['bsjp'] = None
+
+    # 5) RANGE PAGI-SORE (data 15 menit)
+    try:
+        hasil['range_pagi_sore'] = hitung_analisis_range_pagi_sore(ticker_symbol, df_riwayat=df_intraday) if df_intraday is not None and len(df_intraday) >= 100 else None
+    except Exception:
+        hasil['range_pagi_sore'] = None
+
+    # 6) BPJS — Beli Pagi Jual Sore (data 15 menit)
+    try:
+        hasil['bpjs'] = hitung_analisis_bpjs(ticker_symbol, df_riwayat=df_intraday) if df_intraday is not None and len(df_intraday) >= 100 else None
+    except Exception:
+        hasil['bpjs'] = None
+
+    penilaian = []
+
+    # ---------- SKORING STRATEGI ----------
+    # Tiap strategi: poin dari sinyal aktif + poin dari profil fit, lalu dinormalisasi.
+
+    # --- SWING ---
+    swing = hasil.get('swing')
+    if swing:
+        poin = 0
+        alasan = []
+        fundamental = swing.get('fundamental', {})
+        teknikal = swing.get('teknikal', {})
+        guardrail = swing.get('guardrail_proteksi', {})
+
+        # Profil fit
+        if fundamental.get('status_dividen', '').startswith('LAYAK'):
+            poin += 25
+            alasan.append("dividen layak → bantalan & target fundamental jelas")
+        if not guardrail.get('wajib_stop_loss', True):
+            poin += 15
+            alasan.append("risiko rendah (tanpa wajib stop loss) → aman di-hold jangka menengah")
+        else:
+            alasan.append("kategori spekulatif (wajib stop loss) → swing dividen kurang pas")
+        # Sinyal fit
+        if teknikal.get('oversold_swing_aktif'):
+            poin += 25
+            alasan.append("sinyal oversold swing AKTIF (Forum 1)")
+        elif teknikal.get('macd_early_rebound_terdeteksi'):
+            poin += 15
+            alasan.append("MACD early rebound terdeteksi (bottoming signal)")
+        # Konflik valuasi: kalau harga sudah di atas wajar/layak beli, sinyal teknikal
+        # tidak boleh dihargai penuh — rekomendasinya sendiri sudah diturunkan jadi
+        # 'jangan kejar', jadi skor swing ikut dipotong (konsisten dengan teks rekomendasi).
+        if swing.get('peringatan_valuasi'):
+            poin -= 20
+            alasan.append(f"-20 konflik valuasi: {swing.get('peringatan_valuasi')[:110]}…")
+        if swing.get('zona_average_down') and swing['zona_average_down'].get('tersedia'):
+            poin += 10
+            alasan.append("zona average-down tersedia")
+        if kondisi_market.get('market_bullish', True):
+            poin += 5
+        rekom_akhir = swing.get('rekomendasi_akhir', '')
+        if 'BUY' in rekom_akhir or 'STRONG' in rekom_akhir:
+            poin += 10
+            alasan.append(f"rekomendasi saat ini: {rekom_akhir}")
+        penilaian.append({
+            "kode": "swing",
+            "nama": "Swing-Investment Dividen",
+            "skor": _skor_normalisasi(poin),
+            "alasan": alasan if alasan else ["tidak ada alasan positif yang terdeteksi"],
+            "sinyal_aktif": bool(teknikal.get('oversold_swing_aktif') or teknikal.get('macd_early_rebound_terdeteksi')),
+            "rekomendasi_aksi": rekom_akhir,
+            "detail": {
+                "status_tren": teknikal.get('status_tren'),
+                "konfirmasi_oversold": teknikal.get('konfirmasi_oversold_swing'),
+                "target_resisten": teknikal.get('target_atap_resisten'),
+                "panduan": teknikal.get('panduan_saran_growin')
+            }
+        })
+
+    # --- GORENGAN ---
+    gorengan = hasil.get('gorengan')
+    if gorengan:
+        poin = 0
+        alasan = []
+        filter_lolos = 'LOLOS' in gorengan.get('status_filter', '')
+        entry = gorengan.get('rekomendasi_entry_daytrading', {})
+        indikator = gorengan.get('indikator', {})
+
+        if filter_lolos:
+            poin += 40
+            alasan.append("filter momentum gorengan LOLOS (volume spike + ADX explosive + EMA bullish)")
+        if entry.get('aktif'):
+            poin += 20
+            alasan.append("rekomendasi entry daytrading aktif (ada harga masuk + SL/TP)")
+        # Profil fit
+        if likuid_miliar >= 1:
+            poin += 10
+            alasan.append("cukup likuid untuk eksekusi cepat")
+        else:
+            poin -= 10
+            alasan.append("likuiditas rendah → eksekusi gorengan berisiko")
+        if volatilitas_atr_persen >= 2.5:
+            poin += 15
+            alasan.append(f"volatilitas harian {volatilitas_atr_persen}% → cocok untuk momentum cepat")
+        if float(beta) >= 1.3:
+            poin += 10
+            alasan.append(f"beta {beta} (high-beta) → pergerakan lebih liar")
+        if indikator.get('arus_bandar_cmf', {}).get('status', '').startswith('AKUMULASI'):
+            poin += 5
+        penilaian.append({
+            "kode": "gorengan",
+            "nama": "Momentum Gorengan (Day Trading)",
+            "skor": _skor_normalisasi(poin),
+            "alasan": alasan if alasan else ["belum ada sinyal momentum yang aktif"],
+            "sinyal_aktif": bool(filter_lolos and entry.get('aktif')),
+            "rekomendasi_aksi": gorengan.get('rekomendasi_aksi', ''),
+            "detail": {
+                "status_filter": gorengan.get('status_filter'),
+                "adx_power": indikator.get('adx_power'),
+                "bracket_order": gorengan.get('bracket_order_growin'),
+                "manajemen_risiko": gorengan.get('manajemen_risiko')
+            }
+        })
+
+    # --- FAST INTRADAY ---
+    fast = hasil.get('fast_intraday')
+    if fast:
+        poin = 0
+        alasan = []
+        filter_lolos = 'LOLOS' in fast.get('status_filter', '')
+        entry = fast.get('rekomendasi_entry_daytrading', {})
+        indikator = fast.get('indikator', {})
+
+        if filter_lolos:
+            poin += 40
+            alasan.append("filter momentum 15-menit LOLOS")
+        if entry.get('aktif'):
+            poin += 20
+            alasan.append("rekomendasi entry fast-intraday aktif")
+        if likuid_miliar >= 3:
+            poin += 20
+            alasan.append(f"likuiditas Rp{likuid_miliar} miliar/hari → spread tipis, cocok profit tipis 1.5-2%")
+        else:
+            poin -= 15
+            alasan.append("likuiditas di bawah ideal fast-intraday (butuh spread tipis)")
+        if volatilitas_atr_persen <= 4:
+            poin += 10
+        if indikator.get('arus_bandar_cmf', {}).get('status', '').startswith('AKUMULASI'):
+            poin += 5
+        penilaian.append({
+            "kode": "fast_intraday",
+            "nama": "Fast Intraday Alert (15 menit)",
+            "skor": _skor_normalisasi(poin),
+            "alasan": alasan if alasan else ["belum ada sinyal 15-menit yang aktif"],
+            "sinyal_aktif": bool(filter_lolos and entry.get('aktif')),
+            "rekomendasi_aksi": fast.get('rekomendasi_aksi', ''),
+            "detail": {
+                "status_filter": fast.get('status_filter'),
+                "adx_power": indikator.get('adx_power'),
+                "bracket_order": fast.get('bracket_order_growin'),
+                "peringatan": fast.get('peringatan_bukan_scalping_asli')
+            }
+        })
+
+    # --- BSJP ---
+    bsjp = hasil.get('bsjp')
+    if bsjp:
+        poin = 0
+        alasan = []
+        rekom_bsjp = bsjp.get('rekomendasi_bsjp', {})
+        stat_gap = bsjp.get('statistik_gap_historis', {})
+
+        if rekom_bsjp.get('aktif'):
+            poin += 45
+            alasan.append("sinyal BSJP HARI INI AKTIF — beli sore ini, jual pagi besok")
+        else:
+            alasan.append("sinyal BSJP hari ini belum aktif (perlu kenaikan + volume meledak + close kuat)")
+        prob_up = stat_gap.get('probabilitas_gap_up_persen')
+        if prob_up is not None:
+            if prob_up >= 55:
+                poin += 20
+                alasan.append(f"probabilitas gap up historis {prob_up}% (sampel {stat_gap.get('jumlah_sinyal_sebelumnya', 0)})")
+            else:
+                poin -= 5
+                alasan.append(f"probabilitas gap up historis hanya {prob_up}%")
+        if likuid_miliar >= 1:
+            poin += 10
+            alasan.append("cukup likuid untuk beli sore & jual pagi")
+        if volatilitas_atr_persen >= 1.5:
+            poin += 10
+            alasan.append(f"volatilitas {volatilitas_atr_persen}% → peluang gap pagi lebih besar")
+        if float(beta) >= 1.3:
+            poin += 5
+            alasan.append("beta tinggi → sensitif berita semalam (risiko gap down, atur mental stop)")
+        penilaian.append({
+            "kode": "bsjp",
+            "nama": "BSJP (Beli Sore Jual Pagi)",
+            "skor": _skor_normalisasi(poin),
+            "alasan": alasan if alasan else ["tidak ada indikasi positif"],
+            "sinyal_aktif": bool(rekom_bsjp.get('aktif')),
+            "rekomendasi_aksi": rekom_bsjp.get('aksi', bsjp.get('status_filter', '')),
+            "detail": {
+                "status_filter": bsjp.get('status_filter'),
+                "rekomendasi_bsjp": rekom_bsjp,
+                "statistik_gap": stat_gap,
+                "peringatan": bsjp.get('peringatan_keamanan')
+            }
+        })
+
+    # --- RANGE PAGI-SORE & BPJS (pola intraday yang saling berkebalikan) ---
+    # Kedua strategi berbagi kerangka skor yang sama supaya perbandingannya adil:
+    # bobot PREMIS pola (day-high/low terjadi di sesi yang benar) lebih besar dari
+    # bobot status 'LAYAK'. Tanpa ini, status layak generik bisa memberi skor tinggi
+    # walau premis sesi-nya lemah (contoh: BPJS di BBRI — day-high sore hanya 18%,)
+    # sehingga rekomendasi jual sore jadi tidak realistis.
+    def _skor_pola_intraday(pola, status, rt_persen, likuid_miliar_, beta_, vol_, mode):
+        poin = 0
+        alasan = []
+        if mode == 'jual_pagi_beli_sore':
+            premis_1, label_1 = pola.get('persen_day_high_di_pagi', 0), "day-high di pagi (jual pagi)"
+            premis_2, label_2 = pola.get('persen_day_low_di_sore', 0), "day-low di sore (beli sore)"
+        else:  # 'beli_pagi_jual_sore'
+            premis_1, label_1 = pola.get('persen_day_low_di_pagi', 0), "day-low di pagi (beli pagi)"
+            premis_2, label_2 = pola.get('persen_day_high_di_sore', 0), "day-high di sore (jual sore)"
+
+        # Premis inti: seberapa sering sesi yang dibutuhkan strategi benar-benar
+        # menjadi titik ekstrem hari. Ini penentu utama kecocokan pola.
+        if premis_1 >= 50:
+            poin += 25
+            alasan.append(f"+25 premis kuat: {premis_1}% hari {label_1}")
+        elif premis_1 >= 40:
+            poin += 10
+            alasan.append(f"+10 premis sedang: {premis_1}% hari {label_1}")
+        else:
+            poin -= 10
+            alasan.append(f"-10 premis lemah: hanya {premis_1}% hari {label_1}")
+
+        if premis_2 >= 50:
+            poin += 25
+            alasan.append(f"+25 premis kuat: {premis_2}% hari {label_2}")
+        elif premis_2 >= 40:
+            poin += 10
+            alasan.append(f"+10 premis sedang: {premis_2}% hari {label_2}")
+        else:
+            poin -= 15
+            alasan.append(f"-15 premis lemah: hanya {premis_2}% hari {label_2}")
+
+        if 'LAYAK' in status:
+            poin += 20
+            alasan.append(f"+20 level jual-beli layak ({status})")
+        elif 'TIPIS' in status:
+            poin += 5
+            alasan.append(f"+5 layak tapi tipis ({status})")
+        else:
+            alasan.append(f"pola belum layak ({status})")
+
+        if rt_persen >= 30:
+            poin += 10
+            alasan.append(f"+10 estimasi round-trip terisi {rt_persen}% hari")
+
+        if likuid_miliar_ >= 1:
+            poin += 10
+            alasan.append("+10 cukup likuid untuk eksekusi intraday")
+        if mode == 'jual_pagi_beli_sore' and float(beta_) <= 1.2:
+            poin += 5
+            alasan.append("+5 beta rendah → pola intraday lebih stabil")
+        if mode == 'beli_pagi_jual_sore' and vol_ >= 2:
+            poin += 5
+            alasan.append(f"+5 volatilitas {vol_}% → ruang spread intraday cukup")
+        return _skor_normalisasi(poin), alasan
+
+    range_ps = hasil.get('range_pagi_sore')
+    if range_ps:
+        status = range_ps.get('status', '')
+        order = range_ps.get('rekomendasi_order', {})
+        pola = range_ps.get('statistik_pola', {})
+        rt = order.get('estimasi_roundtrip_terisi_persen', 0)
+        skor, alasan = _skor_pola_intraday(pola, status, rt, likuid_miliar, beta, volatilitas_atr_persen, 'jual_pagi_beli_sore')
+        penilaian.append({
+            "kode": "range_pagi_sore",
+            "nama": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+            "skor": skor,
+            "alasan": alasan if alasan else ["pola intraday belum terkonfirmasi"],
+            "sinyal_aktif": bool('LAYAK' in status),
+            "rekomendasi_aksi": order.get('keterangan', range_ps.get('status', '')),
+            "detail": {
+                "status": status,
+                "rekomendasi_order": order,
+                "statistik_pola": pola,
+                "peringatan": range_ps.get('peringatan')
+            }
+        })
+
+    bpjs = hasil.get('bpjs')
+    if bpjs:
+        status = bpjs.get('status', '')
+        order = bpjs.get('rekomendasi_order', {})
+        pola = bpjs.get('statistik_pola', {})
+        rt = order.get('estimasi_roundtrip_terisi_persen', 0)
+        skor, alasan = _skor_pola_intraday(pola, status, rt, likuid_miliar, beta, volatilitas_atr_persen, 'beli_pagi_jual_sore')
+        penilaian.append({
+            "kode": "bpjs",
+            "nama": "BPJS (Beli Pagi Jual Sore)",
+            "skor": skor,
+            "alasan": alasan if alasan else ["pola beli-pagi jual-sore belum terkonfirmasi"],
+            "sinyal_aktif": bool('LAYAK' in status),
+            "rekomendasi_aksi": order.get('keterangan', bpjs.get('status', '')),
+            "detail": {
+                "status": status,
+                "rekomendasi_order": order,
+                "statistik_pola": pola,
+                "peringatan": bpjs.get('peringatan')
+            }
+        })
+
+    # --- RANKING & KESIMPULAN ---
+    penilaian.sort(key=lambda p: p['skor'], reverse=True)
+
+    terbaik = penilaian[0] if penilaian else None
+    if not terbaik:
+        return None
+
+    # Catat strategi yang TIDAK bisa dievaluasi (data tidak cukup) supaya user tahu
+    # kenapa strategi itu tidak muncul di peringkat — bukan karena jelek, tapi karena
+    # datanya kurang (mis. saham baru listing tanpa riwayat 15-menit / 1 tahun).
+    kode_terhitung = {p['kode'] for p in penilaian}
+    nama_semua = {
+        'swing': 'Swing-Investment Dividen',
+        'gorengan': 'Momentum Gorengan (Day Trading)',
+        'fast_intraday': 'Fast Intraday Alert (15 menit)',
+        'bsjp': 'BSJP (Beli Sore Jual Pagi)',
+        'range_pagi_sore': 'Range Pagi-Sore (Jual Pagi, Beli Sore)',
+        'bpjs': 'BPJS (Beli Pagi Jual Sore)',
+    }
+    dilewati = [nama_semua[k] for k in nama_semua if k not in kode_terhitung]
+
+    # Label kecocokan
+    def label_kecocokan(skor):
+        if skor >= 70:
+            return "SANGAT COCOK ✅"
+        if skor >= 50:
+            return "COCOK 👍"
+        if skor >= 35:
+            return "CUKUP / KONDISIONAL ⚠️"
+        return "KURANG COCOK ❌ (tunggu kondisi lebih baik)"
+
+    terbaik['kecocokan'] = label_kecocokan(terbaik['skor'])
+    for p in penilaian:
+        if p is not terbaik:
+            p['kecocokan'] = label_kecocokan(p['skor'])
+
+    return {
+        "saham": ticker_symbol.upper(),
+        "harga_saat_ini": int(harga_terakhir),
+        "kondisi_market": kondisi_market,
+        "profil_saham": profil,
+        "strategi_terbaik": {
+            "kode": terbaik['kode'],
+            "nama": terbaik['nama'],
+            "skor": terbaik['skor'],
+            "kecocokan": terbaik['kecocokan'],
+            "alasan": terbaik['alasan'],
+            "rekomendasi_aksi": terbaik['rekomendasi_aksi'],
+            "langkah_eksekusi": (
+                terbaik['detail'].get('panduan')
+                or terbaik['detail'].get('rekomendasi_order', {}).get('keterangan')
+                or terbaik['detail'].get('keterangan')
+                or terbaik['rekomendasi_aksi']
+            )
+        },
+        "peringkat_strategi": [
+            {
+                "kode": p['kode'],
+                "nama": p['nama'],
+                "skor": p['skor'],
+                "kecocokan": p['kecocokan'],
+                "sinyal_aktif": p['sinyal_aktif'],
+                "alasan": p['alasan'],
+                "rekomendasi_aksi": p['rekomendasi_aksi']
+            }
+            for p in penilaian
+        ],
+        "detail_per_strategi": {
+            p['kode']: p['detail']
+            for p in penilaian
+        },
+        "strategi_dilewati_karena_data_kurang": dilewati,
+        "disclaimer": (
+            "Skor kecocokan adalah panduan otomatis berbasis kondisi saat ini — BUKAN jaminan profit. "
+            "Selalu verifikasi harga real-time di broker (data Yahoo delay ~15-20 menit) dan patuhi manajemen risiko tiap strategi."
         )
     }

@@ -1,0 +1,2906 @@
+{
+  "jumlah_diproses": 941,
+  "jumlah_dianalisis": 887,
+  "jumlah_gagal": 54,
+  "jumlah_kontradiksi_buy_di_atas_layak": 0,
+  "persen_kontradiksi_persen": 0.0,
+  "daftar_kontradiksi": [],
+  "jumlah_harga_wajar_tidak_valid": 325,
+  "daftar_wajar_tidak_valid": [
+    {
+      "saham": "ABBA.JK",
+      "eps": -6.53,
+      "harga_wajar": null,
+      "harga": 30
+    },
+    {
+      "saham": "ACRO.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 63
+    },
+    {
+      "saham": "ADCP.JK",
+      "eps": -94.82,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "ACST.JK",
+      "eps": -58.0,
+      "harga_wajar": null,
+      "harga": 87
+    },
+    {
+      "saham": "AEGS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 42
+    },
+    {
+      "saham": "ADHI.JK",
+      "eps": -642.47,
+      "harga_wajar": null,
+      "harga": 145
+    },
+    {
+      "saham": "AHAP.JK",
+      "eps": -2.97,
+      "harga_wajar": null,
+      "harga": 93
+    },
+    {
+      "saham": "AGRO.JK",
+      "eps": -21.04,
+      "harga_wajar": null,
+      "harga": 150
+    },
+    {
+      "saham": "ALTO.JK",
+      "eps": -3.58,
+      "harga_wajar": null,
+      "harga": 18
+    },
+    {
+      "saham": "ALMI.JK",
+      "eps": -44.06,
+      "harga_wajar": null,
+      "harga": 74
+    },
+    {
+      "saham": "AMMS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 186
+    },
+    {
+      "saham": "ANDI.JK",
+      "eps": -5.44,
+      "harga_wajar": null,
+      "harga": 18
+    },
+    {
+      "saham": "AMIN.JK",
+      "eps": -15.73,
+      "harga_wajar": null,
+      "harga": 248
+    },
+    {
+      "saham": "ANJT.JK",
+      "eps": -140.25,
+      "harga_wajar": null,
+      "harga": 1510
+    },
+    {
+      "saham": "AREA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 282
+    },
+    {
+      "saham": "ARTA.JK",
+      "eps": -7.65,
+      "harga_wajar": null,
+      "harga": 2390
+    },
+    {
+      "saham": "ASHA.JK",
+      "eps": -3.15,
+      "harga_wajar": null,
+      "harga": 61
+    },
+    {
+      "saham": "ASLI.JK",
+      "eps": -39.35,
+      "harga_wajar": null,
+      "harga": 196
+    },
+    {
+      "saham": "ASJT.JK",
+      "eps": -0.01,
+      "harga_wajar": null,
+      "harga": 151
+    },
+    {
+      "saham": "ASPI.JK",
+      "eps": -1.35,
+      "harga_wajar": null,
+      "harga": 420
+    },
+    {
+      "saham": "AWAN.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 157
+    },
+    {
+      "saham": "AXIO.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 113
+    },
+    {
+      "saham": "AYLS.JK",
+      "eps": -2.13,
+      "harga_wajar": null,
+      "harga": 158
+    },
+    {
+      "saham": "BAIK.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 476
+    },
+    {
+      "saham": "BABY.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 198
+    },
+    {
+      "saham": "BAPI.JK",
+      "eps": -0.18,
+      "harga_wajar": null,
+      "harga": 18
+    },
+    {
+      "saham": "BATR.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 93
+    },
+    {
+      "saham": "BAPA.JK",
+      "eps": -6.68,
+      "harga_wajar": null,
+      "harga": 149
+    },
+    {
+      "saham": "BATA.JK",
+      "eps": -93.94,
+      "harga_wajar": null,
+      "harga": 59
+    },
+    {
+      "saham": "BAUT.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 34
+    },
+    {
+      "saham": "BBKP.JK",
+      "eps": -1.17,
+      "harga_wajar": null,
+      "harga": 56
+    },
+    {
+      "saham": "BBSS.JK",
+      "eps": -0.12,
+      "harga_wajar": null,
+      "harga": 115
+    },
+    {
+      "saham": "BCIC.JK",
+      "eps": -42.15,
+      "harga_wajar": null,
+      "harga": 129
+    },
+    {
+      "saham": "BEER.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 73
+    },
+    {
+      "saham": "BEBS.JK",
+      "eps": -0.84,
+      "harga_wajar": null,
+      "harga": 5
+    },
+    {
+      "saham": "BELI.JK",
+      "eps": -13.0,
+      "harga_wajar": null,
+      "harga": 256
+    },
+    {
+      "saham": "BELL.JK",
+      "eps": 0.07,
+      "harga_wajar": null,
+      "harga": 116
+    },
+    {
+      "saham": "BHAT.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 1770
+    },
+    {
+      "saham": "BIMA.JK",
+      "eps": -33.32,
+      "harga_wajar": null,
+      "harga": 82
+    },
+    {
+      "saham": "BINA.JK",
+      "eps": -53.73,
+      "harga_wajar": null,
+      "harga": 4080
+    },
+    {
+      "saham": "BIPP.JK",
+      "eps": -8.72,
+      "harga_wajar": null,
+      "harga": 72
+    },
+    {
+      "saham": "BKDP.JK",
+      "eps": -4.83,
+      "harga_wajar": null,
+      "harga": 169
+    },
+    {
+      "saham": "BKSW.JK",
+      "eps": -0.83,
+      "harga_wajar": null,
+      "harga": 52
+    },
+    {
+      "saham": "BMBL.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 31
+    },
+    {
+      "saham": "BMHS.JK",
+      "eps": -0.19,
+      "harga_wajar": null,
+      "harga": 191
+    },
+    {
+      "saham": "BOLA.JK",
+      "eps": -7.25,
+      "harga_wajar": null,
+      "harga": 156
+    },
+    {
+      "saham": "BOAT.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 135
+    },
+    {
+      "saham": "BOSS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "BRNA.JK",
+      "eps": -5.02,
+      "harga_wajar": null,
+      "harga": 645
+    },
+    {
+      "saham": "BTEK.JK",
+      "eps": -8.61,
+      "harga_wajar": null,
+      "harga": 10
+    },
+    {
+      "saham": "CANI.JK",
+      "eps": -0.0,
+      "harga_wajar": null,
+      "harga": 135
+    },
+    {
+      "saham": "CBPE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 590
+    },
+    {
+      "saham": "CASH.JK",
+      "eps": -7.2,
+      "harga_wajar": null,
+      "harga": 216
+    },
+    {
+      "saham": "CBRE.JK",
+      "eps": -14.56,
+      "harga_wajar": null,
+      "harga": 670
+    },
+    {
+      "saham": "CHEM.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 70
+    },
+    {
+      "saham": "CENT.JK",
+      "eps": -76.25,
+      "harga_wajar": null,
+      "harga": 84
+    },
+    {
+      "saham": "CINT.JK",
+      "eps": -98.86,
+      "harga_wajar": null,
+      "harga": 174
+    },
+    {
+      "saham": "CMNT.JK",
+      "eps": -13.83,
+      "harga_wajar": null,
+      "harga": 790
+    },
+    {
+      "saham": "CMPP.JK",
+      "eps": -183.16,
+      "harga_wajar": null,
+      "harga": 69
+    },
+    {
+      "saham": "COAL.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 29
+    },
+    {
+      "saham": "CRAB.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 208
+    },
+    {
+      "saham": "CRSN.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 120
+    },
+    {
+      "saham": "CSMI.JK",
+      "eps": -1.05,
+      "harga_wajar": null,
+      "harga": 105
+    },
+    {
+      "saham": "CTTH.JK",
+      "eps": -17.31,
+      "harga_wajar": null,
+      "harga": 133
+    },
+    {
+      "saham": "DART.JK",
+      "eps": -80.99,
+      "harga_wajar": null,
+      "harga": 182
+    },
+    {
+      "saham": "DEWI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 137
+    },
+    {
+      "saham": "DEAL.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 6
+    },
+    {
+      "saham": "DFAM.JK",
+      "eps": -7.39,
+      "harga_wajar": null,
+      "harga": 79
+    },
+    {
+      "saham": "DEFI.JK",
+      "eps": -4.2,
+      "harga_wajar": null,
+      "harga": 109
+    },
+    {
+      "saham": "DIGI.JK",
+      "eps": -8.21,
+      "harga_wajar": null,
+      "harga": 29
+    },
+    {
+      "saham": "DOID.JK",
+      "eps": -224.74,
+      "harga_wajar": null,
+      "harga": 212
+    },
+    {
+      "saham": "DOSS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 166
+    },
+    {
+      "saham": "DPUM.JK",
+      "eps": -10.53,
+      "harga_wajar": null,
+      "harga": 98
+    },
+    {
+      "saham": "ECII.JK",
+      "eps": -119.2,
+      "harga_wajar": null,
+      "harga": 157
+    },
+    {
+      "saham": "ELIT.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 174
+    },
+    {
+      "saham": "ELTY.JK",
+      "eps": -0.46,
+      "harga_wajar": null,
+      "harga": 37
+    },
+    {
+      "saham": "ENAK.JK",
+      "eps": -61.8,
+      "harga_wajar": null,
+      "harga": 238
+    },
+    {
+      "saham": "EMDE.JK",
+      "eps": -24.4,
+      "harga_wajar": null,
+      "harga": 78
+    },
+    {
+      "saham": "EPAC.JK",
+      "eps": -0.53,
+      "harga_wajar": null,
+      "harga": 61
+    },
+    {
+      "saham": "ESTA.JK",
+      "eps": -0.42,
+      "harga_wajar": null,
+      "harga": 177
+    },
+    {
+      "saham": "ETWA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 70
+    },
+    {
+      "saham": "EXCL.JK",
+      "eps": -336.92,
+      "harga_wajar": null,
+      "harga": 2530
+    },
+    {
+      "saham": "ESTI.JK",
+      "eps": 0.0,
+      "harga_wajar": null,
+      "harga": 169
+    },
+    {
+      "saham": "FAST.JK",
+      "eps": -72.98,
+      "harga_wajar": null,
+      "harga": 434
+    },
+    {
+      "saham": "FASW.JK",
+      "eps": -434.56,
+      "harga_wajar": null,
+      "harga": 5312
+    },
+    {
+      "saham": "ERTX.JK",
+      "eps": 0.0,
+      "harga_wajar": null,
+      "harga": 191
+    },
+    {
+      "saham": "FIMP.JK",
+      "eps": -2.34,
+      "harga_wajar": null,
+      "harga": 69
+    },
+    {
+      "saham": "FILM.JK",
+      "eps": -19.99,
+      "harga_wajar": null,
+      "harga": 1040
+    },
+    {
+      "saham": "FORU.JK",
+      "eps": -19.79,
+      "harga_wajar": null,
+      "harga": 2010
+    },
+    {
+      "saham": "FITT.JK",
+      "eps": -4.04,
+      "harga_wajar": null,
+      "harga": 352
+    },
+    {
+      "saham": "FMII.JK",
+      "eps": -0.65,
+      "harga_wajar": null,
+      "harga": 254
+    },
+    {
+      "saham": "FOOD.JK",
+      "eps": -19.32,
+      "harga_wajar": null,
+      "harga": 176
+    },
+    {
+      "saham": "FUTR.JK",
+      "eps": -8.12,
+      "harga_wajar": null,
+      "harga": 338
+    },
+    {
+      "saham": "GDYR.JK",
+      "eps": 0.01,
+      "harga_wajar": null,
+      "harga": 1080
+    },
+    {
+      "saham": "FWCT.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 94
+    },
+    {
+      "saham": "GIAA.JK",
+      "eps": -1.07,
+      "harga_wajar": null,
+      "harga": 73
+    },
+    {
+      "saham": "GGRP.JK",
+      "eps": -45.17,
+      "harga_wajar": null,
+      "harga": 302
+    },
+    {
+      "saham": "GEMA.JK",
+      "eps": -1.37,
+      "harga_wajar": null,
+      "harga": 82
+    },
+    {
+      "saham": "GLOB.JK",
+      "eps": -53.27,
+      "harga_wajar": null,
+      "harga": 155
+    },
+    {
+      "saham": "GOTO.JK",
+      "eps": -0.02,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "GRPM.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 224
+    },
+    {
+      "saham": "GPSO.JK",
+      "eps": -3.72,
+      "harga_wajar": null,
+      "harga": 276
+    },
+    {
+      "saham": "GRPH.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 64
+    },
+    {
+      "saham": "GTBO.JK",
+      "eps": -17.82,
+      "harga_wajar": null,
+      "harga": 170
+    },
+    {
+      "saham": "GTSI.JK",
+      "eps": -4.45,
+      "harga_wajar": null,
+      "harga": 183
+    },
+    {
+      "saham": "GTRA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 238
+    },
+    {
+      "saham": "GUNA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 208
+    },
+    {
+      "saham": "GULA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 750
+    },
+    {
+      "saham": "HADE.JK",
+      "eps": -0.07,
+      "harga_wajar": null,
+      "harga": 18
+    },
+    {
+      "saham": "HAJJ.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 106
+    },
+    {
+      "saham": "HDFA.JK",
+      "eps": -12.76,
+      "harga_wajar": null,
+      "harga": 97
+    },
+    {
+      "saham": "HALO.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 69
+    },
+    {
+      "saham": "HDIT.JK",
+      "eps": -4.88,
+      "harga_wajar": null,
+      "harga": 51
+    },
+    {
+      "saham": "HBAT.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 218
+    },
+    {
+      "saham": "HILL.JK",
+      "eps": -90.15,
+      "harga_wajar": null,
+      "harga": 16
+    },
+    {
+      "saham": "HOMI.JK",
+      "eps": -0.02,
+      "harga_wajar": null,
+      "harga": 184
+    },
+    {
+      "saham": "HOPE.JK",
+      "eps": -3.04,
+      "harga_wajar": null,
+      "harga": 222
+    },
+    {
+      "saham": "HOKI.JK",
+      "eps": -8.39,
+      "harga_wajar": null,
+      "harga": 56
+    },
+    {
+      "saham": "HRME.JK",
+      "eps": -1.02,
+      "harga_wajar": null,
+      "harga": 41
+    },
+    {
+      "saham": "HYGN.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 169
+    },
+    {
+      "saham": "IBFN.JK",
+      "eps": -132.33,
+      "harga_wajar": null,
+      "harga": 63
+    },
+    {
+      "saham": "ICON.JK",
+      "eps": -2.29,
+      "harga_wajar": null,
+      "harga": 114
+    },
+    {
+      "saham": "IKAI.JK",
+      "eps": -4.07,
+      "harga_wajar": null,
+      "harga": 21
+    },
+    {
+      "saham": "IKPM.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 200
+    },
+    {
+      "saham": "INAI.JK",
+      "eps": -167.01,
+      "harga_wajar": null,
+      "harga": 179
+    },
+    {
+      "saham": "INCF.JK",
+      "eps": -0.35,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "INAF.JK",
+      "eps": -226.69,
+      "harga_wajar": null,
+      "harga": 126
+    },
+    {
+      "saham": "INPS.JK",
+      "eps": -60.1,
+      "harga_wajar": null,
+      "harga": 690
+    },
+    {
+      "saham": "INPC.JK",
+      "eps": -26.08,
+      "harga_wajar": null,
+      "harga": 141
+    },
+    {
+      "saham": "INRU.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 590
+    },
+    {
+      "saham": "IOTF.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 64
+    },
+    {
+      "saham": "INTA.JK",
+      "eps": -18.0,
+      "harga_wajar": null,
+      "harga": 61
+    },
+    {
+      "saham": "ISAP.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 24
+    },
+    {
+      "saham": "IPTV.JK",
+      "eps": -5.43,
+      "harga_wajar": null,
+      "harga": 30
+    },
+    {
+      "saham": "ISEA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 90
+    },
+    {
+      "saham": "JAST.JK",
+      "eps": -14.9,
+      "harga_wajar": null,
+      "harga": 82
+    },
+    {
+      "saham": "JAWA.JK",
+      "eps": -3.19,
+      "harga_wajar": null,
+      "harga": 130
+    },
+    {
+      "saham": "JATI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 99
+    },
+    {
+      "saham": "JIHD.JK",
+      "eps": -93.1,
+      "harga_wajar": null,
+      "harga": 432
+    },
+    {
+      "saham": "JGLE.JK",
+      "eps": -1.91,
+      "harga_wajar": null,
+      "harga": 96
+    },
+    {
+      "saham": "KAYU.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 18
+    },
+    {
+      "saham": "KBAG.JK",
+      "eps": -0.08,
+      "harga_wajar": null,
+      "harga": 48
+    },
+    {
+      "saham": "KDTN.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 378
+    },
+    {
+      "saham": "KAEF.JK",
+      "eps": -41.27,
+      "harga_wajar": null,
+      "harga": 456
+    },
+    {
+      "saham": "KING.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 270
+    },
+    {
+      "saham": "KIAS.JK",
+      "eps": -1.13,
+      "harga_wajar": null,
+      "harga": 21
+    },
+    {
+      "saham": "KIJA.JK",
+      "eps": -3.23,
+      "harga_wajar": null,
+      "harga": 125
+    },
+    {
+      "saham": "KKES.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 68
+    },
+    {
+      "saham": "KLAS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 78
+    },
+    {
+      "saham": "KJEN.JK",
+      "eps": -4.3,
+      "harga_wajar": null,
+      "harga": 164
+    },
+    {
+      "saham": "KMTR.JK",
+      "eps": -3.89,
+      "harga_wajar": null,
+      "harga": 228
+    },
+    {
+      "saham": "KLIN.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 119
+    },
+    {
+      "saham": "KOBX.JK",
+      "eps": 0.01,
+      "harga_wajar": null,
+      "harga": 165
+    },
+    {
+      "saham": "KOCI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 107
+    },
+    {
+      "saham": "KOKA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 196
+    },
+    {
+      "saham": "KREN.JK",
+      "eps": -8.66,
+      "harga_wajar": null,
+      "harga": 13
+    },
+    {
+      "saham": "KRYA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 63
+    },
+    {
+      "saham": "LAJU.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 68
+    },
+    {
+      "saham": "LABS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 162
+    },
+    {
+      "saham": "LAPD.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 66
+    },
+    {
+      "saham": "LEAD.JK",
+      "eps": -0.0,
+      "harga_wajar": null,
+      "harga": 113
+    },
+    {
+      "saham": "LFLO.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 484
+    },
+    {
+      "saham": "LINK.JK",
+      "eps": -557.06,
+      "harga_wajar": null,
+      "harga": 1375
+    },
+    {
+      "saham": "LION.JK",
+      "eps": -8.27,
+      "harga_wajar": null,
+      "harga": 348
+    },
+    {
+      "saham": "LIVE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 212
+    },
+    {
+      "saham": "LMAX.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 110
+    },
+    {
+      "saham": "LMPI.JK",
+      "eps": -14.24,
+      "harga_wajar": null,
+      "harga": 144
+    },
+    {
+      "saham": "LOPI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 80
+    },
+    {
+      "saham": "LRNA.JK",
+      "eps": -71.2,
+      "harga_wajar": null,
+      "harga": 189
+    },
+    {
+      "saham": "LUCY.JK",
+      "eps": -28.52,
+      "harga_wajar": null,
+      "harga": 300
+    },
+    {
+      "saham": "LUCK.JK",
+      "eps": -0.51,
+      "harga_wajar": null,
+      "harga": 116
+    },
+    {
+      "saham": "MANG.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 38
+    },
+    {
+      "saham": "MAPB.JK",
+      "eps": -79.98,
+      "harga_wajar": null,
+      "harga": 1120
+    },
+    {
+      "saham": "MARI.JK",
+      "eps": -5.09,
+      "harga_wajar": null,
+      "harga": 23
+    },
+    {
+      "saham": "MAXI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "MBTO.JK",
+      "eps": -120.73,
+      "harga_wajar": null,
+      "harga": 126
+    },
+    {
+      "saham": "MCAS.JK",
+      "eps": -52.9,
+      "harga_wajar": null,
+      "harga": 308
+    },
+    {
+      "saham": "MDLN.JK",
+      "eps": -106.51,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "MEDS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 71
+    },
+    {
+      "saham": "MEJA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 108
+    },
+    {
+      "saham": "META.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 238
+    },
+    {
+      "saham": "MENN.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 53
+    },
+    {
+      "saham": "MGLV.JK",
+      "eps": -17.48,
+      "harga_wajar": null,
+      "harga": 9225
+    },
+    {
+      "saham": "MGRO.JK",
+      "eps": -10.52,
+      "harga_wajar": null,
+      "harga": 675
+    },
+    {
+      "saham": "MIRA.JK",
+      "eps": -1.76,
+      "harga_wajar": null,
+      "harga": 27
+    },
+    {
+      "saham": "MINA.JK",
+      "eps": -0.1,
+      "harga_wajar": null,
+      "harga": 268
+    },
+    {
+      "saham": "MKNT.JK",
+      "eps": -3.84,
+      "harga_wajar": null,
+      "harga": 1
+    },
+    {
+      "saham": "MLPL.JK",
+      "eps": -3.23,
+      "harga_wajar": null,
+      "harga": 98
+    },
+    {
+      "saham": "MLIA.JK",
+      "eps": -29.07,
+      "harga_wajar": null,
+      "harga": 232
+    },
+    {
+      "saham": "MPIX.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 95
+    },
+    {
+      "saham": "MPPA.JK",
+      "eps": -10.08,
+      "harga_wajar": null,
+      "harga": 52
+    },
+    {
+      "saham": "MPXL.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 160
+    },
+    {
+      "saham": "MPRO.JK",
+      "eps": -6.0,
+      "harga_wajar": null,
+      "harga": 12000
+    },
+    {
+      "saham": "MSIE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 94
+    },
+    {
+      "saham": "MSKY.JK",
+      "eps": -1.7,
+      "harga_wajar": null,
+      "harga": 73
+    },
+    {
+      "saham": "MTFN.JK",
+      "eps": -1.13,
+      "harga_wajar": null,
+      "harga": 13
+    },
+    {
+      "saham": "MTPS.JK",
+      "eps": -4.62,
+      "harga_wajar": null,
+      "harga": 81
+    },
+    {
+      "saham": "MTSM.JK",
+      "eps": -10.55,
+      "harga_wajar": null,
+      "harga": 500
+    },
+    {
+      "saham": "MUTU.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 114
+    },
+    {
+      "saham": "NASA.JK",
+      "eps": -0.01,
+      "harga_wajar": null,
+      "harga": 31
+    },
+    {
+      "saham": "NATO.JK",
+      "eps": -10.34,
+      "harga_wajar": null,
+      "harga": 650
+    },
+    {
+      "saham": "NAYZ.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 58
+    },
+    {
+      "saham": "NETV.JK",
+      "eps": -5.68,
+      "harga_wajar": null,
+      "harga": 53
+    },
+    {
+      "saham": "NFCX.JK",
+      "eps": -18.24,
+      "harga_wajar": null,
+      "harga": 1500
+    },
+    {
+      "saham": "NICE.JK",
+      "eps": -3.12,
+      "harga_wajar": null,
+      "harga": 250
+    },
+    {
+      "saham": "NINE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 77
+    },
+    {
+      "saham": "NIRO.JK",
+      "eps": -8.75,
+      "harga_wajar": null,
+      "harga": 154
+    },
+    {
+      "saham": "NPGF.JK",
+      "eps": 0.02,
+      "harga_wajar": null,
+      "harga": 57
+    },
+    {
+      "saham": "OASA.JK",
+      "eps": -9.19,
+      "harga_wajar": null,
+      "harga": 322
+    },
+    {
+      "saham": "OBMD.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 191
+    },
+    {
+      "saham": "OILS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 226
+    },
+    {
+      "saham": "OKAS.JK",
+      "eps": -0.0,
+      "harga_wajar": null,
+      "harga": 119
+    },
+    {
+      "saham": "OMRE.JK",
+      "eps": -61.3,
+      "harga_wajar": null,
+      "harga": 1020
+    },
+    {
+      "saham": "OPMS.JK",
+      "eps": -1.11,
+      "harga_wajar": null,
+      "harga": 132
+    },
+    {
+      "saham": "PADA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 180
+    },
+    {
+      "saham": "PADI.JK",
+      "eps": -1.27,
+      "harga_wajar": null,
+      "harga": 70
+    },
+    {
+      "saham": "PAMG.JK",
+      "eps": -2.98,
+      "harga_wajar": null,
+      "harga": 57
+    },
+    {
+      "saham": "PANR.JK",
+      "eps": -75.05,
+      "harga_wajar": null,
+      "harga": 432
+    },
+    {
+      "saham": "PART.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 100
+    },
+    {
+      "saham": "PBRX.JK",
+      "eps": -61.62,
+      "harga_wajar": null,
+      "harga": 27
+    },
+    {
+      "saham": "PCAR.JK",
+      "eps": -2.86,
+      "harga_wajar": null,
+      "harga": 41
+    },
+    {
+      "saham": "PDES.JK",
+      "eps": -84.2,
+      "harga_wajar": null,
+      "harga": 410
+    },
+    {
+      "saham": "PEGE.JK",
+      "eps": -24.18,
+      "harga_wajar": null,
+      "harga": 101
+    },
+    {
+      "saham": "PEVE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 326
+    },
+    {
+      "saham": "PGJO.JK",
+      "eps": -15.82,
+      "harga_wajar": null,
+      "harga": 725
+    },
+    {
+      "saham": "PGLI.JK",
+      "eps": -3.18,
+      "harga_wajar": null,
+      "harga": 226
+    },
+    {
+      "saham": "PICO.JK",
+      "eps": -1.52,
+      "harga_wajar": null,
+      "harga": 133
+    },
+    {
+      "saham": "PIPA.JK",
+      "eps": -5.46,
+      "harga_wajar": null,
+      "harga": 121
+    },
+    {
+      "saham": "PLAN.JK",
+      "eps": -1.11,
+      "harga_wajar": null,
+      "harga": 38
+    },
+    {
+      "saham": "PMMP.JK",
+      "eps": 0.0,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "PNSE.JK",
+      "eps": -39.21,
+      "harga_wajar": null,
+      "harga": 496
+    },
+    {
+      "saham": "POLU.JK",
+      "eps": -20.23,
+      "harga_wajar": null,
+      "harga": 11925
+    },
+    {
+      "saham": "POLY.JK",
+      "eps": 0.0,
+      "harga_wajar": null,
+      "harga": 32
+    },
+    {
+      "saham": "PPRE.JK",
+      "eps": -159.43,
+      "harga_wajar": null,
+      "harga": 103
+    },
+    {
+      "saham": "PPRI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 142
+    },
+    {
+      "saham": "PPRO.JK",
+      "eps": -86.22,
+      "harga_wajar": null,
+      "harga": 17
+    },
+    {
+      "saham": "PRIM.JK",
+      "eps": -5.76,
+      "harga_wajar": null,
+      "harga": 110
+    },
+    {
+      "saham": "PSKT.JK",
+      "eps": -1.1,
+      "harga_wajar": null,
+      "harga": 224
+    },
+    {
+      "saham": "PSSI.JK",
+      "eps": -10.2,
+      "harga_wajar": null,
+      "harga": 326
+    },
+    {
+      "saham": "PTIS.JK",
+      "eps": -14.26,
+      "harga_wajar": null,
+      "harga": 262
+    },
+    {
+      "saham": "PTMP.JK",
+      "eps": -16.04,
+      "harga_wajar": null,
+      "harga": 66
+    },
+    {
+      "saham": "PTPP.JK",
+      "eps": -962.0,
+      "harga_wajar": null,
+      "harga": 206
+    },
+    {
+      "saham": "PTMR.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 374
+    },
+    {
+      "saham": "PTPS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 152
+    },
+    {
+      "saham": "PUDP.JK",
+      "eps": -53.83,
+      "harga_wajar": null,
+      "harga": 314
+    },
+    {
+      "saham": "PYFA.JK",
+      "eps": -29.55,
+      "harga_wajar": null,
+      "harga": 214
+    },
+    {
+      "saham": "RAAM.JK",
+      "eps": -18.53,
+      "harga_wajar": null,
+      "harga": 192
+    },
+    {
+      "saham": "RAFI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 36
+    },
+    {
+      "saham": "RANC.JK",
+      "eps": -26.0,
+      "harga_wajar": null,
+      "harga": 520
+    },
+    {
+      "saham": "RBMS.JK",
+      "eps": -10.04,
+      "harga_wajar": null,
+      "harga": 63
+    },
+    {
+      "saham": "RCCC.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 102
+    },
+    {
+      "saham": "RELF.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 35
+    },
+    {
+      "saham": "RGAS.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 218
+    },
+    {
+      "saham": "RICY.JK",
+      "eps": -488.64,
+      "harga_wajar": null,
+      "harga": 80
+    },
+    {
+      "saham": "RMKO.JK",
+      "eps": -32.93,
+      "harga_wajar": null,
+      "harga": 280
+    },
+    {
+      "saham": "RODA.JK",
+      "eps": -5.1,
+      "harga_wajar": null,
+      "harga": 68
+    },
+    {
+      "saham": "RONY.JK",
+      "eps": -2.15,
+      "harga_wajar": null,
+      "harga": 1270
+    },
+    {
+      "saham": "RSCH.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 314
+    },
+    {
+      "saham": "RUNS.JK",
+      "eps": -12.86,
+      "harga_wajar": null,
+      "harga": 61
+    },
+    {
+      "saham": "SAGE.JK",
+      "eps": -0.11,
+      "harga_wajar": null,
+      "harga": 32
+    },
+    {
+      "saham": "SATU.JK",
+      "eps": -13.13,
+      "harga_wajar": null,
+      "harga": 258
+    },
+    {
+      "saham": "SBAT.JK",
+      "eps": -11.37,
+      "harga_wajar": null,
+      "harga": 1
+    },
+    {
+      "saham": "SCNP.JK",
+      "eps": -2.0,
+      "harga_wajar": null,
+      "harga": 148
+    },
+    {
+      "saham": "SDMU.JK",
+      "eps": -5.07,
+      "harga_wajar": null,
+      "harga": 80
+    },
+    {
+      "saham": "SDRA.JK",
+      "eps": -37.43,
+      "harga_wajar": null,
+      "harga": 218
+    },
+    {
+      "saham": "SFAN.JK",
+      "eps": -14.09,
+      "harga_wajar": null,
+      "harga": 1985
+    },
+    {
+      "saham": "SHID.JK",
+      "eps": -22.14,
+      "harga_wajar": null,
+      "harga": 610
+    },
+    {
+      "saham": "SINI.JK",
+      "eps": -40.87,
+      "harga_wajar": null,
+      "harga": 6700
+    },
+    {
+      "saham": "SIPD.JK",
+      "eps": -5.21,
+      "harga_wajar": null,
+      "harga": 685
+    },
+    {
+      "saham": "SLIS.JK",
+      "eps": -9.34,
+      "harga_wajar": null,
+      "harga": 77
+    },
+    {
+      "saham": "SMGA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 73
+    },
+    {
+      "saham": "SMLE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 169
+    },
+    {
+      "saham": "SNLK.JK",
+      "eps": -18.55,
+      "harga_wajar": null,
+      "harga": 226
+    },
+    {
+      "saham": "SOFA.JK",
+      "eps": -2.13,
+      "harga_wajar": null,
+      "harga": 270
+    },
+    {
+      "saham": "SOLA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 91
+    },
+    {
+      "saham": "SOTS.JK",
+      "eps": -10.77,
+      "harga_wajar": null,
+      "harga": 670
+    },
+    {
+      "saham": "SOUL.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 37
+    },
+    {
+      "saham": "SPRE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 87
+    },
+    {
+      "saham": "SQMI.JK",
+      "eps": -1.37,
+      "harga_wajar": null,
+      "harga": 62
+    },
+    {
+      "saham": "SRAJ.JK",
+      "eps": -31.2,
+      "harga_wajar": null,
+      "harga": 13000
+    },
+    {
+      "saham": "SSTM.JK",
+      "eps": -8.65,
+      "harga_wajar": null,
+      "harga": 422
+    },
+    {
+      "saham": "STRK.JK",
+      "eps": -1.67,
+      "harga_wajar": null,
+      "harga": 60
+    },
+    {
+      "saham": "SULI.JK",
+      "eps": -8.85,
+      "harga_wajar": null,
+      "harga": 96
+    },
+    {
+      "saham": "SURI.JK",
+      "eps": -0.53,
+      "harga_wajar": null,
+      "harga": 73
+    },
+    {
+      "saham": "SWID.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 108
+    },
+    {
+      "saham": "TAMA.JK",
+      "eps": -3.56,
+      "harga_wajar": null,
+      "harga": 246
+    },
+    {
+      "saham": "TAMU.JK",
+      "eps": -10.86,
+      "harga_wajar": null,
+      "harga": 28
+    },
+    {
+      "saham": "TARA.JK",
+      "eps": -0.48,
+      "harga_wajar": null,
+      "harga": 30
+    },
+    {
+      "saham": "TAXI.JK",
+      "eps": -0.5,
+      "harga_wajar": null,
+      "harga": 15
+    },
+    {
+      "saham": "TBMS.JK",
+      "eps": 0.02,
+      "harga_wajar": null,
+      "harga": 1190
+    },
+    {
+      "saham": "TCID.JK",
+      "eps": -31.94,
+      "harga_wajar": null,
+      "harga": 2640
+    },
+    {
+      "saham": "TELE.JK",
+      "eps": -15.0,
+      "harga_wajar": null,
+      "harga": 9
+    },
+    {
+      "saham": "TFAS.JK",
+      "eps": -12.98,
+      "harga_wajar": null,
+      "harga": 185
+    },
+    {
+      "saham": "TFCO.JK",
+      "eps": -5.37,
+      "harga_wajar": null,
+      "harga": 790
+    },
+    {
+      "saham": "TGRA.JK",
+      "eps": -10.36,
+      "harga_wajar": null,
+      "harga": 27
+    },
+    {
+      "saham": "TGUK.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 96
+    },
+    {
+      "saham": "TOBA.JK",
+      "eps": -238.65,
+      "harga_wajar": null,
+      "harga": 515
+    },
+    {
+      "saham": "TOOL.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 66
+    },
+    {
+      "saham": "TOPS.JK",
+      "eps": -8.82,
+      "harga_wajar": null,
+      "harga": 1
+    },
+    {
+      "saham": "TOSK.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 70
+    },
+    {
+      "saham": "TOYS.JK",
+      "eps": -11.15,
+      "harga_wajar": null,
+      "harga": 8
+    },
+    {
+      "saham": "TRON.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 105
+    },
+    {
+      "saham": "TRUK.JK",
+      "eps": -9.93,
+      "harga_wajar": null,
+      "harga": 800
+    },
+    {
+      "saham": "TYRE.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 113
+    },
+    {
+      "saham": "UDNG.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 1295
+    },
+    {
+      "saham": "UNSP.JK",
+      "eps": -105.9,
+      "harga_wajar": null,
+      "harga": 206
+    },
+    {
+      "saham": "UNTD.JK",
+      "eps": -6.99,
+      "harga_wajar": null,
+      "harga": 81
+    },
+    {
+      "saham": "URBN.JK",
+      "eps": -57.29,
+      "harga_wajar": null,
+      "harga": 218
+    },
+    {
+      "saham": "VAST.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 113
+    },
+    {
+      "saham": "VERN.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 206
+    },
+    {
+      "saham": "VISI.JK",
+      "eps": -1.65,
+      "harga_wajar": null,
+      "harga": 965
+    },
+    {
+      "saham": "VKTR.JK",
+      "eps": -0.32,
+      "harga_wajar": null,
+      "harga": 815
+    },
+    {
+      "saham": "VOKS.JK",
+      "eps": -53.02,
+      "harga_wajar": null,
+      "harga": 228
+    },
+    {
+      "saham": "WAPO.JK",
+      "eps": -1.29,
+      "harga_wajar": null,
+      "harga": 131
+    },
+    {
+      "saham": "WEGE.JK",
+      "eps": -69.57,
+      "harga_wajar": null,
+      "harga": 52
+    },
+    {
+      "saham": "WICO.JK",
+      "eps": -119.5,
+      "harga_wajar": null,
+      "harga": 123
+    },
+    {
+      "saham": "WIDI.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 25
+    },
+    {
+      "saham": "WIKA.JK",
+      "eps": -29.91,
+      "harga_wajar": null,
+      "harga": 204
+    },
+    {
+      "saham": "WMPP.JK",
+      "eps": -0.24,
+      "harga_wajar": null,
+      "harga": 36
+    },
+    {
+      "saham": "WMUU.JK",
+      "eps": -3.77,
+      "harga_wajar": null,
+      "harga": 56
+    },
+    {
+      "saham": "WOWS.JK",
+      "eps": -2.1,
+      "harga_wajar": null,
+      "harga": 61
+    },
+    {
+      "saham": "WSBP.JK",
+      "eps": -11.48,
+      "harga_wajar": null,
+      "harga": 14
+    },
+    {
+      "saham": "ZATA.JK",
+      "eps": 0,
+      "harga_wajar": null,
+      "harga": 72
+    },
+    {
+      "saham": "ZBRA.JK",
+      "eps": -50.87,
+      "harga_wajar": null,
+      "harga": 50
+    },
+    {
+      "saham": "ZINC.JK",
+      "eps": -8.61,
+      "harga_wajar": null,
+      "harga": 30
+    }
+  ],
+  "jumlah_harga_wajar_melenceng_>100pct": 157,
+  "daftar_wajar_melenceng": [
+    {
+      "saham": "AGII.JK",
+      "harga": 2880,
+      "harga_wajar": 494,
+      "beda_persen": 483.0
+    },
+    {
+      "saham": "AGAR.JK",
+      "harga": 1510,
+      "harga_wajar": 29,
+      "beda_persen": 5106.9
+    },
+    {
+      "saham": "AKKU.JK",
+      "harga": 38,
+      "harga_wajar": 1,
+      "beda_persen": 3700.0
+    },
+    {
+      "saham": "ALKA.JK",
+      "harga": 2340,
+      "harga_wajar": 568,
+      "beda_persen": 312.0
+    },
+    {
+      "saham": "APIC.JK",
+      "harga": 560,
+      "harga_wajar": 132,
+      "beda_persen": 324.2
+    },
+    {
+      "saham": "ARGO.JK",
+      "harga": 1175,
+      "harga_wajar": 124,
+      "beda_persen": 847.6
+    },
+    {
+      "saham": "ARKO.JK",
+      "harga": 5275,
+      "harga_wajar": 328,
+      "beda_persen": 1508.2
+    },
+    {
+      "saham": "ARTO.JK",
+      "harga": 1265,
+      "harga_wajar": 286,
+      "beda_persen": 342.3
+    },
+    {
+      "saham": "ATAP.JK",
+      "harga": 620,
+      "harga_wajar": 49,
+      "beda_persen": 1165.3
+    },
+    {
+      "saham": "ATLA.JK",
+      "harga": 51,
+      "harga_wajar": 7,
+      "beda_persen": 628.6
+    },
+    {
+      "saham": "BABP.JK",
+      "harga": 50,
+      "harga_wajar": 22,
+      "beda_persen": 127.3
+    },
+    {
+      "saham": "AYAM.JK",
+      "harga": 456,
+      "harga_wajar": 6,
+      "beda_persen": 7500.0
+    },
+    {
+      "saham": "BANK.JK",
+      "harga": 274,
+      "harga_wajar": 67,
+      "beda_persen": 309.0
+    },
+    {
+      "saham": "BAJA.JK",
+      "harga": 362,
+      "harga_wajar": 12,
+      "beda_persen": 2916.7
+    },
+    {
+      "saham": "BAYU.JK",
+      "harga": 1175,
+      "harga_wajar": 353,
+      "beda_persen": 232.9
+    },
+    {
+      "saham": "BBMD.JK",
+      "harga": 2020,
+      "harga_wajar": 896,
+      "beda_persen": 125.4
+    },
+    {
+      "saham": "BBLD.JK",
+      "harga": 615,
+      "harga_wajar": 30,
+      "beda_persen": 1950.0
+    },
+    {
+      "saham": "BBHI.JK",
+      "harga": 900,
+      "harga_wajar": 325,
+      "beda_persen": 176.9
+    },
+    {
+      "saham": "BBSI.JK",
+      "harga": 4700,
+      "harga_wajar": 575,
+      "beda_persen": 717.4
+    },
+    {
+      "saham": "BEEF.JK",
+      "harga": 416,
+      "harga_wajar": 143,
+      "beda_persen": 190.9
+    },
+    {
+      "saham": "BESS.JK",
+      "harga": 895,
+      "harga_wajar": 48,
+      "beda_persen": 1764.6
+    },
+    {
+      "saham": "BIPI.JK",
+      "harga": 152,
+      "harga_wajar": 64,
+      "beda_persen": 137.5
+    },
+    {
+      "saham": "BLUE.JK",
+      "harga": 2430,
+      "harga_wajar": 563,
+      "beda_persen": 331.6
+    },
+    {
+      "saham": "BLTA.JK",
+      "harga": 33,
+      "harga_wajar": 16,
+      "beda_persen": 106.2
+    },
+    {
+      "saham": "BLTZ.JK",
+      "harga": 2540,
+      "harga_wajar": 1184,
+      "beda_persen": 114.5
+    },
+    {
+      "saham": "BMAS.JK",
+      "harga": 484,
+      "harga_wajar": 2,
+      "beda_persen": 24100.0
+    },
+    {
+      "saham": "BNBR.JK",
+      "harga": 102,
+      "harga_wajar": 33,
+      "beda_persen": 209.1
+    },
+    {
+      "saham": "BNBA.JK",
+      "harga": 730,
+      "harga_wajar": 64,
+      "beda_persen": 1040.6
+    },
+    {
+      "saham": "BOGA.JK",
+      "harga": 1600,
+      "harga_wajar": 16,
+      "beda_persen": 9900.0
+    },
+    {
+      "saham": "BPII.JK",
+      "harga": 454,
+      "harga_wajar": 130,
+      "beda_persen": 249.2
+    },
+    {
+      "saham": "BREN.JK",
+      "harga": 3470,
+      "harga_wajar": 307,
+      "beda_persen": 1030.3
+    },
+    {
+      "saham": "BRPT.JK",
+      "harga": 1900,
+      "harga_wajar": 401,
+      "beda_persen": 373.8
+    },
+    {
+      "saham": "BRMS.JK",
+      "harga": 615,
+      "harga_wajar": 74,
+      "beda_persen": 731.1
+    },
+    {
+      "saham": "BSML.JK",
+      "harga": 515,
+      "harga_wajar": 49,
+      "beda_persen": 951.0
+    },
+    {
+      "saham": "BSIM.JK",
+      "harga": 695,
+      "harga_wajar": 164,
+      "beda_persen": 323.8
+    },
+    {
+      "saham": "BTPN.JK",
+      "harga": 2120,
+      "harga_wajar": 502,
+      "beda_persen": 322.3
+    },
+    {
+      "saham": "BSWD.JK",
+      "harga": 1125,
+      "harga_wajar": 226,
+      "beda_persen": 397.8
+    },
+    {
+      "saham": "BUVA.JK",
+      "harga": 745,
+      "harga_wajar": 14,
+      "beda_persen": 5221.4
+    },
+    {
+      "saham": "BUMI.JK",
+      "harga": 182,
+      "harga_wajar": 87,
+      "beda_persen": 109.2
+    },
+    {
+      "saham": "BVIC.JK",
+      "harga": 92,
+      "harga_wajar": 34,
+      "beda_persen": 170.6
+    },
+    {
+      "saham": "CARE.JK",
+      "harga": 430,
+      "harga_wajar": 2,
+      "beda_persen": 21400.0
+    },
+    {
+      "saham": "CASA.JK",
+      "harga": 1800,
+      "harga_wajar": 40,
+      "beda_persen": 4400.0
+    },
+    {
+      "saham": "CHIP.JK",
+      "harga": 880,
+      "harga_wajar": 86,
+      "beda_persen": 923.3
+    },
+    {
+      "saham": "CLAY.JK",
+      "harga": 2880,
+      "harga_wajar": 153,
+      "beda_persen": 1782.4
+    },
+    {
+      "saham": "CITY.JK",
+      "harga": 175,
+      "harga_wajar": 64,
+      "beda_persen": 173.4
+    },
+    {
+      "saham": "CTBN.JK",
+      "harga": 4000,
+      "harga_wajar": 1338,
+      "beda_persen": 199.0
+    },
+    {
+      "saham": "CUAN.JK",
+      "harga": 775,
+      "harga_wajar": 344,
+      "beda_persen": 125.3
+    },
+    {
+      "saham": "CYBR.JK",
+      "harga": 575,
+      "harga_wajar": 13,
+      "beda_persen": 4323.1
+    },
+    {
+      "saham": "DCII.JK",
+      "harga": 196550,
+      "harga_wajar": 7110,
+      "beda_persen": 2664.4
+    },
+    {
+      "saham": "DIVA.JK",
+      "harga": 138,
+      "harga_wajar": 15,
+      "beda_persen": 820.0
+    },
+    {
+      "saham": "DMMX.JK",
+      "harga": 194,
+      "harga_wajar": 81,
+      "beda_persen": 139.5
+    },
+    {
+      "saham": "DNET.JK",
+      "harga": 9550,
+      "harga_wajar": 1178,
+      "beda_persen": 710.7
+    },
+    {
+      "saham": "DOOH.JK",
+      "harga": 252,
+      "harga_wajar": 49,
+      "beda_persen": 414.3
+    },
+    {
+      "saham": "DSSA.JK",
+      "harga": 980,
+      "harga_wajar": 374,
+      "beda_persen": 162.0
+    },
+    {
+      "saham": "EDGE.JK",
+      "harga": 4790,
+      "harga_wajar": 883,
+      "beda_persen": 442.5
+    },
+    {
+      "saham": "ELPI.JK",
+      "harga": 715,
+      "harga_wajar": 226,
+      "beda_persen": 216.4
+    },
+    {
+      "saham": "ESIP.JK",
+      "harga": 127,
+      "harga_wajar": 44,
+      "beda_persen": 188.6
+    },
+    {
+      "saham": "EURO.JK",
+      "harga": 1885,
+      "harga_wajar": 10,
+      "beda_persen": 18750.0
+    },
+    {
+      "saham": "FUJI.JK",
+      "harga": 204,
+      "harga_wajar": 85,
+      "beda_persen": 140.0
+    },
+    {
+      "saham": "FOLK.JK",
+      "harga": 202,
+      "harga_wajar": 15,
+      "beda_persen": 1246.7
+    },
+    {
+      "saham": "GMTD.JK",
+      "harga": 1275,
+      "harga_wajar": 200,
+      "beda_persen": 537.5
+    },
+    {
+      "saham": "GOLF.JK",
+      "harga": 165,
+      "harga_wajar": 41,
+      "beda_persen": 302.4
+    },
+    {
+      "saham": "GRIA.JK",
+      "harga": 141,
+      "harga_wajar": 13,
+      "beda_persen": 984.6
+    },
+    {
+      "saham": "GSMF.JK",
+      "harga": 85,
+      "harga_wajar": 25,
+      "beda_persen": 240.0
+    },
+    {
+      "saham": "HATM.JK",
+      "harga": 580,
+      "harga_wajar": 81,
+      "beda_persen": 616.0
+    },
+    {
+      "saham": "HERO.JK",
+      "harga": 344,
+      "harga_wajar": 45,
+      "beda_persen": 664.4
+    },
+    {
+      "saham": "HUMI.JK",
+      "harga": 148,
+      "harga_wajar": 8,
+      "beda_persen": 1750.0
+    },
+    {
+      "saham": "IATA.JK",
+      "harga": 133,
+      "harga_wajar": 26,
+      "beda_persen": 411.5
+    },
+    {
+      "saham": "IBOS.JK",
+      "harga": 67,
+      "harga_wajar": 3,
+      "beda_persen": 2133.3
+    },
+    {
+      "saham": "IDEA.JK",
+      "harga": 65,
+      "harga_wajar": 32,
+      "beda_persen": 103.1
+    },
+    {
+      "saham": "IFSH.JK",
+      "harga": 1285,
+      "harga_wajar": 462,
+      "beda_persen": 178.1
+    },
+    {
+      "saham": "IKAN.JK",
+      "harga": 98,
+      "harga_wajar": 29,
+      "beda_persen": 237.9
+    },
+    {
+      "saham": "IMPC.JK",
+      "harga": 1495,
+      "harga_wajar": 210,
+      "beda_persen": 611.9
+    },
+    {
+      "saham": "INDX.JK",
+      "harga": 60,
+      "harga_wajar": 1,
+      "beda_persen": 5900.0
+    },
+    {
+      "saham": "INDY.JK",
+      "harga": 2540,
+      "harga_wajar": 749,
+      "beda_persen": 239.1
+    },
+    {
+      "saham": "INET.JK",
+      "harga": 222,
+      "harga_wajar": 35,
+      "beda_persen": 534.3
+    },
+    {
+      "saham": "INTD.JK",
+      "harga": 288,
+      "harga_wajar": 74,
+      "beda_persen": 289.2
+    },
+    {
+      "saham": "INPP.JK",
+      "harga": 765,
+      "harga_wajar": 40,
+      "beda_persen": 1812.5
+    },
+    {
+      "saham": "IPAC.JK",
+      "harga": 169,
+      "harga_wajar": 57,
+      "beda_persen": 196.5
+    },
+    {
+      "saham": "IRSX.JK",
+      "harga": 374,
+      "harga_wajar": 64,
+      "beda_persen": 484.4
+    },
+    {
+      "saham": "IPOL.JK",
+      "harga": 116,
+      "harga_wajar": 45,
+      "beda_persen": 157.8
+    },
+    {
+      "saham": "ITMA.JK",
+      "harga": 1335,
+      "harga_wajar": 480,
+      "beda_persen": 178.1
+    },
+    {
+      "saham": "JARR.JK",
+      "harga": 1895,
+      "harga_wajar": 433,
+      "beda_persen": 337.6
+    },
+    {
+      "saham": "JMAS.JK",
+      "harga": 228,
+      "harga_wajar": 19,
+      "beda_persen": 1100.0
+    },
+    {
+      "saham": "KBLV.JK",
+      "harga": 153,
+      "harga_wajar": 14,
+      "beda_persen": 992.9
+    },
+    {
+      "saham": "KARW.JK",
+      "harga": 212,
+      "harga_wajar": 13,
+      "beda_persen": 1530.8
+    },
+    {
+      "saham": "KEEN.JK",
+      "harga": 900,
+      "harga_wajar": 400,
+      "beda_persen": 125.0
+    },
+    {
+      "saham": "KBLM.JK",
+      "harga": 302,
+      "harga_wajar": 46,
+      "beda_persen": 556.5
+    },
+    {
+      "saham": "KIOS.JK",
+      "harga": 94,
+      "harga_wajar": 17,
+      "beda_persen": 452.9
+    },
+    {
+      "saham": "KONI.JK",
+      "harga": 2360,
+      "harga_wajar": 1051,
+      "beda_persen": 124.5
+    },
+    {
+      "saham": "KOPI.JK",
+      "harga": 206,
+      "harga_wajar": 35,
+      "beda_persen": 488.6
+    },
+    {
+      "saham": "KOTA.JK",
+      "harga": 186,
+      "harga_wajar": 73,
+      "beda_persen": 154.8
+    },
+    {
+      "saham": "LAND.JK",
+      "harga": 78,
+      "harga_wajar": 8,
+      "beda_persen": 875.0
+    },
+    {
+      "saham": "LCKM.JK",
+      "harga": 109,
+      "harga_wajar": 22,
+      "beda_persen": 395.5
+    },
+    {
+      "saham": "LIFE.JK",
+      "harga": 5900,
+      "harga_wajar": 1990,
+      "beda_persen": 196.5
+    },
+    {
+      "saham": "MAYA.JK",
+      "harga": 198,
+      "harga_wajar": 30,
+      "beda_persen": 560.0
+    },
+    {
+      "saham": "MBAP.JK",
+      "harga": 1470,
+      "harga_wajar": 267,
+      "beda_persen": 450.6
+    },
+    {
+      "saham": "MBMA.JK",
+      "harga": 535,
+      "harga_wajar": 156,
+      "beda_persen": 242.9
+    },
+    {
+      "saham": "MDIA.JK",
+      "harga": 286,
+      "harga_wajar": 1,
+      "beda_persen": 28500.0
+    },
+    {
+      "saham": "MDKA.JK",
+      "harga": 2930,
+      "harga_wajar": 26,
+      "beda_persen": 11169.2
+    },
+    {
+      "saham": "MFMI.JK",
+      "harga": 1300,
+      "harga_wajar": 515,
+      "beda_persen": 152.4
+    },
+    {
+      "saham": "MKAP.JK",
+      "harga": 1165,
+      "harga_wajar": 133,
+      "beda_persen": 775.9
+    },
+    {
+      "saham": "MITI.JK",
+      "harga": 191,
+      "harga_wajar": 53,
+      "beda_persen": 260.4
+    },
+    {
+      "saham": "MLPT.JK",
+      "harga": 1465,
+      "harga_wajar": 121,
+      "beda_persen": 1110.7
+    },
+    {
+      "saham": "MORA.JK",
+      "harga": 5150,
+      "harga_wajar": 374,
+      "beda_persen": 1277.0
+    },
+    {
+      "saham": "MRAT.JK",
+      "harga": 440,
+      "harga_wajar": 32,
+      "beda_persen": 1275.0
+    },
+    {
+      "saham": "MTMH.JK",
+      "harga": 935,
+      "harga_wajar": 349,
+      "beda_persen": 167.9
+    },
+    {
+      "saham": "MTWI.JK",
+      "harga": 256,
+      "harga_wajar": 66,
+      "beda_persen": 287.9
+    },
+    {
+      "saham": "NEST.JK",
+      "harga": 690,
+      "harga_wajar": 89,
+      "beda_persen": 675.3
+    },
+    {
+      "saham": "NICL.JK",
+      "harga": 464,
+      "harga_wajar": 152,
+      "beda_persen": 205.3
+    },
+    {
+      "saham": "NSSS.JK",
+      "harga": 925,
+      "harga_wajar": 420,
+      "beda_persen": 120.2
+    },
+    {
+      "saham": "NTBK.JK",
+      "harga": 87,
+      "harga_wajar": 3,
+      "beda_persen": 2800.0
+    },
+    {
+      "saham": "NZIA.JK",
+      "harga": 141,
+      "harga_wajar": 19,
+      "beda_persen": 642.1
+    },
+    {
+      "saham": "OLIV.JK",
+      "harga": 49,
+      "harga_wajar": 13,
+      "beda_persen": 276.9
+    },
+    {
+      "saham": "PANI.JK",
+      "harga": 6050,
+      "harga_wajar": 2141,
+      "beda_persen": 182.6
+    },
+    {
+      "saham": "PGUN.JK",
+      "harga": 7500,
+      "harga_wajar": 312,
+      "beda_persen": 2303.8
+    },
+    {
+      "saham": "PKPK.JK",
+      "harga": 3770,
+      "harga_wajar": 1200,
+      "beda_persen": 214.2
+    },
+    {
+      "saham": "PNBS.JK",
+      "harga": 50,
+      "harga_wajar": 23,
+      "beda_persen": 117.4
+    },
+    {
+      "saham": "POLA.JK",
+      "harga": 58,
+      "harga_wajar": 25,
+      "beda_persen": 132.0
+    },
+    {
+      "saham": "POLL.JK",
+      "harga": 112,
+      "harga_wajar": 19,
+      "beda_persen": 489.5
+    },
+    {
+      "saham": "PRAY.JK",
+      "harga": 740,
+      "harga_wajar": 198,
+      "beda_persen": 273.7
+    },
+    {
+      "saham": "PTRO.JK",
+      "harga": 5250,
+      "harga_wajar": 776,
+      "beda_persen": 576.5
+    },
+    {
+      "saham": "PZZA.JK",
+      "harga": 182,
+      "harga_wajar": 87,
+      "beda_persen": 109.2
+    },
+    {
+      "saham": "REAL.JK",
+      "harga": 53,
+      "harga_wajar": 1,
+      "beda_persen": 5200.0
+    },
+    {
+      "saham": "RELI.JK",
+      "harga": 486,
+      "harga_wajar": 174,
+      "beda_persen": 179.3
+    },
+    {
+      "saham": "RISE.JK",
+      "harga": 930,
+      "harga_wajar": 164,
+      "beda_persen": 467.1
+    },
+    {
+      "saham": "ROCK.JK",
+      "harga": 2110,
+      "harga_wajar": 316,
+      "beda_persen": 567.7
+    },
+    {
+      "saham": "SAME.JK",
+      "harga": 302,
+      "harga_wajar": 18,
+      "beda_persen": 1577.8
+    },
+    {
+      "saham": "SAPX.JK",
+      "harga": 218,
+      "harga_wajar": 34,
+      "beda_persen": 541.2
+    },
+    {
+      "saham": "SGER.JK",
+      "harga": 472,
+      "harga_wajar": 216,
+      "beda_persen": 118.5
+    },
+    {
+      "saham": "SMDM.JK",
+      "harga": 560,
+      "harga_wajar": 57,
+      "beda_persen": 882.5
+    },
+    {
+      "saham": "SMGR.JK",
+      "harga": 1555,
+      "harga_wajar": 509,
+      "beda_persen": 205.5
+    },
+    {
+      "saham": "SMIL.JK",
+      "harga": 374,
+      "harga_wajar": 130,
+      "beda_persen": 187.7
+    },
+    {
+      "saham": "SMMA.JK",
+      "harga": 20175,
+      "harga_wajar": 5114,
+      "beda_persen": 294.5
+    },
+    {
+      "saham": "SMMT.JK",
+      "harga": 1875,
+      "harga_wajar": 214,
+      "beda_persen": 776.2
+    },
+    {
+      "saham": "SSIA.JK",
+      "harga": 1695,
+      "harga_wajar": 654,
+      "beda_persen": 159.2
+    },
+    {
+      "saham": "STAR.JK",
+      "harga": 515,
+      "harga_wajar": 76,
+      "beda_persen": 577.6
+    },
+    {
+      "saham": "SUPR.JK",
+      "harga": 43850,
+      "harga_wajar": 14207,
+      "beda_persen": 208.7
+    },
+    {
+      "saham": "SURE.JK",
+      "harga": 2650,
+      "harga_wajar": 24,
+      "beda_persen": 10941.7
+    },
+    {
+      "saham": "TALF.JK",
+      "harga": 890,
+      "harga_wajar": 228,
+      "beda_persen": 290.4
+    },
+    {
+      "saham": "TCPI.JK",
+      "harga": 3820,
+      "harga_wajar": 402,
+      "beda_persen": 850.2
+    },
+    {
+      "saham": "TIRA.JK",
+      "harga": 434,
+      "harga_wajar": 56,
+      "beda_persen": 675.0
+    },
+    {
+      "saham": "TIRT.JK",
+      "harga": 590,
+      "harga_wajar": 46,
+      "beda_persen": 1182.6
+    },
+    {
+      "saham": "TMPO.JK",
+      "harga": 153,
+      "harga_wajar": 67,
+      "beda_persen": 128.4
+    },
+    {
+      "saham": "TNCA.JK",
+      "harga": 162,
+      "harga_wajar": 48,
+      "beda_persen": 237.5
+    },
+    {
+      "saham": "TPIA.JK",
+      "harga": 2100,
+      "harga_wajar": 214,
+      "beda_persen": 881.3
+    },
+    {
+      "saham": "TRGU.JK",
+      "harga": 177,
+      "harga_wajar": 20,
+      "beda_persen": 785.0
+    },
+    {
+      "saham": "TRIN.JK",
+      "harga": 310,
+      "harga_wajar": 42,
+      "beda_persen": 638.1
+    },
+    {
+      "saham": "TRIS.JK",
+      "harga": 171,
+      "harga_wajar": 55,
+      "beda_persen": 210.9
+    },
+    {
+      "saham": "UANG.JK",
+      "harga": 2420,
+      "harga_wajar": 1120,
+      "beda_persen": 116.1
+    },
+    {
+      "saham": "UVCR.JK",
+      "harga": 147,
+      "harga_wajar": 51,
+      "beda_persen": 188.2
+    },
+    {
+      "saham": "VICI.JK",
+      "harga": 595,
+      "harga_wajar": 225,
+      "beda_persen": 164.4
+    },
+    {
+      "saham": "VRNA.JK",
+      "harga": 75,
+      "harga_wajar": 10,
+      "beda_persen": 650.0
+    },
+    {
+      "saham": "VTNY.JK",
+      "harga": 67,
+      "harga_wajar": 5,
+      "beda_persen": 1240.0
+    },
+    {
+      "saham": "WGSH.JK",
+      "harga": 188,
+      "harga_wajar": 89,
+      "beda_persen": 111.2
+    },
+    {
+      "saham": "YPAS.JK",
+      "harga": 810,
+      "harga_wajar": 201,
+      "beda_persen": 303.0
+    },
+    {
+      "saham": "YULE.JK",
+      "harga": 3500,
+      "harga_wajar": 1265,
+      "beda_persen": 176.7
+    }
+  ]
+}

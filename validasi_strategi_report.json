@@ -1,0 +1,149 @@
+{
+  "jumlah_saham_diuji": 9,
+  "persen_cocok_top1_persen": 33.3,
+  "persen_cocok_top1_hanya_sampel_andal_persen": 22.2,
+  "rata_rata_tumpang_tindih_top3": 1.89,
+  "rata_rata_korelasi_spearman": 0.13,
+  "rata_rata_korelasi_spearman_hanya_sampel_andal": 0.37,
+  "detail_per_saham": [
+    {
+      "saham": "BBRI",
+      "terbaik_skor": "swing",
+      "terbaik_backtest": "fast_intraday",
+      "cocok_top1": false,
+      "cocok_top1_andal": false,
+      "tumpang_tindih_top3": 1,
+      "peringkat_skor_terbaik_backtest": 4,
+      "korelasi_spearman": -0.87,
+      "korelasi_spearman_andal": -0.74
+    },
+    {
+      "saham": "BMRI",
+      "terbaik_skor": "swing",
+      "terbaik_backtest": "gorengan",
+      "cocok_top1": false,
+      "cocok_top1_andal": false,
+      "tumpang_tindih_top3": 2,
+      "peringkat_skor_terbaik_backtest": 6,
+      "korelasi_spearman": 0.03,
+      "korelasi_spearman_andal": 0.87
+    },
+    {
+      "saham": "TLKM",
+      "terbaik_skor": "swing",
+      "terbaik_backtest": "swing",
+      "cocok_top1": true,
+      "cocok_top1_andal": false,
+      "tumpang_tindih_top3": 2,
+      "peringkat_skor_terbaik_backtest": 1,
+      "korelasi_spearman": 0.52,
+      "korelasi_spearman_andal": 0.87
+    },
+    {
+      "saham": "BBCA",
+      "terbaik_skor": "swing",
+      "terbaik_backtest": "bsjp",
+      "cocok_top1": false,
+      "cocok_top1_andal": false,
+      "tumpang_tindih_top3": 1,
+      "peringkat_skor_terbaik_backtest": 4,
+      "korelasi_spearman": -0.06,
+      "korelasi_spearman_andal": 0.32
+    },
+    {
+      "saham": "GOTO",
+      "terbaik_skor": "range_pagi_sore",
+      "terbaik_backtest": "bsjp",
+      "cocok_top1": false,
+      "cocok_top1_andal": true,
+      "tumpang_tindih_top3": 3,
+      "peringkat_skor_terbaik_backtest": 3,
+      "korelasi_spearman": 0.32,
+      "korelasi_spearman_andal": null
+    },
+    {
+      "saham": "ASII",
+      "terbaik_skor": "swing",
+      "terbaik_backtest": "swing",
+      "cocok_top1": true,
+      "cocok_top1_andal": false,
+      "tumpang_tindih_top3": 3,
+      "peringkat_skor_terbaik_backtest": 1,
+      "korelasi_spearman": 0.75,
+      "korelasi_spearman_andal": 0.74
+    },
+    {
+      "saham": "ADRO",
+      "terbaik_skor": "swing",
+      "terbaik_backtest": "bsjp",
+      "cocok_top1": false,
+      "cocok_top1_andal": false,
+      "tumpang_tindih_top3": 2,
+      "peringkat_skor_terbaik_backtest": 4,
+      "korelasi_spearman": 0.12,
+      "korelasi_spearman_andal": 0.87
+    },
+    {
+      "saham": "ANTM",
+      "terbaik_skor": "swing",
+      "terbaik_backtest": "gorengan",
+      "cocok_top1": false,
+      "cocok_top1_andal": false,
+      "tumpang_tindih_top3": 1,
+      "peringkat_skor_terbaik_backtest": 5,
+      "korelasi_spearman": 0.06,
+      "korelasi_spearman_andal": -0.32
+    },
+    {
+      "saham": "BUMI",
+      "terbaik_skor": "fast_intraday",
+      "terbaik_backtest": "fast_intraday",
+      "cocok_top1": true,
+      "cocok_top1_andal": true,
+      "tumpang_tindih_top3": 2,
+      "peringkat_skor_terbaik_backtest": 1,
+      "korelasi_spearman": 0.32,
+      "korelasi_spearman_andal": 0.36
+    }
+  ],
+  "ringkasan_per_strategi": {
+    "swing": {
+      "nama": "Swing-Investment Dividen",
+      "terbaik_versi_skor": 7,
+      "terbaik_versi_backtest": 2,
+      "rata2_metrik_per_hari_saat_jadi_terbaik_skor": 0.008
+    },
+    "gorengan": {
+      "nama": "Momentum Gorengan (Day Trading)",
+      "terbaik_versi_skor": 0,
+      "terbaik_versi_backtest": 2,
+      "rata2_metrik_per_hari_saat_jadi_terbaik_skor": null
+    },
+    "fast_intraday": {
+      "nama": "Fast Intraday Alert (15 menit)",
+      "terbaik_versi_skor": 1,
+      "terbaik_versi_backtest": 2,
+      "rata2_metrik_per_hari_saat_jadi_terbaik_skor": 2.857
+    },
+    "bsjp": {
+      "nama": "BSJP (Beli Sore Jual Pagi)",
+      "terbaik_versi_skor": 0,
+      "terbaik_versi_backtest": 3,
+      "rata2_metrik_per_hari_saat_jadi_terbaik_skor": null
+    },
+    "range_pagi_sore": {
+      "nama": "Range Pagi-Sore (Jual Pagi, Beli Sore)",
+      "terbaik_versi_skor": 1,
+      "terbaik_versi_backtest": 0,
+      "rata2_metrik_per_hari_saat_jadi_terbaik_skor": 0.0
+    },
+    "bpjs": {
+      "nama": "BPJS (Beli Pagi Jual Sore)",
+      "terbaik_versi_skor": 0,
+      "terbaik_versi_backtest": 0,
+      "rata2_metrik_per_hari_saat_jadi_terbaik_skor": null
+    }
+  },
+  "interpretasi": "Dari 9 saham yang diuji, 33.3% menunjukkan strategi terbaik versi skor == strategi terbaik versi backtest. Jika dibatasi strategi bersampel andal saja: 22.2%. Rata-rata 3 strategi skor teratas yang juga masuk 3 besar backtest: 1.89 dari 3. Korelasi Spearman rata-rata 0.13 (semua strategi) dan 0.37 (sampel andal saja; rentang -1 s.d. +1, > 0 berarti skor & performa historis searah). Kecocokan < 100% adalah normal — skor juga mempertimbangkan sinyal saat ini & profil risiko, bukan hanya performa historis. Namun jika korelasi mendekati 0/negatif secara konsisten, skor kecocokan perlu dikalibrasi ulang.",
+  "peringatan": "⚠️ Sampel backtest intraday (gorengan, fast-intraday, range pagi-sore, BPJS) terbatas ~60 hari data, dan beberapa strategi hanya memicu beberapa transaksi di saham tertentu (misal swing 1-4 transaksi di bluechip stabil) — hasilnya sanity-check kasar, bukan bukti statistik. Perhatikan flag 'andal' per strategi sebelum menarik kesimpulan kuat."
+}

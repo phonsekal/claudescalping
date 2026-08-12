@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Arsitektur/cache eksternal yang tidak perlu di-repo
+Claude.zip
+
+# Artefak hasil analisis yang besar/regenerable (cache sektor, progres audit)
+*.jsonl
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
