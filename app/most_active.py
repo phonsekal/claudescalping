@@ -23,6 +23,7 @@ Keputusan desain (dibahas dengan user, Agu 2026):
 """
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import TimeoutError as FuturesTimeout
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -31,7 +32,17 @@ import pandas as pd
 
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
 from app.services import rekomendasi_strategi_gabungan
-from app.riwayat import simpan_snapshot_digest
+from app.riwayat import simpan_snapshot_digest, simpan_kv_json, ambil_kv_json
+
+# TTL cache batch pasar (detik). 48 jam cukup: kunci dipisah per hari WIB + sesi
+# (pagi < 16:00 pakai hari trading lengkap sebelumnya, sore >= 16:00 pakai hari
+# berjalan), jadi TTL cuma berfungsi membersihkan key lama.
+CACHE_PASAR_TTL_DETIK = 172800  # 48 jam
+
+# Anggaran waktu (detik) untuk fase skor strategi intraday di digest — supaya
+# request TIDAK pernah 504 walaupun Yahoo sedang rate-limit: kalau budget habis,
+# digest tetap balik dengan hasil parsial + daftar saham yang belum diproses.
+DIGEST_SKOR_BUDGET_DETIK = 150
 
 # Konfigurasi batch download. period="5d" cukup untuk menghitung metrik pasar
 # (harga terakhir, volume, nilai transaksi, perubahan hari & 5 hari).
@@ -119,13 +130,36 @@ def _ekstrak_metrik(t: str, df: pd.DataFrame) -> dict:
     }
 
 
+def _kunci_cache_pasar() -> str:
+    """
+    Kunci cache batch pasar untuk HARI INI (WIB) + sesi.
+
+    Sesi dibedakan karena metrik berubah setelah jam 16:00 WIB: sebelum itu data
+    = hari trading lengkap terakhir (hari sebelumnya), sesudahnya = hari ini.
+    """
+    now = datetime.now(ZoneInfo("Asia/Jakarta"))
+    sesi = "pagi" if now.hour < 16 else "sore"
+    return f"metrik_pasar:{now.strftime('%Y-%m-%d')}:{sesi}"
+
+
 def ambil_metrik_pasar() -> dict:
     """
     Batch download seluruh daftar BEI (5d, harian) dan hitung metrik pasar.
 
     Return: {"metrik": {ticker: {...}}, "tanggal_data": ..., "jumlah_berhasil": n}
     Retry 1x per chunk untuk menyerap rate-limit Yahoo sesaat.
+
+    CACHE OPSIONAL (Upstash KV): dalam satu sesi WIB, metrik pasar TIDAK
+    berubah — jadi panggilan ulang (most-active, intraday, digest) memakai
+    hasil batch yang sama tanpa download 941 saham berulang. Cache hanya
+    disimpan kalau batch LENGKAP (tanpa chunk gagal); kalau parsial, tidak
+    dicache supaya panggilan berikutnya mencoba batch penuh lagi.
     """
+    kunci = _kunci_cache_pasar()
+    cached = ambil_kv_json(kunci)
+    if cached:
+        return cached
+
     tickers_jk = [t if t.endswith(".JK") else f"{t.upper()}.JK" for t in SEMUA_SAHAM_BEI]
     metrik = {}
     chunk_gagal = []
@@ -169,12 +203,16 @@ def ambil_metrik_pasar() -> dict:
         counter = Counter(m["tanggal"] for m in metrik.values())
         tanggal = counter.most_common(1)[0][0]
 
-    return {
+    hasil = {
         "metrik": metrik,
         "tanggal_data": tanggal,
         "jumlah_berhasil": len(metrik),
         "chunk_gagal": chunk_gagal,
     }
+    if not chunk_gagal and metrik:
+        # Batch lengkap -> cache untuk sesi ini (hemat download berulang).
+        simpan_kv_json(kunci, hasil, ex_detik=CACHE_PASAR_TTL_DETIK)
+    return hasil
 
 
 def top_pasar(jenis: str = "active", limit: int = 10, metrik_pasar: dict = None) -> dict:
@@ -238,7 +276,7 @@ def top_pasar(jenis: str = "active", limit: int = 10, metrik_pasar: dict = None)
 
 
 def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: int = 3,
-                                metrik_pasar: dict = None) -> dict:
+                                metrik_pasar: dict = None, batas_waktu_detik: int = None) -> dict:
     """
     Rekomendasi saham UNTUK STRATEGI INTRADAY, berbasis filter most-active.
 
@@ -290,29 +328,64 @@ def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: 
                     time.sleep(1.5 * (percobaan + 1))
         return t, None
 
-    def _jalankan_batch(daftar, worker):
+    def _jalankan_batch(daftar, worker, deadline=None):
+        """
+        Jalankan skor strategi untuk daftar ticker (paralel, spacing anti-429).
+
+        deadline (opsional): timestamp monolitik. Kalau sudah lewat deadline,
+        berhenti submit tugas baru dan hanya kumpulkan yang sudah selesai —
+        sisanya masuk daftar "belum diproses" (gag). Dipakai supaya request
+        serverless TIDAK pernah 504 walau Yahoo lambat/rate-limit.
+        """
         ok = {}
         gag = []
-        with ThreadPoolExecutor(max_workers=worker) as ex:
-            futures = []
+        if not daftar:
+            return ok, gag
+        ex = ThreadPoolExecutor(max_workers=worker)
+        try:
+            futures = {}
             for t in daftar:
-                futures.append(ex.submit(_proses, t))
+                if deadline is not None and time.time() >= deadline:
+                    gag.append(t)  # tidak sempat diproses
+                    continue
+                futures[ex.submit(_proses, t)] = t
                 time.sleep(0.4)  # spacing antar submit, anti burst 429
-            for fut in as_completed(futures):
-                t, r = fut.result()
-                if r:
-                    ok[t] = r
-                else:
-                    gag.append(t)
+            if futures:
+                sisa = None if deadline is None else max(0.0, deadline - time.time())
+                try:
+                    for fut in as_completed(futures, timeout=sisa):
+                        t = futures[fut]
+                        try:
+                            _, r = fut.result()  # _proses mengembalikan (ticker, hasil)
+                        except Exception:
+                            r = None
+                        if r:
+                            ok[t] = r
+                        else:
+                            gag.append(t)
+                except FuturesTimeout:
+                    # Budget habis: tugas yang belum selesai = belum diproses.
+                    for fut, t in futures.items():
+                        if t not in ok and t not in gag:
+                            gag.append(t)
+        finally:
+            # JANGAN menunggu tugas yang masih jalan (tidak boleh menggagalkan
+            # request yang sudah punya hasil parsial).
+            ex.shutdown(wait=False, cancel_futures=True)
         return ok, gag
 
+    deadline = None
+    if batas_waktu_detik:
+        deadline = time.time() + batas_waktu_detik
+
     gabungan = {}
-    ok1, gagal = _jalankan_batch(ticker_list, max_workers)
+    ok1, gagal = _jalankan_batch(ticker_list, max_workers, deadline=deadline)
     gabungan.update(ok1)
     if gagal and len(gabungan) < len(ticker_list):
-        time.sleep(2.0)
-        ok2, gagal = _jalankan_batch(gagal, max(1, min(max_workers, 2)))
-        gabungan.update(ok2)
+        if deadline is None or time.time() < deadline:
+            time.sleep(2.0)
+            ok2, gagal = _jalankan_batch(gagal, max(1, min(max_workers, 2)), deadline=deadline)
+            gabungan.update(ok2)
 
     # Leaderboard per strategi intraday dari skor gabungan.
     skor_by = {kode: [] for kode, _ in STRATEGI_INTRADAY}
@@ -402,18 +475,25 @@ def _snapshot_ringkas(payload: dict) -> dict:
             for lb in (payload.get("rekomendasi_intraday") or {})
             .get("leaderboard_per_strategi_intraday", [])
         ],
+        # Penanda kejujuran: kalau budget skor habis, catat saham yang belum
+        # diproses supaya recap mingguan tahu snapshot ini parsial.
+        "saham_skor_belum_diproses": (payload.get("rekomendasi_intraday") or {}).get("saham_gagal", []),
     }
 
 
 def digest_pagi(limit_active: int = 10, n_intraday: int = 5, jenis: str = "active",
-                max_workers: int = 3) -> dict:
+                max_workers: int = 3, skor_budget_detik: int = DIGEST_SKOR_BUDGET_DETIK) -> dict:
     """
     DIGEST PAGI: Most Active + Rekomendasi Intraday dalam SATU request.
 
     Dipakai notifikasi WA otomatis tiap pagi. Kunci efisiensi: batch download
-    seluruh BEI (941 ticker, ~16-21 dtk) hanya dijalankan SEKALI, lalu dipakai
-    bersama oleh top_pasar() dan rekomendasi_intraday_likuid() via param
-    metrik_pasar — kalau dipanggil terpisah, batch dijalankan dua kali.
+    seluruh BEI (941 ticker) hanya dijalankan SEKALI (lalu di-cache ke Upstash
+    per sesi WIB), dan dipakai bersama oleh top_pasar() dan
+    rekomendasi_intraday_likuid() via param metrik_pasar.
+
+    skor_budget_detik: anggaran waktu untuk fase skor strategi intraday.
+    Kalau habis, hasil parsial dikembalikan (bukan 504) + daftar saham yang
+    belum diproses. Aman diset besar karena batch pasar sudah di-cache.
 
     Snapshot ringkas otomatis disimpan ke riwayat harian (Upstash KV, OPSIONAL):
     kalau KV belum dikonfigurasi, penyimpanan di-skip tanpa error.
@@ -421,7 +501,8 @@ def digest_pagi(limit_active: int = 10, n_intraday: int = 5, jenis: str = "activ
     pasar = ambil_metrik_pasar()
     most_active = top_pasar(jenis="active", limit=limit_active, metrik_pasar=pasar)
     intraday = rekomendasi_intraday_likuid(
-        n=n_intraday, jenis=jenis, max_workers=max_workers, metrik_pasar=pasar
+        n=n_intraday, jenis=jenis, max_workers=max_workers, metrik_pasar=pasar,
+        batas_waktu_detik=skor_budget_detik,
     )
     payload = {
         "tanggal_data": pasar.get("tanggal_data"),

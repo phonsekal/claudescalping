@@ -39,18 +39,21 @@ def kv_terkonfigurasi() -> bool:
     return bool(KV_URL and KV_TOKEN)
 
 
-def _kv_request(method: str, key: str, value: str = None):
+def _kv_request(method: str, key: str, value: str = None, ex_detik: int = None):
     """
     Panggil REST API Upstash. Return dict JSON response; None jika gagal.
 
     PENTING: Upstash REST memakai NAMA KOMANDO sebagai path segment
     (/set/{key} untuk tulis, /get/{key} untuk baca) — bukan nama method HTTP.
     Method HTTP hanya menandakan GET (tanpa body) vs POST (dengan body).
+    ex_detik (opsional): TTL dalam detik, dikirim sebagai query ?EX=...
     """
     try:
         key_enc = urllib.parse.quote(key, safe="")
         komando = "set" if method.upper() == "POST" else "get"
         url = f"{KV_URL.rstrip('/')}/{komando}/{key_enc}"
+        if ex_detik:
+            url += f"?EX={int(ex_detik)}"
         headers = {"Authorization": f"Bearer {KV_TOKEN}"}
         data = None
         if value is not None:
@@ -63,8 +66,8 @@ def _kv_request(method: str, key: str, value: str = None):
         return None
 
 
-def _kv_set(key: str, value: str) -> bool:
-    resp = _kv_request("POST", key, value)
+def _kv_set(key: str, value: str, ex_detik: int = None) -> bool:
+    resp = _kv_request("POST", key, value, ex_detik=ex_detik)
     return bool(resp and resp.get("result") == "OK")
 
 
@@ -78,6 +81,37 @@ def _kv_get(key: str):
     if not resp:
         return _KV_ERROR  # request gagal (network/HTTP)
     return resp.get("result")  # None kalau key belum ada — itu NORMAL
+
+
+def simpan_kv_json(kunci: str, data: dict, ex_detik: int = None) -> bool:
+    """
+    Simpan dict JSON ke KV Upstash (helper publik untuk cache).
+
+    Return False (bukan error) kalau KV belum dikonfigurasi atau gagal —
+    pemanggil harus memperlakukan ini sebagai "cache opsional".
+    """
+    if not kv_terkonfigurasi():
+        return False
+    try:
+        return _kv_set(kunci, json.dumps(data, ensure_ascii=False), ex_detik=ex_detik)
+    except Exception:
+        return False
+
+
+def ambil_kv_json(kunci: str):
+    """
+    Ambil dict JSON dari KV Upstash. Return None jika tidak ada, KV belum
+    dikonfigurasi, atau request gagal.
+    """
+    if not kv_terkonfigurasi():
+        return None
+    raw = _kv_get(kunci)
+    if not raw or raw is _KV_ERROR:
+        return None
+    try:
+        return json.loads(raw)
+    except Exception:
+        return None
 
 
 def simpan_snapshot_digest(snapshot: dict) -> dict:
@@ -115,8 +149,6 @@ def simpan_snapshot_digest(snapshot: dict) -> dict:
         return {"tersimpan": True, "tanggal": tanggal}
     except Exception as e:
         return {"tersimpan": True, "tanggal": tanggal, "catatan": f"index tanggal gagal diperbarui: {e}"}
-    except Exception as e:
-        return {"tersimpan": False, "alasan": f"gagal simpan ke KV: {e}"}
 
 
 def ambil_riwayat_digest(hari: int = 7) -> dict:

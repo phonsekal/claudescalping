@@ -30,7 +30,7 @@
               "responseFormat": "json"
             }
           },
-          "timeout": 90000
+          "timeout": 290000
         }
       },
       "id": "notif-http-001",

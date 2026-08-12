@@ -796,7 +796,9 @@ async def rekomendasi_intraday(
     """
     if jenis not in ("active", "value"):
         raise HTTPException(status_code=400, detail="jenis hanya mendukung: active | value")
-    data = rekomendasi_intraday_likuid(n=n, jenis=jenis)
+    # Batas waktu 150 dtk utk fase skor: batch pasar di-cache harian (cepat),
+    # tapi skor strategi tetap diberi anggaran supaya tidak pernah 504.
+    data = rekomendasi_intraday_likuid(n=n, jenis=jenis, batas_waktu_detik=150)
     return {"status": "success", "data": data}
 
 
@@ -804,20 +806,25 @@ async def rekomendasi_intraday(
 async def pasar_digest_pagi(
     limit_active: int = Query(10, ge=1, le=30, description="Berapa saham most-active yang ditampilkan"),
     n_intraday: int = Query(5, ge=1, le=15, description="Berapa kandidat likuid yang diskor strategi intraday"),
-    jenis: str = Query("active", description="active (most active) | value (top value)")
+    jenis: str = Query("active", description="active (most active) | value (top value)"),
+    skor_budget_detik: int = Query(150, ge=30, le=200, description="Anggaran waktu (dtk) utk fase skor strategi intraday — kalau habis, hasil parsial dikembalikan (bukan timeout). Maks 200 supaya masih ada ruang untuk batch pasar di maxDuration 300s")
 ):
     """
     DIGEST PAGI: Most Active + Rekomendasi Intraday dalam SATU request.
 
     Dibuat untuk notifikasi WA otomatis tiap pagi — batch download 941 saham BEI
-    dijalankan SEKALI lalu dipakai bersama untuk dua output (hemat waktu &
-    mengurangi risiko rate-limit Yahoo). Data = hari trading lengkap terakhir.
+    dijalankan SEKALI (di-cache per sesi WIB) lalu dipakai bersama untuk dua
+    output (hemat waktu & mengurangi risiko rate-limit Yahoo). Data = hari
+    trading lengkap terakhir.
 
     Contoh: /v1/pasar/digest-pagi?limit_active=10&n_intraday=5
     """
     if jenis not in ("active", "value"):
         raise HTTPException(status_code=400, detail="jenis hanya mendukung: active | value")
-    data = digest_pagi(limit_active=limit_active, n_intraday=n_intraday, jenis=jenis)
+    data = digest_pagi(
+        limit_active=limit_active, n_intraday=n_intraday, jenis=jenis,
+        skor_budget_detik=skor_budget_detik,
+    )
     return {"status": "success", "data": data}
 
 

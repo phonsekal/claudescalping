@@ -30,7 +30,7 @@
               "responseFormat": "json"
             }
           },
-          "timeout": 120000
+          "timeout": 290000
         }
       },
       "id": "w-n8n_workflow_notif_sore_bsjp.json-http",
