@@ -16,7 +16,8 @@ from app.config import (
     MIN_RASIO_RISK_REWARD_DAYTRADING, RSI_MAKS_UNTUK_ENTRY_DAYTRADING,
     MAX_HOLD_BARS_FAST_INTRADAY, MIN_PROFIT_BERSIH_FAST_INTRADAY_PERSEN,
     MIN_RASIO_RISK_REWARD_FAST_INTRADAY, ATR_MULTIPLIER_SL_FAST_INTRADAY,
-    ATR_MULTIPLIER_TP_FAST_INTRADAY, VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY,
+    ATR_MULTIPLIER_TP_FAST_INTRADAY, ATR_MULTIPLIER_TP_DAYTRADING,
+    VOLUME_SPIKE_MULTIPLIER_FAST_INTRADAY,
     JUMLAH_BAR_RATA_RATA_VOLUME_FAST_INTRADAY, INTERVAL_FAST_INTRADAY,
     PERIODE_DATA_FAST_INTRADAY,
     CACHE_TTL_MARKET_DETIK,
@@ -831,10 +832,21 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
     status_forum_day = "TREN SANGAT KUAT 🚀" if f2_kondisi else "TREN LEMAH / SIDEWAYS 💤"
 
     # --- REKOMENDASI HARGA ENTRY DAYTRADING (saat tren ADX bagus) ---
-    # Target jual memakai resisten terdekat kalau masih ada ruang di atas harga,
-    # kalau tidak (harga sudah di puncak) fallback ke proyeksi ATR.
+    # PERBAIKAN KONSISTENSI (keluhan user Agu 2026): target fast-trade TIDAK boleh
+    # memakai resisten 120-hari — itu target SWING jangka menengah (kasus BBRI:
+    # resisten Rp3980 = +29% dari harga, mustahil dicapai dalam eksekusi harian).
+    # Target fast-trade berbasis ATR harian (2.5x ATR ≈ target tercapai dalam
+    # beberapa hari). Resisten 120-hari tetap dipakai HANYA kalau jaraknya lebih
+    # dekat dari target ATR (artinya tercapai lebih dulu dalam jangka pendek).
     atr_terakhir = float(terakhir['ATR14']) if pd.notna(terakhir['ATR14']) else 0.0
-    target_jual_daytrading = float(resisten_terdekat) if resisten_terdekat > harga_sekarang else harga_sekarang + (ATR_MULTIPLIER_TP * atr_terakhir)
+    if atr_terakhir > 0:
+        target_atr_daytrading = harga_sekarang + (ATR_MULTIPLIER_TP_DAYTRADING * atr_terakhir)
+        jarak_resisten = resisten_terdekat - harga_sekarang if resisten_terdekat > harga_sekarang else 0
+        jarak_atr = target_atr_daytrading - harga_sekarang
+        # Resisten dipakai hanya kalau LEBIH DEKAT dari target ATR (cap jangka pendek)
+        target_jual_daytrading = float(resisten_terdekat) if 0 < jarak_resisten < jarak_atr else float(target_atr_daytrading)
+    else:
+        target_jual_daytrading = float(resisten_terdekat) if resisten_terdekat > harga_sekarang else harga_sekarang + (ATR_MULTIPLIER_TP * atr_terakhir)
     rekomendasi_daytrading = hitung_rekomendasi_entry_daytrading(
         harga_sekarang=harga_sekarang,
         ema_pullback=ema20,
@@ -843,6 +855,24 @@ def hitung_analisis_saham(ticker_symbol: str, kondisi_market: dict = None, df_ri
         adx=adx, plus_di=plus_di, minus_di=minus_di,
         rsi=rsi
     )
+    if rekomendasi_daytrading and rekomendasi_daytrading.get("aktif"):
+        # Catatan horizon waktu: supaya target fast-trade tidak disalahartikan
+        # sebagai target 1 hari (kasus BBRI +30% yang menyesatkan).
+        # Pakai target_jual yang SUDAH dibulatkan tick dari dict — konsisten
+        # dengan angka yang ditampilkan di field target_jual (Rp3.250, bukan
+        # Rp3.257 sebelum pembulatan).
+        target_tampil = int(rekomendasi_daytrading["target_jual"])
+        selisih_persen = round((target_tampil - harga_sekarang) / harga_sekarang * 100, 1)
+        # Jujur soal sumber target: kalau resisten 120-hari yang terpakai (karena
+        # lebih dekat dari target ATR), sebutkan itu — bukan mengaku murni ATR.
+        resisten_dipakai = (jarak_resisten > 0 and jarak_resisten < jarak_atr) if atr_terakhir > 0 else False
+        sumber = "berbasis ATR harian (2.5x ATR)" if not resisten_dipakai else "dibatasi resisten terdekat (lebih dekat dari target ATR)"
+        rekomendasi_daytrading["catatan_horizon"] = (
+            f"Target Rp{target_tampil:,} = +{selisih_persen}% dari harga sekarang. "
+            f"Ini target FAST-TRADE {sumber} — "
+            "realistis dicapai dalam BEBERAPA HARI, bukan target 1 hari. Untuk eksekusi "
+            "intraday 1 hari gunakan strategi BPJS / range-pagi-sore / fast-intraday (15 menit)."
+        )
 
     # --- D. LOGIKA GUARDRAIL & STRATEGI ---
     wajib_stop_loss = beta > 1.3 or not is_dividend_stock

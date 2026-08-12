@@ -60,6 +60,15 @@ RSI_MAKS_UNTUK_ENTRY_DAYTRADING = 80.0
 ATR_MULTIPLIER_SL = 1.5
 ATR_MULTIPLIER_TP = 4.0
 
+# Kelipatan ATR untuk target TP blok "REKOMENDASI DAYTRADING / FAST TRADE" di
+# analisis swing. PERBAIKAN (keluhan user Agu 2026): dulu target-nya memakai
+# resisten 120-hari — untuk BBRI itu +29% dari harga (target SWING jangka
+# menengah), mustahil dicapai dalam eksekusi harian. Target fast-trade harus
+# berbasis volatilitas harian: 2.5x ATR harian (BBRI ATR ~2.3% -> target ~+5.7%,
+# guard RR min 1.5 tetap lolos: 2.5/1.5 = 1.67). Resisten 120-hari tetap dipakai
+# HANYA kalau jaraknya lebih dekat dari 2.5 ATR (tercapai lebih dulu).
+ATR_MULTIPLIER_TP_DAYTRADING = 2.5
+
 # Alokasi bertingkat (persen) untuk 3 tranche average-down di strategi dividen.
 # Alokasi makin besar di level koreksi yang makin dalam.
 TRANCHE_ALLOKASI = [20, 30, 50]
