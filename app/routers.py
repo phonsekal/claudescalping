@@ -23,10 +23,28 @@ from app.config import (
     WATCHLIST_BSJP, BSJP_PERIODE_DATA
 )
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
-from app.most_active import top_pasar, rekomendasi_intraday_likuid, digest_pagi
+from app.most_active import top_pasar, rekomendasi_intraday_likuid, digest_pagi, konteks_pasar_saham
 from app.riwayat import ambil_riwayat_digest
 
 router = APIRouter(prefix="/v1")
+
+
+def _tambah_konteks_pasar(data: dict, ticker: str) -> dict:
+    """
+    Lampirkan badge konteks pasar (Most Active / Top Value / Top Gainer / Top
+    Loser + nilai transaksi + kelayakan intraday) ke hasil analisis saham.
+
+    Best-effort & cepat: memakai cache batch pasar (KV Upstash); kalau cache
+    belum ada, fallback menghitung metrik SATU saham saja. Kegagalan apa pun
+    diabaikan — analisis utama tetap berjalan normal tanpa badge.
+    """
+    try:
+        k = konteks_pasar_saham(ticker)
+        if k:
+            data["konteks_pasar"] = k
+    except Exception:
+        pass
+    return data
 
 # ThreadPoolExecutor dipakai untuk paralelisasi network I/O (yfinance). Angka worker
 # dijaga moderat supaya tidak kena rate-limit Yahoo Finance.
@@ -46,7 +64,7 @@ async def analisis_swing_saham(ticker: str):
     data = hitung_analisis_saham(ticker)
     if not data:
         raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
-    return {"status": "success", "data": data}
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
 
 
 @router.get("/analisis/gorengan/{ticker}")
@@ -55,7 +73,7 @@ async def analisis_gorengan_saham(ticker: str):
     data = hitung_momentum_gorengan(ticker)
     if not data:
         raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
-    return {"status": "success", "data": data}
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
 
 
 @router.get("/analisis/fast-intraday/{ticker}")
@@ -67,7 +85,7 @@ async def analisis_fast_intraday_saham(ticker: str):
     data = hitung_sinyal_fast_intraday(ticker)
     if not data:
         raise HTTPException(status_code=404, detail=f"Data 15-menit untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
-    return {"status": "success", "data": data}
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
 
 
 @router.get("/market/status")
@@ -425,7 +443,7 @@ async def analisis_bsjp_saham(
     )
     if not data:
         raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
-    return {"status": "success", "data": data}
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
 
 
 def _jalankan_screener_bsjp(daftar_ticker: list):
@@ -562,7 +580,7 @@ async def analisis_range_pagi_sore_saham(
     )
     if not data:
         raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk analisis pola.")
-    return {"status": "success", "data": data}
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
 
 
 @router.get("/backtest/range-pagi-sore/{ticker}")
@@ -607,7 +625,7 @@ async def analisis_bpjs_saham(
     )
     if not data:
         raise HTTPException(status_code=404, detail=f"Data intraday untuk {ticker.upper()} tidak cukup untuk analisis pola.")
-    return {"status": "success", "data": data}
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
 
 
 # =========================================================================
@@ -626,7 +644,7 @@ async def analisis_strategi_gabungan(ticker: str):
     data = rekomendasi_strategi_gabungan(ticker)
     if not data:
         raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak ditemukan atau tidak lengkap.")
-    return {"status": "success", "data": data}
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
 
 
 @router.get("/backtest/bpjs/{ticker}")
@@ -777,7 +795,8 @@ async def pasar_most_active(
 @router.get("/rekomendasi/intraday")
 async def rekomendasi_intraday(
     n: int = Query(5, ge=1, le=15, description="Berapa kandidat most-active yang diskor strategi intraday (default 5 — batch pasar + analisis gabungan butuh waktu; n=15 bisa dekat batas timeout serverless)"),
-    jenis: str = Query("active", description="active (most active) | value (top value)")
+    jenis: str = Query("active", description="active (most active) | value (top value)"),
+    eksekusi: bool = Query(False, description="true = one-click: sertakan detail eksekusi (harga pasang order / entry-TP-SL) utk top pick tiap strategi intraday")
 ):
     """
     Rekomendasi saham UNTUK STRATEGI INTRADAY berbasis filter likuiditas.
@@ -796,9 +815,9 @@ async def rekomendasi_intraday(
     """
     if jenis not in ("active", "value"):
         raise HTTPException(status_code=400, detail="jenis hanya mendukung: active | value")
-    # Batas waktu 150 dtk utk fase skor: batch pasar di-cache harian (cepat),
-    # tapi skor strategi tetap diberi anggaran supaya tidak pernah 504.
-    data = rekomendasi_intraday_likuid(n=n, jenis=jenis, batas_waktu_detik=150)
+    # Batas waktu 150 dtk utk fase skor + eksekusi: batch pasar di-cache harian
+    # (cepat), tapi skor strategi tetap diberi anggaran supaya tidak pernah 504.
+    data = rekomendasi_intraday_likuid(n=n, jenis=jenis, batas_waktu_detik=150, eksekusi=eksekusi)
     return {"status": "success", "data": data}
 
 

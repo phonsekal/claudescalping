@@ -31,7 +31,13 @@ import yfinance as yf
 import pandas as pd
 
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
-from app.services import rekomendasi_strategi_gabungan
+from app.services import (
+    rekomendasi_strategi_gabungan,
+    hitung_analisis_bpjs,
+    hitung_analisis_range_pagi_sore,
+    hitung_sinyal_bsjp,
+    hitung_sinyal_fast_intraday,
+)
 from app.riwayat import simpan_snapshot_digest, simpan_kv_json, ambil_kv_json
 
 # TTL cache batch pasar (detik). 48 jam cukup: kunci dipisah per hari WIB + sesi
@@ -128,6 +134,16 @@ def _ekstrak_metrik(t: str, df: pd.DataFrame) -> dict:
         "pct_change_5d": pct_5d,
         "tanggal": tanggal,
     }
+
+
+def _peta_peringkat(metrik: dict, kunci: str, reverse: bool) -> dict:
+    """
+    Peta {ticker: peringkat} untuk satu metrik (volume, nilai, % hari).
+    Digunakan untuk badge konteks pasar per saham.
+    """
+    items = [mm for mm in metrik.values() if mm.get(kunci) is not None]
+    items.sort(key=lambda x: x[kunci], reverse=reverse)
+    return {mm["ticker"]: i + 1 for i, mm in enumerate(items)}
 
 
 def _kunci_cache_pasar() -> str:
@@ -258,6 +274,21 @@ def top_pasar(jenis: str = "active", limit: int = 10, metrik_pasar: dict = None)
         daftar = [m for m in daftar if m["pct_change_hari"] is not None]
     daftar = daftar[:limit]
 
+    # Badge konteks per item: peringkat di tiap kategori pasar + kelayakan
+    # intraday (nilai transaksi >= Rp5 miliar). Dipakai formatter WA utk
+    # menampilkan posisi gainer/loser dan nilai transaksi di daftar pasar.
+    p_aktif = _peta_peringkat(metrik, "volume", True)
+    p_nilai = _peta_peringkat(metrik, "nilai_transaksi", True)
+    p_gainer = _peta_peringkat(metrik, "pct_change_hari", True)
+    p_loser = _peta_peringkat(metrik, "pct_change_hari", False)
+    for m in daftar:
+        t = m["ticker"]
+        m["peringkat_aktif"] = p_aktif.get(t)
+        m["peringkat_nilai"] = p_nilai.get(t)
+        m["peringkat_gainer"] = p_gainer.get(t)
+        m["peringkat_loser"] = p_loser.get(t)
+        m["layak_intraday"] = m["nilai_transaksi"] >= MIN_NILAI_TRANSAKSI_INTRADAY
+
     peringatan = None
     if hasil.get("chunk_gagal"):
         peringatan = (
@@ -275,8 +306,136 @@ def top_pasar(jenis: str = "active", limit: int = 10, metrik_pasar: dict = None)
     }
 
 
+def _buat_konteks(t: str, m: dict, metrik: dict, tanggal: str) -> dict:
+    """Susun badge konteks pasar untuk satu saham dari metrik batch pasar."""
+    p_aktif = _peta_peringkat(metrik, "volume", True)
+    p_nilai = _peta_peringkat(metrik, "nilai_transaksi", True)
+    p_gainer = _peta_peringkat(metrik, "pct_change_hari", True)
+    p_loser = _peta_peringkat(metrik, "pct_change_hari", False)
+    pos_aktif = p_aktif.get(t)
+    pos_nilai = p_nilai.get(t)
+    pos_gainer = p_gainer.get(t)
+    pos_loser = p_loser.get(t)
+    layak = m["nilai_transaksi"] >= MIN_NILAI_TRANSAKSI_INTRADAY
+
+    label_parts = []
+    if pos_aktif:
+        label_parts.append(f"🔥 Most Active #{pos_aktif}")
+    if pos_nilai:
+        label_parts.append(f"💎 Top Value #{pos_nilai}")
+    if pos_gainer and pos_gainer <= 20:
+        label_parts.append(f"🚀 Top Gainer #{pos_gainer}")
+    if pos_loser and pos_loser <= 20:
+        label_parts.append(f"📉 Top Loser #{pos_loser}")
+    label = " · ".join(label_parts) if label_parts else "🌐 Saham di luar radar pasar"
+    label += f" | {'💧 Likuid intraday' if layak else '⚠️ Likuiditas rendah utk intraday'}"
+
+    return {
+        "tersedia": True,
+        "ticker": t,
+        "tanggal_data": tanggal,
+        "harga": m["harga"],
+        "pct_change_hari": m.get("pct_change_hari"),
+        "nilai_transaksi_miliar": round(m["nilai_transaksi"] / 1e9, 1),
+        "layak_intraday": layak,
+        "posisi_most_active": pos_aktif,
+        "posisi_top_value": pos_nilai,
+        "posisi_gainer": pos_gainer,
+        "posisi_loser": pos_loser,
+        "label": label,
+    }
+
+
+def konteks_pasar_saham(ticker: str):
+    """
+    BADGE konteks pasar untuk satu saham (dipakai di analisis per saham).
+
+    Sumber utama: cache batch pasar (cepat — KV Upstash). Kalau cache belum ada,
+    fallback menghitung metrik SATU saham saja (tanpa batch 941) supaya analisis
+    saham tidak jadi lambat; posisi pasar (peringkat) dikosongkan.
+    """
+    t = _nama_bisa(str(ticker).upper())
+    cached = ambil_kv_json(_kunci_cache_pasar())
+    if cached and cached.get("metrik"):
+        metrik = cached["metrik"]
+        m = metrik.get(t) or metrik.get(f"{t}.JK")
+        if m:
+            return _buat_konteks(t, m, metrik, cached.get("tanggal_data"))
+        return {"tersedia": False, "ticker": t, "alasan": "tidak ada di batch pasar terakhir (mungkin baru listing / delisting)"}
+    try:
+        df = yf.download(f"{t}.JK", period=BATCH_PERIODE, interval=BATCH_INTERVAL,
+                         auto_adjust=False, progress=False)
+        m = _ekstrak_metrik(f"{t}.JK", df)
+        if not m:
+            return {"tersedia": False, "ticker": t, "alasan": "data pasar tidak tersedia"}
+        layak = m["nilai_transaksi"] >= MIN_NILAI_TRANSAKSI_INTRADAY
+        return {
+            "tersedia": True,
+            "ticker": t,
+            "tanggal_data": m.get("tanggal"),
+            "harga": m["harga"],
+            "pct_change_hari": m.get("pct_change_hari"),
+            "nilai_transaksi_miliar": round(m["nilai_transaksi"] / 1e9, 1),
+            "layak_intraday": layak,
+            "posisi_most_active": None,
+            "posisi_top_value": None,
+            "posisi_gainer": None,
+            "posisi_loser": None,
+            "label": ("💧 Likuid intraday" if layak else "⚠️ Likuiditas rendah utk intraday")
+                      + " (posisi pasar belum tersedia — batch pasar hari ini belum dihitung)",
+        }
+    except Exception:
+        return {"tersedia": False, "ticker": t, "alasan": "gagal ambil data pasar"}
+
+
+def _hitung_eksekusi(top_pick: dict, deadline=None) -> dict:
+    """
+    ONE-CLICK: jalankan analisis strategi-spesifik utk top pick tiap strategi
+    intraday dan kumpulkan detail eksekusi (harga pasang order / entry/TP/SL).
+    Menghormati deadline supaya tidak pernah 504.
+    """
+    fn_map = {
+        "bpjs": lambda t: hitung_analisis_bpjs(t),
+        "range_pagi_sore": lambda t: hitung_analisis_range_pagi_sore(t),
+        "bsjp": lambda t: hitung_sinyal_bsjp(t),
+        "fast_intraday": lambda t: hitung_sinyal_fast_intraday(t),
+    }
+    hasil = {}
+    if not top_pick:
+        return hasil
+    ex = ThreadPoolExecutor(max_workers=min(4, len(top_pick)))
+    try:
+        futures = {}
+        for kode, (t, nama) in top_pick.items():
+            if deadline is not None and time.time() >= deadline:
+                hasil[kode] = {"nama": nama, "ticker": t, "detail": None,
+                               "status": "belum sempat dianalisis (budget habis)"}
+                continue
+            futures[ex.submit(fn_map[kode], t)] = (kode, t, nama)
+            time.sleep(0.3)
+        if futures:
+            sisa = None if deadline is None else max(0.0, deadline - time.time())
+            try:
+                for fut in as_completed(futures, timeout=sisa):
+                    kode, t, nama = futures[fut]
+                    try:
+                        det = fut.result()
+                    except Exception:
+                        det = None
+                    hasil[kode] = {"nama": nama, "ticker": t, "detail": det}
+            except FuturesTimeout:
+                for fut, (kode, t, nama) in futures.items():
+                    if kode not in hasil:
+                        hasil[kode] = {"nama": nama, "ticker": t, "detail": None,
+                                       "status": "belum selesai (budget habis)"}
+    finally:
+        ex.shutdown(wait=False, cancel_futures=True)
+    return hasil
+
+
 def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: int = 3,
-                                metrik_pasar: dict = None, batas_waktu_detik: int = None) -> dict:
+                                metrik_pasar: dict = None, batas_waktu_detik: int = None,
+                                eksekusi: bool = False) -> dict:
     """
     Rekomendasi saham UNTUK STRATEGI INTRADAY, berbasis filter most-active.
 
@@ -401,9 +560,12 @@ def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: 
                 })
 
     leaderboard = []
+    top_pick = {}
     for kode, nama in STRATEGI_INTRADAY:
         lst = sorted(skor_by[kode], key=lambda x: -x["skor"])
         leaderboard.append({"kode": kode, "nama": nama, "terbaik": lst[:3]})
+        if eksekusi and lst:
+            top_pick[kode] = (lst[0]["ticker"], nama)  # utk one-click eksekusi
 
     if not gabungan:
         peringatan = (
@@ -419,7 +581,7 @@ def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: 
             "(rate-limit Yahoo) — kandidat mungkin tidak mencakup semua saham likuid."
         )
 
-    return {
+    resp = {
         "filter": {
             "jenis": jenis,
             "label": "Most Active (volume terbesar)" if jenis != "value" else "Top Value (nilai transaksi)",
@@ -443,6 +605,11 @@ def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: 
         "leaderboard_per_strategi_intraday": leaderboard,
         "peringatan": peringatan,
     }
+    if eksekusi:
+        # ONE-CLICK: detail eksekusi top pick tiap strategi (dalam budget waktu
+        # yang sama supaya request tidak 504 saat Yahoo lambat).
+        resp["eksekusi"] = _hitung_eksekusi(top_pick, deadline)
+    return resp
 
 
 def _snapshot_ringkas(payload: dict) -> dict:
