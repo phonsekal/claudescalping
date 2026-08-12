@@ -665,3 +665,61 @@ async def validasi_strategi_kecocokan(ticker: str):
     if not data:
         raise HTTPException(status_code=404, detail=f"Data untuk {ticker.upper()} tidak cukup untuk validasi.")
     return {"status": "success", "data": data}
+
+
+# =========================================================================
+# REKOMENDASI PER SEKTOR: SAHAM TERBAIK PER STRATEGI DALAM SATU SEKTOR
+# =========================================================================
+
+@router.get("/rekomendasi/sektor")
+async def rekomendasi_sektor_endpoint(
+    industri: str = Query(..., description="Kata kunci industry Yahoo Finance, misal 'Bank', 'Coal', 'Real Estate', 'Software', 'Marine Shipping'"),
+    top: int = Query(3, ge=1, le=5, description="Berapa saham terbaik per strategi (default 3)"),
+    max_saham: int = Query(15, ge=1, le=60, description="Batas jumlah saham sektor yang diskor per request — Vercel serverless punya batas waktu eksekusi, sektor besar perlu dibatasi atau dipanggil berulang"),
+    backtest: bool = Query(True, description="Jalankan backtest historis untuk finalis tiap strategi (false = lebih cepat)")
+):
+    """
+    Rekomendasi saham TERBAIK per strategi dalam satu sektor/industri.
+
+    Untuk tiap saham di sektor: jalankan rekomendasi_strategi_gabungan (skor
+    kecocokan 6 strategi), lalu ranking per strategi, lalu (opsional) backtest
+    historis untuk top-N finalis tiap strategi.
+
+    Contoh:
+      /v1/rekomendasi/sektor?industri=Bank
+      /v1/rekomendasi/sektor?industri=Coal&top=3&backtest=false
+      /v1/rekomendasi/sektor?industri=Software&max_saham=10&backtest=true
+    """
+    from app.rekomendasi_sektor import daftar_saham_sektor, rekomendasi_top_per_strategi
+
+    tickers = daftar_saham_sektor(industri)
+    if not tickers:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Tidak ada saham dengan industry mengandung '{industri}'. Coba: Bank, Coal, Real Estate, Software, Marine Shipping, Oil & Gas, dll."
+        )
+
+    total_sektor = len(tickers)
+    dibatasi = total_sektor > max_saham
+    if dibatasi:
+        tickers = tickers[:max_saham]
+
+    hasil = rekomendasi_top_per_strategi(
+        tickers, top_n=top, max_workers=MAX_WORKERS_SCREENER, backtest=backtest
+    )
+
+    return {
+        "status": "success",
+        "data": {
+            "kata_kunci": industri,
+            "jumlah_saham_di_sektor": total_sektor,
+            "jumlah_saham_diskor": len(tickers),
+            "keterangan_batas": (
+                f"Sektor '{industri}' punya {total_sektor} saham; request ini diskor "
+                f"{len(tickers)} saham pertama (max_saham={max_saham}). Naikkan max_saham "
+                "untuk cakupan penuh."
+                if dibatasi else None
+            ),
+            **hasil,
+        }
+    }

@@ -1,0 +1,3442 @@
+{
+ "ADES.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Non-Alcoholic"
+ },
+ "ADCP.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "ABDA.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Property & Casualty"
+ },
+ "ACRO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Manufacturing"
+ },
+ "ABBA.JK": {
+  "sector": "Communication Services",
+  "industry": "Publishing"
+ },
+ "ACST.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "AALI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "AEGS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "ACES.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "ABMM.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "AGII.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "ADMF.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "ADHI.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "ADMR.JK": {
+  "sector": "Basic Materials",
+  "industry": "Coking Coal"
+ },
+ "ADRO.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "ADMG.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "AHAP.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Property & Casualty"
+ },
+ "AGAR.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "AGRS.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "AGRO.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "AKKU.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "AIMS.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "ALDO.JK": {
+  "sector": "Basic Materials",
+  "industry": "Paper & Paper Products"
+ },
+ "AISA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "ALII.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "AKSI.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "AKPI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "AKRA.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Refining & Marketing"
+ },
+ "AMAR.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "ALKA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Aluminum"
+ },
+ "ALTO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Non-Alcoholic"
+ },
+ "AMAN.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "AMAG.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Property & Casualty"
+ },
+ "AMMS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "ALMI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Aluminum"
+ },
+ "ANDI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "AMOR.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "AMMN.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Precious Metals & Mining"
+ },
+ "AMIN.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Industrial Machinery"
+ },
+ "AMRT.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Grocery Stores"
+ },
+ "ANJT.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "AMFG.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "APLN.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "APIC.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Life"
+ },
+ "ANTM.JK": {
+  "sector": "Basic Materials",
+  "industry": "Gold"
+ },
+ "APEX.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Drilling"
+ },
+ "APII.JK": {
+  "sector": "Industrials",
+  "industry": "Tools & Accessories"
+ },
+ "ARKA.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "ARCI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Gold"
+ },
+ "AREA.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "APLI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "ARGO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "ARKO.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Renewable"
+ },
+ "ASBI.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Diversified"
+ },
+ "ARII.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "ARTI.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "ARNA.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "ARTA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "ASHA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "ASGR.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "ASDM.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Diversified"
+ },
+ "ASLI.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "ARTO.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "ASJT.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Property & Casualty"
+ },
+ "ASPI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Residential Construction"
+ },
+ "ATAP.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Residential Construction"
+ },
+ "ASMI.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Property & Casualty"
+ },
+ "ASLC.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto & Truck Dealerships"
+ },
+ "AWAN.JK": {
+  "sector": "Communication Services",
+  "industry": "Internet Content & Information"
+ },
+ "ASII.JK": {
+  "sector": "Industrials",
+  "industry": "Conglomerates"
+ },
+ "ASRM.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Property & Casualty"
+ },
+ "AYLS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution"
+ },
+ "AXIO.JK": {
+  "sector": "Technology",
+  "industry": "Computer Hardware"
+ },
+ "ATIC.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "ATLA.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "BABP.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "ASSA.JK": {
+  "sector": "Industrials",
+  "industry": "Rental & Leasing Services"
+ },
+ "ASRI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "AYAM.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "AVIA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "BABY.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Retail"
+ },
+ "AUTO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "BANK.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BAIK.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "BAPI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BALI.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "BAPA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BAJA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Steel"
+ },
+ "BATA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Footwear & Accessories"
+ },
+ "BACA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BATR.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "BBNI.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BAUT.JK": {
+  "sector": "Industrials",
+  "industry": "Tools & Accessories"
+ },
+ "BAYU.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Travel Services"
+ },
+ "BBLD.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "BBMD.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BBHI.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BBRM.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "BBCA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BBKP.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BBRI.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BCAP.JK": {
+  "sector": "Financial Services",
+  "industry": "Financial Conglomerates"
+ },
+ "BBSS.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "BDMN.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BBSI.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BDKR.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "BBYB.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BBTN.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BCIP.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BEER.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Wineries & Distilleries"
+ },
+ "BCIC.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BEST.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BEBS.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "BEEF.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "BELI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Internet Retail"
+ },
+ "BELL.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "BESS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "BHAT.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Life"
+ },
+ "BEKS.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BGTG.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BIKE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Leisure"
+ },
+ "BINA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BIMA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Footwear & Accessories"
+ },
+ "BIKA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BFIN.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "BHIT.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "BIPI.JK": {
+  "sector": "Industrials",
+  "industry": "Infrastructure Operations"
+ },
+ "BIRD.JK": {
+  "sector": "Industrials",
+  "industry": "Railroads"
+ },
+ "BJTM.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BIPP.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Diversified"
+ },
+ "BLES.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "BINO.JK": {
+  "sector": "Industrials",
+  "industry": "Business Equipment & Supplies"
+ },
+ "BKSW.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BKDP.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "BISI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Agricultural Inputs"
+ },
+ "BLTZ.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "BKSL.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BLUE.JK": {
+  "sector": "Technology",
+  "industry": "Electronics & Computer Distribution"
+ },
+ "BMHS.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "BMBL.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Education & Training Services"
+ },
+ "BLTA.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "BMAS.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BMRI.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BNBR.JK": {
+  "sector": "Industrials",
+  "industry": "Conglomerates"
+ },
+ "BNII.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BNBA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BMTR.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "BMSR.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "BOLA.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "BPFI.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "BNLI.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BNGA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BOAT.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Drilling"
+ },
+ "BOGA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto & Truck Dealerships"
+ },
+ "BOSS.JK": {
+  "sector": null,
+  "industry": null
+ },
+ "BOBA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "BOLT.JK": {
+  "sector": "Industrials",
+  "industry": "Tools & Accessories"
+ },
+ "BRIS.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BREN.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Renewable"
+ },
+ "BPTR.JK": {
+  "sector": "Industrials",
+  "industry": "Rental & Leasing Services"
+ },
+ "BPII.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "BRPT.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "BSBK.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BSDE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "BRAM.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "BSIM.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BRMS.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "BRNA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "BSSR.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "BTPN.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BSML.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "BJBR.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BTEK.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "BTPS.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BSWD.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "BTON.JK": {
+  "sector": "Basic Materials",
+  "industry": "Steel"
+ },
+ "BUAH.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution"
+ },
+ "BULL.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "BUDI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "BUKK.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "BUVA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "CANI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "BUKA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Internet Retail"
+ },
+ "BWPT.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "BYAN.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "BUMI.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "BVIC.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "CAMP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "CAKK.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "CARE.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "CASA.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Life"
+ },
+ "CARS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto & Truck Dealerships"
+ },
+ "CBUT.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "CBPE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "CHEM.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "CASH.JK": {
+  "sector": "Industrials",
+  "industry": "Business Equipment & Supplies"
+ },
+ "CASS.JK": {
+  "sector": "Industrials",
+  "industry": "Airports & Air Services"
+ },
+ "CBRE.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "CCSI.JK": {
+  "sector": "Technology",
+  "industry": "Communication Equipment"
+ },
+ "CGAS.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Refining & Marketing"
+ },
+ "CENT.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "CEKA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "CHIP.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "CITA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "CLEO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Non-Alcoholic"
+ },
+ "CITY.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "CINT.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "CFIN.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "CMNP.JK": {
+  "sector": "Industrials",
+  "industry": "Infrastructure Operations"
+ },
+ "CLPI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "CMNT.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "CMPP.JK": {
+  "sector": "Industrials",
+  "industry": "Airlines"
+ },
+ "CLAY.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "CMRY.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "COAL.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "CNKO.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "CNMA.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "CRAB.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "COCO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Confectioners"
+ },
+ "CRSN.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "CPIN.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "CSMI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "CTBN.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "CSRA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "CPRO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "CTTH.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "CSAP.JK": {
+  "sector": "Industrials",
+  "industry": "Industrial Distribution"
+ },
+ "DADA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "CUAN.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "CSIS.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "DAAZ.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "CYBR.JK": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure"
+ },
+ "DART.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "CTRA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "DATA.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "DEPO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Home Improvement Retail"
+ },
+ "DCII.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "DAYA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "DEWA.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "DEWI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "DFAM.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "DEAL.JK": {
+  "sector": null,
+  "industry": null
+ },
+ "DEFI.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "DIGI.JK": {
+  "sector": "Communication Services",
+  "industry": "Internet Content & Information"
+ },
+ "DGNS.JK": {
+  "sector": "Healthcare",
+  "industry": "Diagnostics & Research"
+ },
+ "DGIK.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "DMMX.JK": {
+  "sector": "Communication Services",
+  "industry": "Advertising Agencies"
+ },
+ "DIVA.JK": {
+  "sector": "Technology",
+  "industry": "Software - Application"
+ },
+ "DMND.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "DMAS.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "DILD.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "DLTA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Brewers"
+ },
+ "DKFT.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "DNET.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "DNAR.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "DOSS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "DOOH.JK": {
+  "sector": "Communication Services",
+  "industry": "Advertising Agencies"
+ },
+ "DSFI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "DRMA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "DOID.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "DSSA.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "DPUM.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "DYAN.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "DPNS.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "EAST.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "EDGE.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "DSNG.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "DWGL.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "DUTI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "ECII.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "DVLA.JK": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic"
+ },
+ "EKAD.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "ELIT.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "ELPI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "ELTY.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "EMTK.JK": {
+  "sector": "Communication Services",
+  "industry": "Broadcasting"
+ },
+ "ENAK.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "ELSA.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "ENZO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "ENRG.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas E&P"
+ },
+ "EPAC.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "EMDE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "EPMT.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Distribution"
+ },
+ "ERAL.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "ESTA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "ERAA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "FAPA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "ETWA.JK": {
+  "sector": null,
+  "industry": null
+ },
+ "ESSA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "ESIP.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "EXCL.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "ESTI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "EURO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "FAST.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "FASW.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "FIRE.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "FISH.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution"
+ },
+ "FIMP.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "ERTX.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Manufacturing"
+ },
+ "FILM.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "FORU.JK": {
+  "sector": "Communication Services",
+  "industry": "Advertising Agencies"
+ },
+ "FLMC.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "FPNI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "FITT.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "FMII.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "FOOD.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "FUJI.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "FUTR.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Renewable"
+ },
+ "FOLK.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Internet Retail"
+ },
+ "GEMS.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "GDYR.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "FWCT.JK": {
+  "sector": "Basic Materials",
+  "industry": "Lumber & Wood Production"
+ },
+ "GGRP.JK": {
+  "sector": "Basic Materials",
+  "industry": "Steel"
+ },
+ "GDST.JK": {
+  "sector": "Basic Materials",
+  "industry": "Steel"
+ },
+ "GIAA.JK": {
+  "sector": "Industrials",
+  "industry": "Airlines"
+ },
+ "GEMA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "GLVA.JK": {
+  "sector": "Technology",
+  "industry": "Electronics & Computer Distribution"
+ },
+ "GGRM.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Tobacco"
+ },
+ "GHON.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "GMTD.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "GMFI.JK": {
+  "sector": "Industrials",
+  "industry": "Aerospace & Defense"
+ },
+ "GOTO.JK": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure"
+ },
+ "GLOB.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "GOLF.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Leisure"
+ },
+ "GRPM.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Non-Alcoholic"
+ },
+ "GOLD.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "GOOD.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "GJTL.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "GPRA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "GPSO.JK": {
+  "sector": "Technology",
+  "industry": "Scientific & Technical Instruments"
+ },
+ "GRIA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "GRPH.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "GTBO.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "GTRA.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "GTSI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "GULA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "GUNA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "HADE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "HAIS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "GSMF.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Diversified"
+ },
+ "HAJJ.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Travel Services"
+ },
+ "GZCO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "GWSA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "HATM.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "HEAL.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "HELI.JK": {
+  "sector": "Industrials",
+  "industry": "Airports & Air Services"
+ },
+ "HDFA.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "HALO.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "HERO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Department Stores"
+ },
+ "HITS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "HBAT.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "HDIT.JK": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure"
+ },
+ "HEXA.JK": {
+  "sector": "Industrials",
+  "industry": "Industrial Distribution"
+ },
+ "HILL.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "HMSP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Tobacco"
+ },
+ "HOMI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "HOPE.JK": {
+  "sector": "Industrials",
+  "industry": "Metal Fabrication"
+ },
+ "HOKI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "HRME.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "HRTA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Luxury Goods"
+ },
+ "HUMI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "IATA.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "HYGN.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "HRUM.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "IBOS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "IBFN.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "ICON.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "IBST.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "IFSH.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "IDEA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Education & Training Services"
+ },
+ "IDPR.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "IFII.JK": {
+  "sector": "Basic Materials",
+  "industry": "Lumber & Wood Production"
+ },
+ "IKAN.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "ICBP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "IMAS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto & Truck Dealerships"
+ },
+ "IGAR.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "IMJS.JK": {
+  "sector": "Industrials",
+  "industry": "Conglomerates"
+ },
+ "IKAI.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "IMPC.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "IKPM.JK": {
+  "sector": "Healthcare",
+  "industry": "Pharmaceutical Retailers"
+ },
+ "IKBI.JK": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts"
+ },
+ "INAI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Aluminum"
+ },
+ "INCF.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "INDO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "INAF.JK": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic"
+ },
+ "INDR.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "INCO.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "INCI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "INDF.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "INDS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "INDX.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "INPS.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "INDY.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "INOV.JK": {
+  "sector": "Industrials",
+  "industry": "Waste Management"
+ },
+ "INET.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "INKP.JK": {
+  "sector": "Basic Materials",
+  "industry": "Paper & Paper Products"
+ },
+ "INRU.JK": {
+  "sector": "Basic Materials",
+  "industry": "Paper & Paper Products"
+ },
+ "INPC.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "IOTF.JK": {
+  "sector": "Technology",
+  "industry": "Communication Equipment"
+ },
+ "IPAC.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "INTD.JK": {
+  "sector": "Basic Materials",
+  "industry": "Paper & Paper Products"
+ },
+ "INPP.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "IPCC.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "INTA.JK": {
+  "sector": "Industrials",
+  "industry": "Industrial Distribution"
+ },
+ "INTP.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "IPCM.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "ITIC.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Tobacco"
+ },
+ "IPPE.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "IRSX.JK": {
+  "sector": "Technology",
+  "industry": "Software - Application"
+ },
+ "ISAP.JK": {
+  "sector": "Industrials",
+  "industry": "Metal Fabrication"
+ },
+ "IRRA.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Distribution"
+ },
+ "IPTV.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "IPOL.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "ISEA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "ISAT.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "ISSP.JK": {
+  "sector": "Basic Materials",
+  "industry": "Steel"
+ },
+ "ITMA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "JARR.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "JAWA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "JAYA.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "JAST.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "JATI.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "JECC.JK": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts"
+ },
+ "ITMG.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "JIHD.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "JSMR.JK": {
+  "sector": "Industrials",
+  "industry": "Infrastructure Operations"
+ },
+ "JMAS.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Life"
+ },
+ "JRPT.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "JPFA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "JTPE.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "KBLV.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "KAYU.JK": {
+  "sector": null,
+  "industry": null
+ },
+ "JSPT.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "JGLE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Leisure"
+ },
+ "KARW.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "KBAG.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Residential Construction"
+ },
+ "JKON.JK": {
+  "sector": "Industrials",
+  "industry": "Conglomerates"
+ },
+ "KBLI.JK": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts"
+ },
+ "KDTN.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "KEEN.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Independent Power Producers"
+ },
+ "KAEF.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Distribution"
+ },
+ "KBLM.JK": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts"
+ },
+ "KIOS.JK": {
+  "sector": "Technology",
+  "industry": "Software - Application"
+ },
+ "KING.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "KEJU.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "KETR.JK": {
+  "sector": "Technology",
+  "industry": "Communication Equipment"
+ },
+ "KINO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Non-Alcoholic"
+ },
+ "KIJA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "KIAS.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "KDSI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "KICI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "KKGI.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "KLBF.JK": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - General"
+ },
+ "KKES.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "KLAS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "KJEN.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "KMDS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution"
+ },
+ "KOCI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "KMTR.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "KLIN.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Home Improvement Retail"
+ },
+ "KOBX.JK": {
+  "sector": "Industrials",
+  "industry": "Farm & Heavy Construction Machinery"
+ },
+ "KOPI.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Refining & Marketing"
+ },
+ "KONI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "KOIN.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "KOTA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "KPIG.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "KOKA.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "KRYA.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "KRAS.JK": {
+  "sector": "Basic Materials",
+  "industry": "Steel"
+ },
+ "KREN.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "LABA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Steel"
+ },
+ "LAND.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "KUAS.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "LAJU.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "LAPD.JK": {
+  "sector": null,
+  "industry": null
+ },
+ "LABS.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices"
+ },
+ "LCKM.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "LFLO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "LIFE.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Life"
+ },
+ "LEAD.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "LION.JK": {
+  "sector": "Industrials",
+  "industry": "Business Equipment & Supplies"
+ },
+ "LMPI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "LINK.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "LIVE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "LMAX.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Refining & Marketing"
+ },
+ "LOPI.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "LPIN.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "LPLI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "LPCK.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "LMSH.JK": {
+  "sector": "Industrials",
+  "industry": "Metal Fabrication"
+ },
+ "LPGI.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Diversified"
+ },
+ "LPPF.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Department Stores"
+ },
+ "LPKR.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "LPPS.JK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets"
+ },
+ "LSIP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "LRNA.JK": {
+  "sector": "Industrials",
+  "industry": "Railroads"
+ },
+ "LUCK.JK": {
+  "sector": "Technology",
+  "industry": "Computer Hardware"
+ },
+ "LTLS.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "MAHA.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "MANG.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "MAIN.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "LUCY.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "MAPA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail"
+ },
+ "MARI.JK": {
+  "sector": "Communication Services",
+  "industry": "Broadcasting"
+ },
+ "MAPB.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "MAPI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Department Stores"
+ },
+ "MAYA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "MASB.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "MARK.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Instruments & Supplies"
+ },
+ "MBAP.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "MBMA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Precious Metals & Mining"
+ },
+ "MAXI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "MBTO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "MDIA.JK": {
+  "sector": "Communication Services",
+  "industry": "Broadcasting"
+ },
+ "MCOR.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "MBSS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "MCAS.JK": {
+  "sector": "Industrials",
+  "industry": "Business Equipment & Supplies"
+ },
+ "MDLN.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "MCOL.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "MDKI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "MDKA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "MEDC.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas E&P"
+ },
+ "MEDS.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Instruments & Supplies"
+ },
+ "META.JK": {
+  "sector": null,
+  "industry": null
+ },
+ "MDRN.JK": {
+  "sector": "Industrials",
+  "industry": "Business Equipment & Supplies"
+ },
+ "MEGA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "MEJA.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "MGLV.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "MENN.JK": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts"
+ },
+ "MERK.JK": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic"
+ },
+ "MFMI.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "MGRO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "MGNA.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "MICE.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "MIDI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Grocery Stores"
+ },
+ "MIRA.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "MKAP.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "MHKI.JK": {
+  "sector": "Industrials",
+  "industry": "Waste Management"
+ },
+ "MIKA.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "MKNT.JK": {
+  "sector": "Technology",
+  "industry": "Communication Equipment"
+ },
+ "MINA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "MITI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "MLBI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Brewers"
+ },
+ "MKPI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "MKTR.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "MLPL.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Department Stores"
+ },
+ "MLPT.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "MLIA.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "MMIX.JK": {
+  "sector": "Healthcare",
+  "industry": "Pharmaceutical Retailers"
+ },
+ "MOLI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "MNCN.JK": {
+  "sector": "Communication Services",
+  "industry": "Advertising Agencies"
+ },
+ "MMLP.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "MORA.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "MPMX.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto & Truck Dealerships"
+ },
+ "MPIX.JK": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure"
+ },
+ "MREI.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Reinsurance"
+ },
+ "MPOW.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Independent Power Producers"
+ },
+ "MPPA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Department Stores"
+ },
+ "MPXL.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "MPRO.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "MRAT.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "MSIE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "MSJA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "MSTI.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "MSIN.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "MSKY.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "MTEL.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "MTDL.JK": {
+  "sector": "Technology",
+  "industry": "Electronics & Computer Distribution"
+ },
+ "MTFN.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas E&P"
+ },
+ "MTMH.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "MTLA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "MTPS.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "MTSM.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "MYOR.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "MTWI.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Diversified"
+ },
+ "MUTU.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "MYOH.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "NAIK.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "MYTX.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "NANO.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices"
+ },
+ "NASI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "NAYZ.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "NASA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "NCKL.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "NEST.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "NATO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "NETV.JK": {
+  "sector": "Communication Services",
+  "industry": "Broadcasting"
+ },
+ "NFCX.JK": {
+  "sector": "Communication Services",
+  "industry": "Internet Content & Information"
+ },
+ "NELY.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "NICL.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "NICE.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "NICK.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "NINE.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "NIKL.JK": {
+  "sector": "Industrials",
+  "industry": "Metal Fabrication"
+ },
+ "NIRO.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "NOBU.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "NSSS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "NPGF.JK": {
+  "sector": "Basic Materials",
+  "industry": "Agricultural Inputs"
+ },
+ "NISP.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "NZIA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "NRCA.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "OASA.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Renewable"
+ },
+ "OLIV.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "NTBK.JK": {
+  "sector": "Industrials",
+  "industry": "Farm & Heavy Construction Machinery"
+ },
+ "OBMD.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "OILS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "OKAS.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "OMED.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Instruments & Supplies"
+ },
+ "OMRE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "OPMS.JK": {
+  "sector": "Industrials",
+  "industry": "Waste Management"
+ },
+ "PADA.JK": {
+  "sector": "Industrials",
+  "industry": "Staffing & Employment Services"
+ },
+ "PADI.JK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets"
+ },
+ "PALM.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "PAMG.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Diversified"
+ },
+ "PANI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "PANR.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Travel Services"
+ },
+ "PART.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "PACK.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "PANS.JK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets"
+ },
+ "PBRX.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Manufacturing"
+ },
+ "PBID.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "PBSA.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "PDPP.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "PEHA.JK": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic"
+ },
+ "PCAR.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "PDES.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Travel Services"
+ },
+ "PGAS.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Regulated Gas"
+ },
+ "PEGE.JK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets"
+ },
+ "PEVE.JK": {
+  "sector": "Healthcare",
+  "industry": "Pharmaceutical Retailers"
+ },
+ "PGJO.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "PGEO.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Renewable"
+ },
+ "PGLI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "PICO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "PGUN.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "PLAN.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "PIPA.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "PKPK.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "PJAA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Leisure"
+ },
+ "PMMP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "PNBS.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "PLIN.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "PMJS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto & Truck Dealerships"
+ },
+ "PNGO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "PNIN.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Life"
+ },
+ "PNLF.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "PNSE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Resorts & Casinos"
+ },
+ "POLA.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "PNBN.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "POLI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "POLU.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Manufacturing"
+ },
+ "POLL.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "POLY.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "PORT.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "POWR.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Independent Power Producers"
+ },
+ "PPGL.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "PPRE.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "PPRI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "PPRO.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "PRDA.JK": {
+  "sector": "Healthcare",
+  "industry": "Diagnostics & Research"
+ },
+ "PRAY.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "PSAB.JK": {
+  "sector": "Basic Materials",
+  "industry": "Gold"
+ },
+ "PRIM.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "PSDN.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "PSGO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "PSKT.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "PTBA.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "PSSI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "PTDU.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "PTIS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "PTMP.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Industrial Machinery"
+ },
+ "PTPP.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "PTMR.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "PTPS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "PTPW.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "PTRO.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "PUDP.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "PTSN.JK": {
+  "sector": "Technology",
+  "industry": "Electronic Components"
+ },
+ "PTSP.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "PURA.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "PWON.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Diversified"
+ },
+ "PURI.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "RAAM.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "PYFA.JK": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic"
+ },
+ "PZZA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "RAFI.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants"
+ },
+ "RALS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Department Stores"
+ },
+ "RAJA.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Regulated Gas"
+ },
+ "RANC.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Grocery Stores"
+ },
+ "RBMS.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "REAL.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Diversified"
+ },
+ "RCCC.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "RELI.JK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets"
+ },
+ "RELF.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "RDTX.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "RICY.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Manufacturing"
+ },
+ "RIGS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "RISE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "RGAS.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "RMKO.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "RMKE.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "RODA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "ROCK.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "ROTI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "RONY.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "RSCH.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "RSGK.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "RUIS.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "RUNS.JK": {
+  "sector": "Technology",
+  "industry": "Software - Application"
+ },
+ "SAGE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "SAFE.JK": {
+  "sector": "Industrials",
+  "industry": "Railroads"
+ },
+ "SAME.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "SAMF.JK": {
+  "sector": "Basic Materials",
+  "industry": "Agricultural Inputs"
+ },
+ "SBMA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "SAPX.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "SATU.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "SCCO.JK": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts"
+ },
+ "SCNP.JK": {
+  "sector": "Technology",
+  "industry": "Consumer Electronics"
+ },
+ "SCMA.JK": {
+  "sector": "Communication Services",
+  "industry": "Broadcasting"
+ },
+ "SBAT.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "SDMU.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "SDRA.JK": {
+  "sector": "Financial Services",
+  "industry": "Banks - Regional"
+ },
+ "SDPC.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Distribution"
+ },
+ "SEMA.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Industrial Machinery"
+ },
+ "SFAN.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "SGER.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "SGRO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "SHID.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "SICO.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "SIDO.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "SILO.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "SIMP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "SHIP.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "SIPD.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "SINI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Lumber & Wood Production"
+ },
+ "SKBM.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "SKLT.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "SKRN.JK": {
+  "sector": "Industrials",
+  "industry": "Rental & Leasing Services"
+ },
+ "SLIS.JK": {
+  "sector": "Technology",
+  "industry": "Electronics & Computer Distribution"
+ },
+ "SMAR.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "SMBR.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "SMGA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "SMCB.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "SMGR.JK": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials"
+ },
+ "SMDM.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "SMKL.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "SMDR.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "SMMA.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Diversified"
+ },
+ "SMKM.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "SMLE.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "SMMT.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "SMRA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "SMIL.JK": {
+  "sector": "Industrials",
+  "industry": "Rental & Leasing Services"
+ },
+ "SMSM.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "SOCI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "SNLK.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "SOFA.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Renewable"
+ },
+ "SOLA.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "SOHO.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Distribution"
+ },
+ "SONA.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Travel Services"
+ },
+ "SOUL.JK": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services"
+ },
+ "SOSS.JK": {
+  "sector": "Industrials",
+  "industry": "Staffing & Employment Services"
+ },
+ "SOTS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Lodging"
+ },
+ "SPMA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Paper & Paper Products"
+ },
+ "SQMI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Gold"
+ },
+ "SPRE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "SPTO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "SRAJ.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Care Facilities"
+ },
+ "SRSN.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "SRTG.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "STAR.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "SSIA.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "SSTM.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "SSMS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "STAA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "STRK.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Brewers"
+ },
+ "STTP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "SUNI.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services"
+ },
+ "SULI.JK": {
+  "sector": "Basic Materials",
+  "industry": "Lumber & Wood Production"
+ },
+ "SUPR.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "SURE.JK": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Integrated"
+ },
+ "SURI.JK": {
+  "sector": "Healthcare",
+  "industry": "Medical Instruments & Supplies"
+ },
+ "SWAT.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "TALF.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "SWID.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "TAMA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "TARA.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Diversified"
+ },
+ "TAMU.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "TAYS.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "TAXI.JK": {
+  "sector": "Industrials",
+  "industry": "Railroads"
+ },
+ "TAPG.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "TBLA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "TBIG.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "TCID.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "TBMS.JK": {
+  "sector": "Industrials",
+  "industry": "Metal Fabrication"
+ },
+ "TCPI.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "TFAS.JK": {
+  "sector": "Industrials",
+  "industry": "Staffing & Employment Services"
+ },
+ "TEBE.JK": {
+  "sector": "Industrials",
+  "industry": "Infrastructure Operations"
+ },
+ "TELE.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "TFCO.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Textile Manufacturing"
+ },
+ "TGKA.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution"
+ },
+ "TGRA.JK": {
+  "sector": "Utilities",
+  "industry": "Utilities - Renewable"
+ },
+ "TGUK.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution"
+ },
+ "TIFA.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "TIRT.JK": {
+  "sector": "Basic Materials",
+  "industry": "Lumber & Wood Production"
+ },
+ "TIRA.JK": {
+  "sector": "Industrials",
+  "industry": "Industrial Distribution"
+ },
+ "TINS.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "TLKM.JK": {
+  "sector": "Communication Services",
+  "industry": "Telecom Services"
+ },
+ "TLDN.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "TKIM.JK": {
+  "sector": "Basic Materials",
+  "industry": "Paper & Paper Products"
+ },
+ "TMAS.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "TMPO.JK": {
+  "sector": "Communication Services",
+  "industry": "Publishing"
+ },
+ "TOBA.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "TOOL.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Furnishings, Fixtures & Appliances"
+ },
+ "TNCA.JK": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics"
+ },
+ "TOTL.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "TOPS.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ },
+ "TOSK.JK": {
+  "sector": "Technology",
+  "industry": "Software - Application"
+ },
+ "TOWR.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "TOTO.JK": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment"
+ },
+ "TPIA.JK": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals"
+ },
+ "TPMA.JK": {
+  "sector": "Industrials",
+  "industry": "Marine Shipping"
+ },
+ "TRGU.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods"
+ },
+ "TOYS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Leisure"
+ },
+ "TRIM.JK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets"
+ },
+ "TRIN.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "TRJA.JK": {
+  "sector": "Industrials",
+  "industry": "Rental & Leasing Services"
+ },
+ "TRIS.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Manufacturing"
+ },
+ "TRST.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Packaging & Containers"
+ },
+ "TRON.JK": {
+  "sector": "Technology",
+  "industry": "Information Technology Services"
+ },
+ "TRUE.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "TRUK.JK": {
+  "sector": "Industrials",
+  "industry": "Trucking"
+ },
+ "TRUS.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "TSPC.JK": {
+  "sector": "Industrials",
+  "industry": "Conglomerates"
+ },
+ "TUGU.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Diversified"
+ },
+ "UANG.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "TYRE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts"
+ },
+ "UDNG.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "UFOE.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Department Stores"
+ },
+ "UCID.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "UNIC.JK": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals"
+ },
+ "UNIQ.JK": {
+  "sector": "Energy",
+  "industry": "Thermal Coal"
+ },
+ "ULTJ.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Non-Alcoholic"
+ },
+ "UNSP.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products"
+ },
+ "UVCR.JK": {
+  "sector": "Technology",
+  "industry": "Software - Application"
+ },
+ "UNTR.JK": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining"
+ },
+ "UNTD.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Manufacturers"
+ },
+ "UNVR.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "VICI.JK": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products"
+ },
+ "URBN.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development"
+ },
+ "VICO.JK": {
+  "sector": "Financial Services",
+  "industry": "Asset Management"
+ },
+ "VAST.JK": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services"
+ },
+ "VIVA.JK": {
+  "sector": "Communication Services",
+  "industry": "Broadcasting"
+ },
+ "VERN.JK": {
+  "sector": "Communication Services",
+  "industry": "Entertainment"
+ },
+ "VINS.JK": {
+  "sector": "Financial Services",
+  "industry": "Insurance - Property & Casualty"
+ },
+ "VTNY.JK": {
+  "sector": "Industrials",
+  "industry": "Staffing & Employment Services"
+ },
+ "VRNA.JK": {
+  "sector": "Financial Services",
+  "industry": "Credit Services"
+ },
+ "VOKS.JK": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts"
+ },
+ "VISI.JK": {
+  "sector": "Industrials",
+  "industry": "Industrial Distribution"
+ },
+ "VKTR.JK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Recreational Vehicles"
+ },
+ "WEGE.JK": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction"
+ }
+}

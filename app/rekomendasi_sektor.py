@@ -30,32 +30,55 @@ from app.services import rekomendasi_strategi_gabungan
 from app.validasi_strategi import STRATEGI_BACKTEST, NAMA_STRATEGI, _metrik_per_hari
 
 CACHE_SEKTOR = "audit_bei_sektor_cache.jsonl"
+# Peta sektor EMBEDDED (di-commit ke repo) supaya modul tetap jalan di Vercel
+# serverless — di sana cache .jsonl tidak ikut ter-deploy (file cache gitignored).
+DATA_SEKTOR_EMBED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data_sektor_bei.json")
+
+
+def _baca_cache_sektor_jsonl(path: str) -> dict:
+    """Baca cache JSONL: tiap baris {ticker: {sector, industry}}."""
+    peta = {}
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                for t, v in json.loads(line).items():
+                    peta[t] = v
+    except Exception:
+        pass
+    return peta
 
 
 def daftar_saham_sektor(kata_kunci: str) -> list:
     """
     Ticker saham yang industry Yahoo-nya mengandung kata_kunci (case-insensitive).
 
-    Prioritas: cache sektor (file JSONL hasil audit 941 saham) — instan.
-    Fallback kalau cache tidak ada: scan SEMUA_SAHAM_BEI via Yahoo .info
-    (butuh ~5 menit), dan cache hasilnya supaya run berikutnya instan.
+    Prioritas sumber data:
+    1. Cache sektor lokal (audit_bei_sektor_cache.jsonl) — kalau ada (hasil audit 941 saham).
+    2. Data EMBEDDED app/data_sektor_bei.json — selalu tersedia, dipakai di serverless.
+    3. Fallback terakhir: scan SEMUA_SAHAM_BEI via Yahoo .info (lambat, ~5 menit).
     """
-    hasil = []
-    cache_ada = os.path.exists(CACHE_SEKTOR)
-    if cache_ada:
-        with open(CACHE_SEKTOR) as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                for t, v in json.loads(line).items():
-                    ind = (v or {}).get('industry') or ''
-                    if kata_kunci.lower() in ind.lower():
-                        hasil.append(t)
-        if hasil:
-            return sorted(hasil)
+    peta = {}
+    if os.path.exists(CACHE_SEKTOR):
+        peta = _baca_cache_sektor_jsonl(CACHE_SEKTOR)
+    if not peta:
+        try:
+            with open(DATA_SEKTOR_EMBED) as f:
+                peta = json.load(f)
+        except Exception:
+            peta = {}
 
-    # Cache tidak ada / tidak ada yang cocok -> scan seluruh BEI via Yahoo.
+    k = kata_kunci.lower()
+    hasil = sorted(
+        t for t, v in peta.items()
+        if k in (((v or {}).get('industry') if isinstance(v, dict) else v) or '').lower()
+    )
+    if hasil:
+        return hasil
+
+    # Data lokal/embedded tidak punya yang cocok -> scan seluruh BEI via Yahoo.
     from app.daftar_saham_bei import SEMUA_SAHAM_BEI
     import yfinance as yf
 
@@ -73,16 +96,18 @@ def daftar_saham_sektor(kata_kunci: str) -> list:
         for fut in as_completed(futures):
             t, ind = fut.result()
             baru[t] = {'sector': None, 'industry': ind}
-            if kata_kunci.lower() in ind.lower():
+            if k in ind.lower():
                 hasil.append(t)
 
-    # PENTING: jangan menimpa cache yang SUDAH ADA tapi kebetulan tidak cocok
-    # dengan kata kunci — itu cache hasil audit sektor yang punya data 'sector'
-    # lengkap. Hanya tulis kalau cache belum pernah ada sama sekali.
-    if not cache_ada:
-        with open(CACHE_SEKTOR, 'w') as f:
-            for t, v in baru.items():
-                f.write(json.dumps({t: v}, ensure_ascii=False) + "\n")
+    # Jangan menimpa cache yang sudah ada (datanya lebih lengkap) — hanya tulis
+    # kalau file cache belum pernah dibuat.
+    if not os.path.exists(CACHE_SEKTOR):
+        try:
+            with open(CACHE_SEKTOR, 'w') as f:
+                for t, v in baru.items():
+                    f.write(json.dumps({t: v}, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
     return sorted(hasil)
 
 
@@ -94,9 +119,12 @@ def _proses_satu_saham(t):
 
 
 def rekomendasi_top_per_strategi(tickers: list, top_n: int = 3,
-                                 max_workers: int = 6) -> dict:
+                                 max_workers: int = 6, backtest: bool = True) -> dict:
     """
-    Untuk tiap strategi: 3 saham terbaik versi skor + backtest historis finalis.
+    Untuk tiap strategi: top_n saham terbaik versi skor + backtest historis finalis.
+
+    backtest=False: lewati backtest finalis (lebih cepat — cocok untuk batas waktu
+    eksekusi serverless; finalis tetap punya skor & sinyal aktif).
 
     Return: {
         'jumlah_saham_diproses': n,
@@ -111,6 +139,10 @@ def rekomendasi_top_per_strategi(tickers: list, top_n: int = 3,
         ]
     }
     """
+    def _nama_bisa(t):
+        """Bersihkan suffix .JK untuk tampilan yang rapi di API/WA."""
+        return t[:-3] if t.endswith(".JK") else t
+
     gabungan_by_saham = {}
     gagal = []
 
@@ -124,6 +156,9 @@ def rekomendasi_top_per_strategi(tickers: list, top_n: int = 3,
                 gagal.append(t)
 
     # --- Leaderboard per strategi (ranking skor) ---
+    # Entry menyimpan ticker MENTAH (mis. 'CYBR.JK') supaya backtest finalis
+    # memakai format yang sama seperti panggilan langsung; suffix .JK hanya
+    # dihapus di OUTPUT akhir (tampilan API/WA yang rapi).
     skor_by = {kode: [] for kode in NAMA_STRATEGI}
     for t, g in gabungan_by_saham.items():
         for p in g['peringkat_strategi']:
@@ -143,29 +178,33 @@ def rekomendasi_top_per_strategi(tickers: list, top_n: int = 3,
         finalis = lst[:top_n]
 
         # --- Backtest historis tiap finalis (paralel antar finalis) ---
-        def proses_finalis(f_):
-            try:
-                bt = STRATEGI_BACKTEST[kode]['fungsi'](f_['ticker'])
-                return f_, _metrik_per_hari(kode, bt)
-            except Exception:
-                return f_, None
+        if backtest and finalis:
+            def proses_finalis(f_):
+                try:
+                    bt = STRATEGI_BACKTEST[kode]['fungsi'](f_['ticker'])
+                    return f_, _metrik_per_hari(kode, bt)
+                except Exception:
+                    return f_, None
 
-        with ThreadPoolExecutor(max_workers=top_n) as ex:
-            futures = [ex.submit(proses_finalis, f_) for f_ in finalis]
-            for fut in as_completed(futures):
-                f_, met = fut.result()
-                f_['backtest'] = met
+            with ThreadPoolExecutor(max_workers=min(top_n, 4)) as ex:
+                futures = [ex.submit(proses_finalis, f_) for f_ in finalis]
+                for fut in as_completed(futures):
+                    f_, met = fut.result()
+                    f_['backtest'] = met
+        else:
+            for f_ in finalis:
+                f_['backtest'] = None
 
         leaderboard.append({
             'kode': kode,
             'nama': NAMA_STRATEGI[kode],
-            'terbaik': finalis,
+            'terbaik': [{**f_, 'ticker': _nama_bisa(f_['ticker'])} for f_ in finalis],
         })
 
     return {
         'jumlah_saham_diproses': len(tickers),
         'jumlah_saham_berhasil': len(gabungan_by_saham),
-        'saham_gagal': gagal,
+        'saham_gagal': [_nama_bisa(t) for t in gagal],
         'leaderboard_per_strategi': leaderboard,
     }
 
