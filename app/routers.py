@@ -23,6 +23,7 @@ from app.config import (
     WATCHLIST_BSJP, BSJP_PERIODE_DATA
 )
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
+from app.most_active import top_pasar, rekomendasi_intraday_likuid
 
 router = APIRouter(prefix="/v1")
 
@@ -737,3 +738,62 @@ async def rekomendasi_sektor_endpoint(
             **hasil,
         }
     }
+
+
+# =========================================================================
+# MOST ACTIVE / TOP VALUE / TOP GAINER + REKOMENDASI INTRADAY
+# =========================================================================
+
+@router.get("/pasar/most-active")
+async def pasar_most_active(
+    jenis: str = Query("active", description="active | value | gainer | loser"),
+    limit: int = Query(10, ge=1, le=30)
+):
+    """
+    Dashboard pasar: top saham berdasarkan metrik likuiditas/pergerakan, dihitung
+    SENDIRI dari batch download seluruh daftar BEI (IDX API diblokir Cloudflare,
+    Yahoo screener rate-limited — jadi metrik dihitung dari data yang sama dengan
+    strategi lain di sistem ini).
+
+    jenis:
+      active = Most Active (volume lembar terbesar)
+      value  = Top Value (nilai transaksi harga x volume terbesar)
+      gainer = Top Gainer (kenaikan % harian tertinggi)
+      loser  = Top Loser (penurunan % harian terbesar)
+
+    CATATAN: Top Gainer TIDAK untuk dibeli (uji empiris: cenderung reversal
+    di T+1). Most Active cocok sebagai FILTER likuiditas, bukan sinyal arah.
+
+    Contoh: /v1/pasar/most-active?jenis=active&limit=10
+    """
+    try:
+        data = top_pasar(jenis=jenis, limit=limit)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"status": "success", "data": data}
+
+
+@router.get("/rekomendasi/intraday")
+async def rekomendasi_intraday(
+    n: int = Query(5, ge=1, le=15, description="Berapa kandidat most-active yang diskor strategi intraday (default 5 — batch pasar + analisis gabungan butuh waktu; n=15 bisa dekat batas timeout serverless)"),
+    jenis: str = Query("active", description="active (most active) | value (top value)")
+):
+    """
+    Rekomendasi saham UNTUK STRATEGI INTRADAY berbasis filter likuiditas.
+
+    Alur: batch download seluruh BEI -> ambil top-n saham PALING LIKUID (most
+    active / top value, min nilai transaksi Rp5 miliar) -> jalankan skor
+    kecocokan 6 strategi untuk tiap kandidat -> ranking per strategi intraday
+    (BPJS, BSJP, range-pagi-sore, fast-intraday).
+
+    Most Active dipakai sebagai FILTER LIKUIDITAS saja — arah keputusan tetap
+    dari sinyal strategi (top gainer tidak dipakai sebagai sinyal beli: empiris
+    cenderung reversal). Untuk eksekusi spesifik, jalankan analisis per saham:
+    /v1/analisis/bpjs/{ticker}, /v1/analisis/bsjp/{ticker}, dst.
+
+    Contoh: /v1/rekomendasi/intraday?n=8
+    """
+    if jenis not in ("active", "value"):
+        raise HTTPException(status_code=400, detail="jenis hanya mendukung: active | value")
+    data = rekomendasi_intraday_likuid(n=n, jenis=jenis)
+    return {"status": "success", "data": data}
