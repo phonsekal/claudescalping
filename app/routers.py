@@ -24,6 +24,7 @@ from app.config import (
 )
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
 from app.most_active import top_pasar, rekomendasi_intraday_likuid, digest_pagi
+from app.riwayat import ambil_riwayat_digest
 
 router = APIRouter(prefix="/v1")
 
@@ -817,4 +818,40 @@ async def pasar_digest_pagi(
     if jenis not in ("active", "value"):
         raise HTTPException(status_code=400, detail="jenis hanya mendukung: active | value")
     data = digest_pagi(limit_active=limit_active, n_intraday=n_intraday, jenis=jenis)
+    return {"status": "success", "data": data}
+
+
+@router.get("/pasar/riwayat-digest")
+async def pasar_riwayat_digest(
+    hari: int = Query(7, ge=1, le=30, description="Berapa hari riwayat digest yang diambil (terbaru dulu)")
+):
+    """
+    Riwayat digest harian: snapshot Most Active + Rekomendasi Intraday yang
+    tersimpan otomatis setiap kali /v1/pasar/digest-pagi dipanggil.
+
+    Penyimpanan memakai Upstash Redis (KV serverless). Kalau env var
+    UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN belum dipasang, endpoint
+    tetap jalan dengan riwayat kosong + peringatan (fitur riwayat nonaktif).
+
+    Contoh: /v1/pasar/riwayat-digest?hari=7
+    """
+    data = ambil_riwayat_digest(hari=hari)
+    return {"status": "success", "data": data}
+
+
+@router.get("/rekomendasi/ringkasan-mingguan")
+async def rekomendasi_ringkasan_mingguan(
+    hari: int = Query(7, ge=1, le=30, description="Berapa hari riwayat yang diringkas"),
+    n_saham: int = Query(3, ge=1, le=6, description="Berapa saham teratas yang dibacktest"),
+    backtest: bool = Query(True, description="Jalankan backtest 5 strategi intraday (false = recap riwayat saja, lebih cepat)")
+):
+    """
+    RINGKASAN MINGGUAN: recap riwayat digest 7 hari + performa backtest 5 strategi
+    intraday (BPJS, BSJP, range-pagi-sore, fast-intraday, gorengan) pada saham
+    teratas. Dipakai notifikasi WA mingguan (Minggu sore).
+
+    Contoh: /v1/rekomendasi/ringkasan-mingguan?hari=7&n_saham=3&backtest=true
+    """
+    from app.ringkasan_mingguan import ringkasan_mingguan
+    data = ringkasan_mingguan(hari=hari, n_saham=n_saham, backtest=backtest)
     return {"status": "success", "data": data}

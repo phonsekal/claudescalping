@@ -1,0 +1,129 @@
+{
+  "name": "Notifikasi Sore BSJP (WA)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "cronExpression": "30 15 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "w-n8n_workflow_notif_sore_bsjp.json-sched",
+      "name": "Jadwal Sore 15:30 WIB",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://claudesahamfinal.vercel.app/v1/screener/bsjp",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "id": "w-n8n_workflow_notif_sore_bsjp.json-http",
+      "name": "Panggil API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// === FORMAT NOTIFIKASI SORE BSJP (Beli Sore Jual Pagi) ===\n// ⚠️ GANTI nomor ini dengan nomor WA tujuan kamu (format 62xxxxxxxxxx)\nconst NOMOR_TUJUAN = 'GANTI-DENGAN-NOMOR-WA';\n\nconst BATAS_KARAKTER_WA = 3500;\nfunction splitPesan(pesan, batas = BATAS_KARAKTER_WA) {\n  if (pesan.length <= batas) return [pesan];\n  const hasil = [];\n  let sisa = pesan;\n  while (sisa.length > batas) {\n    let potong = sisa.lastIndexOf('\\n', batas);\n    if (potong <= 0) potong = batas;\n    hasil.push(sisa.slice(0, potong));\n    sisa = sisa.slice(potong);\n  }\n  if (sisa.length > 0) hasil.push(sisa);\n  return hasil;\n}\n\nfunction rp(angka) {\n  if (angka === undefined || angka === null || angka === '') return 'N/A';\n  return `Rp${Number(angka).toLocaleString('id-ID')}`;\n}\n\nfunction fmtMiliar(angka) {\n  if (angka === undefined || angka === null || angka === '') return '-';\n  return `Rp${(Number(angka) / 1e9).toFixed(1)} M`;\n}\n\nconst rawInput = $input.first().json;\nconst inputHttp = rawInput || {};\nconst gagal = Boolean(inputHttp.error) || inputHttp.status !== 'success';\n\nif (gagal) {\n  const e = inputHttp.error || {};\n  const detailError = inputHttp.detail || e.message || e.description || 'Server tidak merespons.';\n  const pesan = `⚠️ *Notifikasi sore BSJP gagal.*\\n${detailError}\\n\\nPeriksa endpoint /v1/screener/bsjp.`;\n  return [{ json: { pesan_wa: pesan, to: NOMOR_TUJUAN } }];\n}\n\nconst data = inputHttp.data || inputHttp;\nconst list = data.radar_bsjp_aktif || [];\nconst tanggal = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });\n\nlet t = `🛒 *NOTIFIKASI SORE — BSJP* (${tanggal})\\n`;\nt += `━━━━━━━━━━━━━━━━━━━━\\n`;\nt += `_Beli di close hari ini, jual di open besok pagi._\\n\\n`;\n\nif (list.length === 0) {\n  t += `😴 *TIDAK ADA saham yang lolos filter BSJP hari ini.*\\n`;\n  t += `_Strategi hanya aktif saat momentum kuat (kenaikan signifikan + volume meledak + close kuat)._`;\n} else {\n  list.forEach((s, i) => {\n    const d = s.detail_sinyal || {};\n    const r = s.rekomendasi_bsjp || {};\n    const g = s.statistik_gap_historis || {};\n    const pct = (d.kenaikan_hari_ini_persen !== undefined && d.kenaikan_hari_ini_persen !== 'N/A')\n      ? `+${d.kenaikan_hari_ini_persen}%` : '';\n    t += `${i + 1}. *${s.saham}* — ${rp(s.harga_saat_ini)} ${pct}\\n`;\n    t += `   📈 Naik: ${d.kenaikan_hari_ini_persen}% | Close pos: ${d.posisi_close_di_range} | Vol: ${d.rasio_volume_vs_rata20}x\\n`;\n    t += `   💰 Nilai: ${fmtMiliar(d.nilai_transaksi_rupiah)} | RSI: ${d.rsi_14} | ADX: ${d.adx_14}\\n`;\n    if (r.aktif) {\n      t += `   🎯 Beli ~${rp(r.harga_beli_acuan)} | Target: ${rp(r.target_jual_estimasi)} | CL: ${rp(r.harga_cut_loss_pagi)}\\n`;\n      if (g.probabilitas_gap_up_persen !== undefined && g.probabilitas_gap_up_persen !== null) {\n        t += `   📊 Prob gap up historis: ${g.probabilitas_gap_up_persen}%\\n`;\n      }\n    }\n    t += `\\n`;\n  });\n}\n\nif (data.peringatan) t += `\\n⚠️ ${data.peringatan}\\n`;\nt += `\\n📌 _Exit besok pagi MANUAL (09.00-09.30 WIB). Patuhi cut loss jika gap down — jangan ubah jadi swing._`;\n\nreturn splitPesan(t).map((p) => ({ json: { pesan_wa: p, to: NOMOR_TUJUAN } }));\n"
+      },
+      "id": "w-n8n_workflow_notif_sore_bsjp.json-code",
+      "name": "Format Pesan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "750965801424563",
+        "recipientPhoneNumber": "={{ $json.to }}",
+        "textBody": "={{ $json.pesan_wa }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ],
+      "id": "w-n8n_workflow_notif_sore_bsjp.json-wa",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lD70QlU2lqHbGHW6",
+          "name": "WhatsApp account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Jadwal Sore 15:30 WIB": {
+      "main": [
+        [
+          {
+            "node": "Panggil API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Panggil API": {
+      "main": [
+        [
+          {
+            "node": "Format Pesan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Pesan": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timezone": "Asia/Jakarta"
+  },
+  "tags": []
+}

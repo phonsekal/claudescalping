@@ -31,6 +31,7 @@ import pandas as pd
 
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
 from app.services import rekomendasi_strategi_gabungan
+from app.riwayat import simpan_snapshot_digest
 
 # Konfigurasi batch download. period="5d" cukup untuk menghitung metrik pasar
 # (harga terakhir, volume, nilai transaksi, perubahan hari & 5 hari).
@@ -371,6 +372,39 @@ def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: 
     }
 
 
+def _snapshot_ringkas(payload: dict) -> dict:
+    """Buat snapshot ringkas digest untuk riwayat harian (hemat storage KV)."""
+    return {
+        "tanggal": payload.get("tanggal_data"),
+        "jumlah_saham_dianalisis": payload.get("jumlah_saham_dianalisis"),
+        "most_active": [
+            {
+                "ticker": m["ticker"],
+                "harga": m["harga"],
+                "pct_change_hari": m.get("pct_change_hari"),
+                "nilai_transaksi_miliar": round(m["nilai_transaksi"] / 1e9, 1),
+            }
+            for m in (payload.get("most_active") or {}).get("list", [])[:10]
+        ],
+        "rekomendasi_intraday": [
+            {
+                "kode": lb["kode"],
+                "nama": lb["nama"],
+                "terbaik": [
+                    {
+                        "ticker": f["ticker"],
+                        "skor": f["skor"],
+                        "sinyal_aktif": f.get("sinyal_aktif"),
+                    }
+                    for f in lb.get("terbaik", [])
+                ],
+            }
+            for lb in (payload.get("rekomendasi_intraday") or {})
+            .get("leaderboard_per_strategi_intraday", [])
+        ],
+    }
+
+
 def digest_pagi(limit_active: int = 10, n_intraday: int = 5, jenis: str = "active",
                 max_workers: int = 3) -> dict:
     """
@@ -380,16 +414,25 @@ def digest_pagi(limit_active: int = 10, n_intraday: int = 5, jenis: str = "activ
     seluruh BEI (941 ticker, ~16-21 dtk) hanya dijalankan SEKALI, lalu dipakai
     bersama oleh top_pasar() dan rekomendasi_intraday_likuid() via param
     metrik_pasar — kalau dipanggil terpisah, batch dijalankan dua kali.
+
+    Snapshot ringkas otomatis disimpan ke riwayat harian (Upstash KV, OPSIONAL):
+    kalau KV belum dikonfigurasi, penyimpanan di-skip tanpa error.
     """
     pasar = ambil_metrik_pasar()
     most_active = top_pasar(jenis="active", limit=limit_active, metrik_pasar=pasar)
     intraday = rekomendasi_intraday_likuid(
         n=n_intraday, jenis=jenis, max_workers=max_workers, metrik_pasar=pasar
     )
-    return {
+    payload = {
         "tanggal_data": pasar.get("tanggal_data"),
         "jumlah_saham_dianalisis": pasar.get("jumlah_berhasil"),
         "chunk_gagal": pasar.get("chunk_gagal") or [],
         "most_active": most_active,
         "rekomendasi_intraday": intraday,
     }
+    # Simpan riwayat (best-effort — kegagalan KV tidak boleh menggagalkan digest).
+    try:
+        payload["riwayat_tersimpan"] = simpan_snapshot_digest(_snapshot_ringkas(payload))
+    except Exception:
+        payload["riwayat_tersimpan"] = {"tersimpan": False, "alasan": "error saat simpan riwayat"}
+    return payload

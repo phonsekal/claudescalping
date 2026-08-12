@@ -1,0 +1,129 @@
+{
+  "name": "Ringkasan Mingguan Saham (WA)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "cronExpression": "0 18 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "w-n8n_workflow_ringkasan_mingguan.json-sched",
+      "name": "Jadwal Minggu 18:00 WIB",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://claudesahamfinal.vercel.app/v1/rekomendasi/ringkasan-mingguan?hari=7&n_saham=2&backtest=true",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "id": "w-n8n_workflow_ringkasan_mingguan.json-http",
+      "name": "Panggil API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// === FORMAT RINGKASAN MINGGUAN (recap riwayat + backtest 5 strategi intraday) ===\n// ⚠️ GANTI nomor ini dengan nomor WA tujuan kamu (format 62xxxxxxxxxx)\nconst NOMOR_TUJUAN = 'GANTI-DENGAN-NOMOR-WA';\n\nconst BATAS_KARAKTER_WA = 3500;\nfunction splitPesan(pesan, batas = BATAS_KARAKTER_WA) {\n  if (pesan.length <= batas) return [pesan];\n  const hasil = [];\n  let sisa = pesan;\n  while (sisa.length > batas) {\n    let potong = sisa.lastIndexOf('\\n', batas);\n    if (potong <= 0) potong = batas;\n    hasil.push(sisa.slice(0, potong));\n    sisa = sisa.slice(potong);\n  }\n  if (sisa.length > 0) hasil.push(sisa);\n  return hasil;\n}\n\nfunction fmtAngka(angka, digit = 2) {\n  if (angka === undefined || angka === null || angka === '') return '-';\n  return Number(angka).toLocaleString('id-ID', { maximumFractionDigits: digit });\n}\n\nconst rawInput = $input.first().json;\nconst inputHttp = rawInput || {};\nconst gagal = Boolean(inputHttp.error) || inputHttp.status !== 'success';\n\nif (gagal) {\n  const e = inputHttp.error || {};\n  const detailError = inputHttp.detail || e.message || e.description || 'Server tidak merespons.';\n  const pesan = `⚠️ *Ringkasan mingguan gagal.*\\n${detailError}\\n\\nPeriksa endpoint /v1/rekomendasi/ringkasan-mingguan.`;\n  return [{ json: { pesan_wa: pesan, to: NOMOR_TUJUAN } }];\n}\n\nconst data = inputHttp.data || inputHttp;\nconst periode = data.periode || {};\nconst recap = data.recap_mingguan || {};\nconst bt = data.backtest || {};\n\nlet t = `📊 *RINGKASAN MINGGUAN*\\n`;\nt += `━━━━━━━━━━━━━━━━━━━━\\n`;\nif (periode.tanggal_awal && periode.tanggal_akhir) {\n  t += `🗓️ ${periode.tanggal_awal} s.d ${periode.tanggal_akhir} (${periode.jumlah_hari_riwayat} hari digest)\\n\\n`;\n} else {\n  t += `🗓️ ${periode.jumlah_hari_riwayat} hari digest\\n\\n`;\n}\n\n// --- RECAP MOST ACTIVE ---\nconst sahamTop = recap.saham_teratas_most_active || [];\nt += `🔥 *SAHAM TERAKTIF MINGGU INI*\\n`;\nif (sahamTop.length === 0) {\n  t += `_Belum ada riwayat digest (aktifkan KV/Upstash, atau tunggu notifikasi pagi)._`;\n} else {\n  sahamTop.slice(0, 8).forEach((s, i) => {\n    const pct = s.rata_pct_change_hari !== null && s.rata_pct_change_hari !== undefined\n      ? ` (rata ${s.rata_pct_change_hari > 0 ? '+' : ''}${s.rata_pct_change_hari}%)` : '';\n    t += `${i + 1}. *${s.ticker}* — ${s.jumlah_hari_muncul}x${pct}\\n`;\n  });\n}\n\n// --- RECAP PER STRATEGI ---\nconst perStr = recap.per_strategi_intraday || [];\nif (perStr.length > 0) {\n  t += `\\n⚡ *STRATEGI INTRADAY (dari riwayat)*\\n`;\n  perStr.forEach((s) => {\n    const picks = (s.top_picks || []).map((p) => `${p.ticker}(${p.jumlah_hari}x)`).join(', ');\n    t += `📌 *${s.nama}*\\n`;\n    t += `   Aktif ${s.hari_sinyal_aktif}/${s.hari_total} hari | Skor rata2: ${fmtAngka(s.skor_rata2)}\\n`;\n    if (picks) t += `   Top: ${picks}\\n`;\n  });\n}\n\n// --- BACKTEST 5 STRATEGI ---\nconst btStrategi = bt.per_strategi || [];\nif (bt.dijalankan && btStrategi.length > 0) {\n  t += `\\n📉 *BACKTEST 5 STRATEGI* (saham: ${(bt.saham_diuji || []).join(', ')})\\n`;\n  btStrategi.forEach((s) => {\n    t += `• *${s.nama}*: `;\n    if (s.tipe === 'per_hari') {\n      t += `${fmtAngka(s.total_hari_diuji, 0)} hari diuji | RT ${fmtAngka(s.persen_hari_roundtrip_rata2)}% | Eksp/hari ${fmtAngka(s.ekspektasi_per_hari_rata2, 3)}%\\n`;\n    } else {\n      t += `${fmtAngka(s.total_transaksi, 0)} trx | Win ${fmtAngka(s.win_rate_gabungan_persen)}% | Ret/trx ${fmtAngka(s.rata_rata_return_per_transaksi_persen)}%\\n`;\n    }\n  });\n  if (bt.catatan) t += `\\n_${bt.catatan}_`;\n}\n\n// --- PERINGATAN ---\nif (data.peringatan_riwayat) t += `\\n⚠️ ${data.peringatan_riwayat}\\n`;\n\nt += `\\n💡 *Aksi:* ketik *scan <TICKER> strategi* untuk detail per saham, atau *scan riwayat* untuk snapshot harian.`;\nt += `\\n📌 _Recap dari digest harian; backtest = sanity-check (data 60 hari), bukan validasi final._`;\n\nreturn splitPesan(t).map((p) => ({ json: { pesan_wa: p, to: NOMOR_TUJUAN } }));\n"
+      },
+      "id": "w-n8n_workflow_ringkasan_mingguan.json-code",
+      "name": "Format Pesan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "750965801424563",
+        "recipientPhoneNumber": "={{ $json.to }}",
+        "textBody": "={{ $json.pesan_wa }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ],
+      "id": "w-n8n_workflow_ringkasan_mingguan.json-wa",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lD70QlU2lqHbGHW6",
+          "name": "WhatsApp account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Jadwal Minggu 18:00 WIB": {
+      "main": [
+        [
+          {
+            "node": "Panggil API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Panggil API": {
+      "main": [
+        [
+          {
+            "node": "Format Pesan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Pesan": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timezone": "Asia/Jakarta"
+  },
+  "tags": []
+}
