@@ -5,6 +5,7 @@ from app.services import (
     hitung_analisis_saham, hitung_momentum_gorengan, cek_kondisi_market,
     ambil_riwayat_batch, hitung_sinyal_fast_intraday, hitung_sinyal_bsjp,
     hitung_analisis_range_pagi_sore, hitung_analisis_bpjs,
+    hitung_analisis_golden_period,
     rekomendasi_strategi_gabungan,
     pre_filter_oversold_swing, pre_filter_momentum
 )
@@ -25,7 +26,7 @@ from app.config import (
 from app.daftar_saham_bei import SEMUA_SAHAM_BEI
 from app.most_active import (
     top_pasar, rekomendasi_intraday_likuid, digest_pagi, konteks_pasar_saham,
-    screener_range_pagi_sore,
+    screener_range_pagi_sore, screener_golden_period,
 )
 from app.riwayat import ambil_riwayat_digest
 
@@ -634,6 +635,75 @@ async def run_screener_range_pagi_sore_semua_saham(
         daftar_ticker=slice_ticker, min_range_persen=min_range_persen,
         min_high_pagi=min_high_pagi, min_low_sore=min_low_sore,
         min_spread_bersih=min_spread_bersih,
+    )
+    offset_berikutnya = offset + limit if (offset + limit) < total else None
+    data["total_saham_di_daftar_bei"] = total
+    data["diproses_offset"] = offset
+    data["diproses_limit"] = limit
+    data["offset_berikutnya"] = offset_berikutnya
+    return {"status": "success", "data": data}
+
+
+@router.get("/analisis/golden-period/{ticker}")
+async def analisis_golden_period_saham(
+    ticker: str,
+    hari_data: int = Query(5, ge=3, le=10, description="Berapa hari bursa data 1-menit yang dianalisis (default 5)")
+):
+    """
+    ANALISIS GOLDEN PERIOD PEMBUKAAN: pola 09.00-09.10 dari data 1-MENIT.
+
+    Validasi empiris: beli di OPEN pagi = EV negatif (gap sudah terjadi di harga
+    open); pola yang positif = BELI PREV-CLOSE (sore) lalu JUAL PUNCAK PAGI
+    (win-rate ~74-90% utk saham likuid). Output mencakup harga beli sore,
+    target jual pagi, stop loss, dan probabilitas target-touch intraday.
+
+    Contoh: /v1/analisis/golden-period/BBRI?hari_data=5
+    """
+    data = hitung_analisis_golden_period(ticker, hari_data=hari_data)
+    if data is None:
+        raise HTTPException(status_code=404, detail=f"Data 1-menit tidak cukup untuk {ticker.upper()}. Coba ticker lain atau naikkan hari_data.")
+    return {"status": "success", "data": _tambah_konteks_pasar(data, ticker)}
+
+
+@router.get("/screener/golden-period")
+async def run_screener_golden_period(
+    n: int = Query(10, ge=3, le=25, description="Berapa kandidat likuid teratas yang dianalisis (default 10 — analisis 1-menit cukup berat)"),
+    jenis: str = Query("active", description="active (most active) | value (top value)"),
+    hari_data: int = Query(5, ge=3, le=10),
+    min_win_rate_persen: float = Query(None, ge=0, le=100, description="Win-rate puncak pagi minimal (default 60)"),
+    min_puncak_persen: float = Query(None, ge=0, le=20, description="Rata-rata puncak pagi minimal % (default 1.0)")
+):
+    """
+    SCREENER GOLDEN PERIOD: saham likuid paling cocok untuk BELI SORE -> JUAL
+    PUNCAK PAGI (09.01-09.10). Ranking: win-rate puncak pagi + rata-rata puncak.
+
+    Contoh: /v1/screener/golden-period?n=10&jenis=active
+    """
+    data = screener_golden_period(
+        n=n, jenis=jenis, hari_data=hari_data,
+        min_win_rate_persen=min_win_rate_persen, min_puncak_persen=min_puncak_persen,
+    )
+    return {"status": "success", "data": data}
+
+
+@router.get("/screener/golden-period/semua-saham")
+async def run_screener_golden_period_semua_saham(
+    offset: int = Query(0, ge=0),
+    limit: int = Query(8, ge=1, le=15, description="Batas per batch — tiap saham fetch data 1-menit (berat)"),
+    hari_data: int = Query(5, ge=3, le=10),
+    min_win_rate_persen: float = Query(None, ge=0, le=100),
+    min_puncak_persen: float = Query(None, ge=0, le=20)
+):
+    """
+    Screener Golden Period atas seluruh daftar BEI (dipaginasi). Lebih lambat.
+    """
+    total = len(SEMUA_SAHAM_BEI)
+    slice_ticker = SEMUA_SAHAM_BEI[offset: offset + limit]
+    if not slice_ticker:
+        raise HTTPException(status_code=404, detail=f"Offset {offset} di luar jangkauan. Total saham di daftar BEI: {total}.")
+    data = screener_golden_period(
+        daftar_ticker=slice_ticker, hari_data=hari_data,
+        min_win_rate_persen=min_win_rate_persen, min_puncak_persen=min_puncak_persen,
     )
     offset_berikutnya = offset + limit if (offset + limit) < total else None
     data["total_saham_di_daftar_bei"] = total

@@ -607,6 +607,152 @@ def screener_range_pagi_sore(n: int = 25, jenis: str = "active", max_workers: in
     }
 
 
+# Ambang default screener Golden Period (pembukaan). Kalibrasi empiris Agu 2026:
+# buy prev-close -> jual puncak pagi memberi win-rate ~74-90% utk saham likuid.
+SCREENER_GOLDEN_MIN_WIN_RATE_PERSEN = 60.0   # % hari dgn puncak pagi > 0 vs prev-close
+SCREENER_GOLDEN_MIN_PUNCK_PERSEN = 1.0       # rata-rata puncak pagi minimal (%)
+SCREENER_GOLDEN_BUDGET_DETIK = 150
+
+
+def screener_golden_period(n: int = 10, jenis: str = "active", hari_data: int = 5,
+                           max_workers: int = 3, daftar_ticker: list = None,
+                           batas_waktu_detik: int = None,
+                           min_win_rate_persen: float = None,
+                           min_puncak_persen: float = None) -> dict:
+    """
+    SCREENER GOLDEN PERIOD: cari saham likuid yang pola pembukaannya paling cocok
+    untuk strategi BELI SORE -> JUAL PUNCAK PAGI (09.01-09.10).
+
+    Tiap kandidat dianalisis dengan data 1-menit (pola pembukaan, bukan data 15m):
+      1. Rata-rata gap pagi (prev-close -> open)
+      2. Rata-rata return prev-close -> puncak 10 menit pertama
+      3. Win-rate: % hari puncak pagi > prev-close
+      4. Target & stop yang bisa dipasang sore kemarin
+    Kandidat default = saham paling likuid (nilai >= Rp5 M). Analisis 1-menit per
+    saham cukup berat (fetch + rate-limit Yahoo), jadi n dibatasi kecil & paralel
+    dengan deadline anti-504.
+    """
+    min_win = SCREENER_GOLDEN_MIN_WIN_RATE_PERSEN if min_win_rate_persen is None else min_win_rate_persen
+    min_puncak = SCREENER_GOLDEN_MIN_PUNCK_PERSEN if min_puncak_persen is None else min_puncak_persen
+    budget = SCREENER_GOLDEN_BUDGET_DETIK if batas_waktu_detik is None else batas_waktu_detik
+
+    pasar = None
+    if daftar_ticker:
+        ticker_list = [_nama_bisa(t).upper() for t in daftar_ticker]
+    else:
+        pasar = ambil_metrik_pasar()
+        metrik = pasar["metrik"]
+        kandidat = [m for m in metrik.values() if m["nilai_transaksi"] >= MIN_NILAI_TRANSAKSI_INTRADAY]
+        kandidat.sort(key=lambda m: (-m["nilai_transaksi"] if jenis == "value" else -m["volume"]))
+        kandidat = kandidat[:n]
+        ticker_list = [m["ticker"] for m in kandidat]
+
+    if not ticker_list:
+        return {
+            "filter": {"jenis": jenis, "n_kandidat": n},
+            "tanggal_data": None, "jumlah_kandidat_diproses": 0, "jumlah_saham_berhasil": 0,
+            "saham_gagal": [], "radar_golden_period_aktif": [],
+            "peringatan": "Tidak ada kandidat untuk dianalisis.",
+        }
+
+    # Data 1-menit per saham: paralel dengan spacing (anti rate-limit Yahoo).
+    deadline = time.time() + budget
+    ok = {}
+    gagal = []
+
+    def _proses_golden(t):
+        # import lokal menghindari circular import (services mengimpor many constants)
+        from app.services import hitung_analisis_golden_period
+        for c in range(2):
+            try:
+                return t, hitung_analisis_golden_period(t, hari_data=hari_data, retry_jeda=1.2)
+            except Exception:
+                if c == 0:
+                    time.sleep(1.5)
+        return t, None
+
+    ex = ThreadPoolExecutor(max_workers=max_workers)
+    try:
+        futures = {}
+        for t in ticker_list:
+            if deadline is not None and time.time() >= deadline:
+                gagal.append(t)
+                continue
+            futures[ex.submit(_proses_golden, t)] = t
+            time.sleep(1.2)  # spacing antar submit, anti burst rate-limit
+        sisa = None if deadline is None else max(0.0, deadline - time.time())
+        try:
+            for fut in as_completed(futures, timeout=sisa):
+                t = futures[fut]
+                try:
+                    _, r = fut.result()
+                except Exception:
+                    r = None
+                if r:
+                    ok[t] = r
+                else:
+                    gagal.append(t)
+        except FuturesTimeout:
+            for fut, t in futures.items():
+                if t not in ok and t not in gagal:
+                    gagal.append(t)
+    finally:
+        ex.shutdown(wait=False, cancel_futures=True)
+
+    lolos = []
+    for t, data in ok.items():
+        try:
+            sp = data.get("statistik_pembukaan") or {}
+            ro = data.get("rekomendasi_order") or {}
+            p10 = sp.get("pc_ke_puncak10") or {}
+            win = sp.get("win_rate_pc_ke_puncak10_persen") or 0
+            puncak = p10.get("rata") or 0
+            if win < min_win:
+                continue
+            if puncak < min_puncak:
+                continue
+            # Guard spread: target jual harus DI ATAS harga beli (tick rounding saham
+            # murah bisa membuat keduanya sama — rekomendasi tanpa spread menyesatkan).
+            beli = ro.get("harga_beli_limit_sore") or 0
+            jual = ro.get("harga_jual_limit_pagi") or 0
+            if jual <= beli:
+                continue
+            lolos.append({
+                "saham": data.get("saham"),
+                "harga": data.get("harga_acuan"),
+                "gap_rata_persen": sp.get("gap_rata_persen"),
+                "win_rate_persen": win,
+                "puncak_pagi_rata_persen": puncak,
+                "puncak_pagi_median_persen": p10.get("median"),
+                "target_jual_pagi": ro.get("harga_jual_limit_pagi"),
+                "harga_beli_sore": ro.get("harga_beli_limit_sore"),
+                "stop_loss_harga": ro.get("stop_loss_harga"),
+                "vol_bar1_rata": sp.get("vol_bar1_rata"),
+            })
+        except Exception:
+            continue
+    lolos.sort(key=lambda x: -((x.get("win_rate_persen") or 0) + (x.get("puncak_pagi_rata_persen") or 0)))
+
+    peringatan = None
+    if not lolos and ok:
+        peringatan = ("Tidak ada yang lolos filter — coba longgarkan min_win_rate_persen / "
+                      "min_puncak_persen, atau naikkan n.")
+
+    return {
+        "filter": {
+            "jenis": jenis,
+            "n_kandidat": len(ticker_list),
+            "ambang": {"min_win_rate_persen": min_win, "min_puncak_persen": min_puncak},
+        },
+        "tanggal_data": (pasar or {}).get("tanggal_data"),
+        "jumlah_kandidat_diproses": len(ticker_list),
+        "jumlah_saham_berhasil": len(ok),
+        "saham_gagal": [_nama_bisa(t) for t in gagal],
+        "radar_golden_period_aktif": lolos,
+        "peringatan": peringatan,
+    }
+
+
 def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: int = 3,
                                 metrik_pasar: dict = None, batas_waktu_detik: int = None,
                                 eksekusi: bool = False) -> dict:

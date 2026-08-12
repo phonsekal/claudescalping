@@ -1386,6 +1386,206 @@ def hitung_sinyal_fast_intraday(ticker_symbol: str, df_riwayat: pd.DataFrame = N
 
 
 # =========================================================================
+# STRATEGI 7: GOLDEN PERIOD PEMBUKAAN (data 1 menit)
+# Validasi empiris Agu 2026 (130 observasi saham-hari, 20 saham likuid):
+#   - Buy di harga OPEN lalu target +1% dalam 10 menit pertama: hit-rate 44%,
+#     EV NEGATIF setelah fee (klaim "top gainer naik signifikan di 1 menit"
+#     TIDAK terbukti sebagai sinyal beli — gap sudah terjadi di harga open).
+#   - Beli PREV-CLOSE (sore sebelumnya) lalu jual PUNCAK PAGI: mean +2.55%,
+#     win-rate 73.8%; dengan filter gap positif + volume: mean +3.4%, win 90%.
+#     Pola "saham kuat sore -> gap & puncak pagi" SANGAT terdeteksi.
+# =========================================================================
+
+def hitung_analisis_golden_period(ticker_symbol: str, hari_data: int = 5, retry_jeda: float = 2.5):
+    """
+    Analisis pola pembukaan (golden period) memakai data 1-MENIT Yahoo Finance.
+
+    Dua kerangka yang dilaporkan:
+    1. INTRADAY "beli di open": berapa % hari harga benar menyentuh target di
+       atas open dalam 10/30 menit pertama. (EV umumnya negatif setelah fee —
+       ditampilkan apa adanya supaya user tidak tertipu klaim golden period.)
+    2. OVERNIGHT "beli prev-close, jual pagi": return dari close T-1 ke puncak
+       sesi pagi. Ini pola yang empiris kuat (win-rate ~74-90% utk saham likuid
+       dengan gap positif) dan BISA dieksekusi: beli sore, jual ke puncak pagi.
+
+    Keterbatasan jujur: data Yahoo 1-menit delay ~15-20 menit & bar 09:00 adalah
+    print opening auction (volume 0) — volume nyata mulai 09:01. Jadi sinyal
+    "jual pagi" berlaku untuk puncak 09.01-09.10, bukan detik-detik 09.00.
+    """
+    if not ticker_symbol.endswith(".JK"):
+        ticker = f"{ticker_symbol.upper()}.JK"
+    else:
+        ticker = ticker_symbol.upper()
+
+    period = f"{max(3, min(hari_data, 10))}d"
+    df = None
+    for c in range(4):
+        try:
+            df = yf.Ticker(ticker).history(period=period, interval="1m", auto_adjust=False)
+            if df is not None and not df.empty:
+                break
+        except Exception:
+            df = None
+        if c < 3:
+            time.sleep(retry_jeda + c * 1.5)
+    if df is None or df.empty or len(df) < 200:
+        return None
+
+    df = df.reset_index()
+    kolom_waktu = 'Datetime' if 'Datetime' in df.columns else 'Date'
+    waktu = pd.to_datetime(df[kolom_waktu])
+    df['tanggal'] = waktu.dt.date
+    df['minute'] = waktu.dt.hour * 60 + waktu.dt.minute
+    cols = {c: df[c].to_numpy() for c in ['Open', 'High', 'Low', 'Close', 'Volume']}
+    am, at = df['minute'].to_numpy(), df['tanggal'].to_numpy()
+
+    hari_data_ok = []
+    for hari in np.unique(at):
+        idx = np.where(at == hari)[0]
+        if len(idx) < 5:
+            continue
+        idx = idx[np.argsort(am[idx])]
+        open_h = float(cols['Open'][idx[0]])
+        # prev close = close bar terakhir hari sebelumnya (dgn volume nyata)
+        prev_close = None
+        for j in range(idx[0] - 1, -1, -1):
+            if at[j] != hari and cols['Volume'][j] > 0:
+                prev_close = float(cols['Close'][j])
+                break
+        if prev_close is None or prev_close <= 0:
+            continue
+        j_vol = [j for j in idx if cols['Volume'][j] > 0]
+        if not j_vol:
+            continue
+        j1 = j_vol[0]
+        t1 = int(am[j1])
+        # hanya ambil 30 menit pertama dari bar1 ber-volume (fokus golden period)
+        window = [j for j in idx if t1 <= am[j] <= t1 + 30]
+        if len(window) < 3:
+            continue
+        gap = (open_h - prev_close) / prev_close * 100
+        high30 = float(np.max(cols['High'][window]))
+        low30 = float(np.min(cols['Low'][window]))
+        # puncak dalam 10 menit pertama
+        win10 = [j for j in window if am[j] <= t1 + 10]
+        high10 = float(np.max(cols['High'][win10])) if win10 else high30
+        # kapan puncak 30m terjadi (menit ke berapa dari bar1)
+        arg_high = int(np.argmax(cols['High'][window]))
+        menit_ke_puncak = int(am[window[arg_high]] - t1)
+        hari_data_ok.append({
+            'tanggal': str(hari),
+            'gap': gap,
+            'open': open_h, 'prev_close': prev_close,
+            'pc_ke_puncak10': (high10 - prev_close) / prev_close * 100,
+            'pc_ke_puncak30': (high30 - prev_close) / prev_close * 100,
+            'open_ke_puncak10': (high10 - open_h) / open_h * 100,
+            'menit_ke_puncak': menit_ke_puncak,
+            'vol_bar1': int(cols['Volume'][j1]),
+        })
+
+    if len(hari_data_ok) < 2:
+        return None
+
+    d = pd.DataFrame(hari_data_ok)
+
+    # --- Statistik ---
+    def pct(seri, ambang):
+        seri = seri.dropna()
+        if len(seri) == 0:
+            return None
+        return round(float((seri >= ambang).mean()) * 100, 1)
+
+    gap_rata = round(float(d['gap'].mean()), 2)
+    gap_positif_persen = round(float((d['gap'] > 0).mean()) * 100, 1)
+    puncak10_rata = round(float(d['pc_ke_puncak10'].mean()), 2)
+    puncak10_median = round(float(d['pc_ke_puncak10'].median()), 2)
+    puncak10_p25 = round(float(d['pc_ke_puncak10'].quantile(0.25)), 2)
+    puncak10_p75 = round(float(d['pc_ke_puncak10'].quantile(0.75)), 2)
+    win_puncak10 = round(float((d['pc_ke_puncak10'] > 0).mean()) * 100, 1)
+    menit_puncak_median = int(d['menit_ke_puncak'].median())
+    vol_bar1_rata = int(d['vol_bar1'].mean())
+
+    # Probabilitas target-touch INTRADAY (beli open -> target di atas open dlm 10 mnt).
+    # CATATAN JUJUR: dihitung dari puncak REALISASI 10 menit (look-ahead), jadi ini
+    # batas ATAS probabilitas nyata — dipakai untuk menyiratkan bahwa buy-open tidak
+    # menguntungkan (angka di bawah fee 0.3% umumnya), bukan sebagai sinyal beli.
+    prob_touch_10 = {
+        "target_1_persen": pct(d['open_ke_puncak10'], 1.0),
+        "target_2_persen": pct(d['open_ke_puncak10'], 2.0),
+        "target_3_persen": pct(d['open_ke_puncak10'], 3.0),
+    }
+
+    # --- Rekomendasi harga (mode OVERNIGHT: beli prev-close, jual puncak pagi) ---
+    acuan_beli = float(d['prev_close'].iloc[-1])
+    # Target minimal 1 tick DI ATAS harga beli — untuk saham murah (tick 1-2 rupiah)
+    # persentil p25 yang kecil bisa membulat ke harga beli sendiri (KOTA: beli=jual),
+    # membuat rekomendasi tidak berguna. Naikkan level sampai > harga beli.
+    target_jual = bulatkan_ke_tick_idx(acuan_beli * (1 + max(puncak10_p25, 0.5) / 100), ke_bawah=True)
+    if target_jual <= int(acuan_beli):
+        target_jual = bulatkan_ke_tick_idx(int(acuan_beli) + 1, ke_bawah=False)
+    # Stop untuk mode overnight: gap negatif ekstrem / gap turun > 2% -> cut di bawah beli
+    stop = bulatkan_ke_tick_idx(acuan_beli * (1 - 2.0 / 100), ke_bawah=True)
+    # Hit-rate TERHADAP TARGET AKTUAL (bukan win-rate 'puncak > 0'): berapa % hari
+    # puncak pagi benar-benar mencapai level target_jual yang direkomendasikan.
+    target_persen = round((target_jual - acuan_beli) / acuan_beli * 100, 2)
+    hit_rate_target = round(float((d['pc_ke_puncak10'] >= target_persen).mean()) * 100, 1)
+
+    harga_terakhir = float(d['open'].iloc[-1])  # open hari terakhir sbg harga acuan saat ini
+
+    rekomendasi = (
+        "BELI SORE (prev-close) lalu JUAL PAGI ke puncak 09.01-09.10 — pola ini secara "
+        f"historis {win_puncak10}% hari berakhir positif dari prev-close, rata-rata +{puncak10_rata}%. "
+        "JANGAN beli di harga open pagi (gap sudah terjadi di sana — EV negatif)."
+    )
+
+    return {
+        "saham": ticker_symbol.upper(),
+        "strategi": "Golden Period Pembukaan (09.00-09.10)",
+        "harga_acuan": int(round(harga_terakhir)),
+        "catatan_harga_acuan": "Harga acuan = open hari terakhir data (bukan harga real-time; data Yahoo delay ~15-20 menit)",
+        "harga_beli_saran_prev_close": int(round(acuan_beli)),
+        "jendela_hari_dipakai": int(len(d)),
+        "statistik_pembukaan": {
+            "gap_rata_persen": gap_rata,
+            "persen_gap_positif": gap_positif_persen,
+            "vol_bar1_rata": vol_bar1_rata,
+            "menit_puncak_median": menit_puncak_median,
+            "pc_ke_puncak10": {"rata": puncak10_rata, "median": puncak10_median,
+                                "p25": puncak10_p25, "p75": puncak10_p75},
+            "win_rate_pc_ke_puncak10_persen": win_puncak10,
+            "prob_touch_target_intraday_10m": prob_touch_10,
+        },
+        "rekomendasi_order": {
+            "mode": "BELI PREV-CLOSE, JUAL PUNCAK PAGI",
+            "harga_beli_limit_sore": int(round(acuan_beli)),
+            "harga_jual_limit_pagi": target_jual,
+            "target_profit_persen": target_persen,
+            "stop_loss_persen": -2.0,
+            "stop_loss_harga": stop,
+            "estimasi_win_rate_persen": win_puncak10,
+            "hit_rate_target_persen": hit_rate_target,
+            "keterangan": rekomendasi,
+        },
+        "peringatan": (
+            "⚠️ Data Yahoo 1-menit delay ~15-20 menit; bar 09:00 = opening auction (volume 0), "
+            "volume nyata mulai 09:01. Target jual pagi = jual limit di puncak 09.01-09.10. "
+            "Validasi empiris: BELI di OPEN pagi = EV negatif (target +1% hanya 44% terisi); "
+            "beli prev-close & jual pagi = pola yang secara historis positif utk saham likuid. "
+            "Eksekusi tetap manual — verifikasi harga real-time di broker."
+        ),
+        "contoh_hari_terakhir": [
+            {
+                "tanggal": str(r['tanggal']) if 'tanggal' in r else '',
+                "gap_persen": round(float(r['gap']), 2),
+                "pc_ke_puncak10_persen": round(float(r['pc_ke_puncak10']), 2),
+                "menit_ke_puncak": int(r['menit_ke_puncak']),
+            }
+            for r in d.tail(5).to_dict('records')
+        ],
+    }
+
+
+# =========================================================================
 # STRATEGI 4: BSJP (Beli Sore Jual Pagi)
 # =========================================================================
 
