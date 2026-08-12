@@ -433,6 +433,180 @@ def _hitung_eksekusi(top_pick: dict, deadline=None) -> dict:
     return hasil
 
 
+def _jalankan_paralel(daftar, fn, worker=3, deadline=None, spacing=0.4, percobaan=3):
+    """
+    Jalankan fn(t) untuk tiap t secara paralel, hormati deadline (anti-504).
+
+    Return (ok: {t: hasil}, gag: [t]) — ok hanya berisi yang berhasil, gag
+    berisi yang gagal ATAU belum sempat diproses saat deadline habis.
+    """
+    ok, gag = {}, []
+    if not daftar:
+        return ok, gag
+
+    def _proses(t):
+        for c in range(percobaan):
+            try:
+                return t, fn(t)
+            except Exception:
+                if c < percobaan - 1:
+                    time.sleep(1.5 * (c + 1))
+        return t, None
+
+    ex = ThreadPoolExecutor(max_workers=worker)
+    try:
+        futures = {}
+        for t in daftar:
+            if deadline is not None and time.time() >= deadline:
+                gag.append(t)  # tidak sempat diproses
+                continue
+            futures[ex.submit(_proses, t)] = t
+            time.sleep(spacing)  # spacing antar submit, anti burst 429
+        if futures:
+            sisa = None if deadline is None else max(0.0, deadline - time.time())
+            try:
+                for fut in as_completed(futures, timeout=sisa):
+                    t = futures[fut]
+                    try:
+                        _, r = fut.result()
+                    except Exception:
+                        r = None
+                    if r:
+                        ok[t] = r
+                    else:
+                        gag.append(t)
+            except FuturesTimeout:
+                for fut, t in futures.items():
+                    if t not in ok and t not in gag:
+                        gag.append(t)
+    finally:
+        # JANGAN menunggu tugas yang masih jalan (tidak boleh menggagalkan
+        # request yang sudah punya hasil parsial).
+        ex.shutdown(wait=False, cancel_futures=True)
+    return ok, gag
+
+
+# Ambang default screener Range Pagi-Sore.
+# KALIBRASI EMPIRIS (Agu 2026, sampel 40 saham terlikuid BEI):
+#   - day-high di sesi pagi: median 82%, min 60%  -> ambang 55% realistis.
+#   - day-low di sesi sore:  median 25%, max 36%  -> ambang 55% TIDAK PERNAH
+#     terpenuhi (0 lolos selalu). Saham likuid secara alamiah day-low-nya
+#     lebih sering di pagi/siang; dipakai median nyata (25%) supaya screener
+#     memilih saham dengan kecenderungan sore-dip TERKUAT, bukan mustahil.
+SCREENER_RANGE_MIN_RANGE_PERSEN = 1.2   # rata-rata range harian minimal (H-L)
+SCREENER_RANGE_MIN_HIGH_PAGI = 55.0     # % hari dgn day-high di sesi pagi
+SCREENER_RANGE_MIN_LOW_SORE = 25.0      # % hari dgn day-low di sesi sore (median empiris)
+SCREENER_RANGE_MIN_SPREAD_BERSIH = 0.3  # spread bersih minimal setelah fee (%)
+SCREENER_RANGE_BUDGET_DETIK = 150
+
+
+def screener_range_pagi_sore(n: int = 25, jenis: str = "active", max_workers: int = 3,
+                             daftar_ticker: list = None, batas_waktu_detik: int = None,
+                             min_range_persen: float = None, min_high_pagi: float = None,
+                             min_low_sore: float = None, min_spread_bersih: float = None) -> dict:
+    """
+    SCREENER RANGE PAGI-SORE: cari saham yang POLANYA paling cocok untuk
+    strategi jual-pagi/beli-sore.
+
+    Kandidat default = saham PALING LIKUID dari batch pasar (nilai >= Rp5 M;
+    utk intraday spread & slippage harus tipis). Kalau daftar_ticker diberikan
+    (mode semua-saham/paginasi), kandidat dipakai apa adanya tanpa filter
+    likuiditas. Tiap kandidat dianalisis penuh lalu difilter:
+      1. Rata-rata range harian (High-Low) >= min_range_persen  -> geraknya lebar
+      2. Day-high sering di sesi pagi  (>= min_high_pagi %)
+      3. Day-low sering di sesi sore   (>= min_low_sore %)
+      4. Spread bersih setelah fee > 0 -> layak secara biaya
+    Output diurutkan dari spread bersih terbesar.
+    """
+    min_range = SCREENER_RANGE_MIN_RANGE_PERSEN if min_range_persen is None else min_range_persen
+    min_high = SCREENER_RANGE_MIN_HIGH_PAGI if min_high_pagi is None else min_high_pagi
+    min_low = SCREENER_RANGE_MIN_LOW_SORE if min_low_sore is None else min_low_sore
+    min_spread = SCREENER_RANGE_MIN_SPREAD_BERSIH if min_spread_bersih is None else min_spread_bersih
+    budget = SCREENER_RANGE_BUDGET_DETIK if batas_waktu_detik is None else batas_waktu_detik
+
+    pasar = None
+    if daftar_ticker:
+        ticker_list = [_nama_bisa(t).upper() for t in daftar_ticker]
+    else:
+        pasar = ambil_metrik_pasar()
+        metrik = pasar["metrik"]
+        kandidat = [m for m in metrik.values() if m["nilai_transaksi"] >= MIN_NILAI_TRANSAKSI_INTRADAY]
+        kandidat.sort(key=lambda m: (-m["nilai_transaksi"] if jenis == "value" else -m["volume"]))
+        kandidat = kandidat[:n]
+        ticker_list = [m["ticker"] for m in kandidat]
+
+    if not ticker_list:
+        return {
+            "filter": {"jenis": jenis, "n_kandidat": n},
+            "tanggal_data": None, "jumlah_saham_dianalisis": 0,
+            "jumlah_kandidat_diproses": 0, "jumlah_saham_berhasil": 0,
+            "saham_gagal": [], "radar_range_pagi_sore_aktif": [],
+            "peringatan": "Tidak ada kandidat untuk dianalisis.",
+        }
+
+    deadline = time.time() + budget
+    ok, gagal = _jalankan_paralel(ticker_list, hitung_analisis_range_pagi_sore,
+                                  max_workers, deadline)
+
+    lolos = []
+    for t, data in ok.items():
+        try:
+            sp = data.get("statistik_pola") or {}
+            ro = data.get("rekomendasi_order") or {}
+            rh = data.get("range_harga") or {}
+            spread = ro.get("spread_bersih_setelah_fee_persen") or 0
+            if spread < min_spread:
+                continue
+            if (sp.get("persen_day_high_di_pagi") or 0) < min_high:
+                continue
+            if (sp.get("persen_day_low_di_sore") or 0) < min_low:
+                continue
+            if (rh.get("rata_rata_range_harian_persen") or 0) < min_range:
+                continue
+            lolos.append({
+                "saham": data.get("saham"),
+                "harga": data.get("harga_acuan_prev_close"),
+                "status": data.get("status"),
+                "kategori_range": rh.get("kategori_range"),
+                "range_rata_harian_persen": rh.get("rata_rata_range_harian_persen"),
+                "rentang_harga_persen": rh.get("rentang_harga_persen"),
+                "persen_high_pagi": sp.get("persen_day_high_di_pagi"),
+                "persen_low_sore": sp.get("persen_day_low_di_sore"),
+                "spread_bersih_persen": spread,
+                "prob_roundtrip": ro.get("estimasi_roundtrip_terisi_persen"),
+                "jual_pagi": ro.get("harga_set_jual_pagi"),
+                "beli_sore": ro.get("harga_set_beli_sore"),
+            })
+        except Exception:
+            continue
+    lolos.sort(key=lambda x: -(x.get("spread_bersih_persen") or 0))
+
+    peringatan = None
+    if pasar and pasar.get("chunk_gagal"):
+        peringatan = (f"{sum(pasar['chunk_gagal'])} saham gagal diunduh saat batch pasar "
+                      "— kandidat mungkin tidak mencakup semua saham likuid.")
+    if not lolos and ok:
+        tambah = ("Tidak ada yang lolos filter — coba longgarkan min_range_persen / "
+                  "min_high_pagi / min_low_sore, atau naikkan n.")
+        peringatan = (peringatan + " " + tambah).strip() if peringatan else tambah
+
+    return {
+        "filter": {
+            "jenis": jenis,
+            "n_kandidat": len(ticker_list),
+            "ambang": {"min_range_harian_persen": min_range, "min_high_pagi_persen": min_high,
+                       "min_low_sore_persen": min_low, "min_spread_bersih_persen": min_spread},
+        },
+        "tanggal_data": (pasar or {}).get("tanggal_data"),
+        "jumlah_saham_dianalisis": (pasar or {}).get("jumlah_berhasil"),
+        "jumlah_kandidat_diproses": len(ticker_list),
+        "jumlah_saham_berhasil": len(ok),
+        "saham_gagal": [_nama_bisa(t) for t in gagal],
+        "radar_range_pagi_sore_aktif": lolos,
+        "peringatan": peringatan,
+    }
+
+
 def rekomendasi_intraday_likuid(n: int = 8, jenis: str = "active", max_workers: int = 3,
                                 metrik_pasar: dict = None, batas_waktu_detik: int = None,
                                 eksekusi: bool = False) -> dict:

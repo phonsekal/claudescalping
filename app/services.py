@@ -1797,6 +1797,36 @@ def hitung_analisis_range_pagi_sore(ticker_symbol: str, df_riwayat: pd.DataFrame
     pct_high_pagi = round(float((idx_high['jam_float'] < RANGE_PAGI_SORE_JAM_PAGI).mean()) * 100, 1)
     pct_low_sore = round(float((idx_low['jam_float'] >= RANGE_PAGI_SORE_JAM_SORE).mean()) * 100, 1)
 
+    # --- RANGE HARGA: seberapa lebar pergerakan harga beberapa waktu terakhir ---
+    # Range harian PENUH (High-Low, bukan hanya sesi pagi/sore) + rentang antara
+    # harga tertinggi & terendah selama jendela analisis.
+    kolom_waktu2 = 'Datetime' if 'Datetime' in df.columns else 'Date'
+    df_day = df.copy()
+    df_day['tanggal'] = pd.to_datetime(df_day[kolom_waktu2]).dt.date
+    grp_day = df_day.groupby('tanggal').agg(high=('High', 'max'), low=('Low', 'min'), close=('Close', 'last'))
+    grp_day['prev_close'] = grp_day['close'].shift(1)
+    grp_day = grp_day.dropna()
+    grp_w = grp_day.loc[harian_w.index]  # hari lengkap yang sama dgn statistik pola
+    if not grp_w.empty:
+        range_harian_persen = (grp_w['high'] - grp_w['low']) / grp_w['prev_close'] * 100
+        max_tinggi = float(grp_w['high'].max())
+        min_rendah = float(grp_w['low'].min())
+        rentang = round((max_tinggi - min_rendah) / min_rendah * 100, 2) if min_rendah > 0 else None
+        rata_range = round(float(range_harian_persen.mean()), 2)
+        median_range = round(float(range_harian_persen.median()), 2)
+        kategori = "LEBAR" if rata_range >= 2.0 else ("SEDANG" if rata_range >= 1.0 else "SEMPIT")
+    else:
+        max_tinggi = min_rendah = rentang = rata_range = median_range = None
+        kategori = "TIDAK ADA DATA"
+    range_harga = {
+        "rata_rata_range_harian_persen": rata_range,
+        "median_range_harian_persen": median_range,
+        "rentang_harga_persen": rentang,
+        "harga_tertinggi_periode": int(round(max_tinggi)) if max_tinggi else None,
+        "harga_terendah_periode": int(round(min_rendah)) if min_rendah else None,
+        "kategori_range": kategori,
+    }
+
     def ringkas(s):
         return {
             "rata2_persen": round(float(s.mean()), 2),
@@ -1848,6 +1878,7 @@ def hitung_analisis_range_pagi_sore(ticker_symbol: str, df_riwayat: pd.DataFrame
             "trough_sore": ringkas(harian_w['trough_persen']),
             "spread_pagi_sore": ringkas(harian_w['spread_persen']),
         },
+        "range_harga": range_harga,
         "contoh_hari_terakhir": [
             {
                 "tanggal": str(idx),
@@ -2359,6 +2390,15 @@ def rekomendasi_strategi_gabungan(ticker_symbol: str, kondisi_market: dict = Non
     # bobot status 'LAYAK'. Tanpa ini, status layak generik bisa memberi skor tinggi
     # walau premis sesi-nya lemah (contoh: BPJS di BBRI — day-high sore hanya 18%,)
     # sehingga rekomendasi jual sore jadi tidak realistis.
+    #
+    # KALIBRASI EMPIRIS (Agu 2026, sampel 30-40 saham terlikuid BEI):
+    #   - persen_day_high_di_pagi: median 82%, min 60%  -> premis_1 ambang 50/40 realistis.
+    #   - persen_day_low_di_pagi:  median 74%, min 62%  -> premis_1 ambang 50/40 realistis.
+    #   - persen_day_low_di_sore:  median 25%, max 36%  -> ambang 50/40 TIDAK PERNAH
+    #     tercapai (dulu semua saham selalu kena -15, skor range-pagi-sore bias rendah).
+    #   - persen_day_high_di_sore: median 20%, max 39%  -> sama: ambang lama mustahil,
+    #     skor BPJS bias rendah. Ambang premis_2 dikalibrasi ke distribusi nyata:
+    #     kuat >=30% (top kuartil), sedang >=20% (sekitar median), lemah >=10%.
     def _skor_pola_intraday(pola, status, rt_persen, likuid_miliar_, beta_, vol_, mode):
         poin = 0
         alasan = []
@@ -2371,6 +2411,8 @@ def rekomendasi_strategi_gabungan(ticker_symbol: str, kondisi_market: dict = Non
 
         # Premis inti: seberapa sering sesi yang dibutuhkan strategi benar-benar
         # menjadi titik ekstrem hari. Ini penentu utama kecocokan pola.
+        # premis_1 (sesi pagi) dan premis_2 (sesi sore) pakai ambang berbeda karena
+        # distribusi empirisnya beda jauh (lihat kalibrasi di atas).
         if premis_1 >= 50:
             poin += 25
             alasan.append(f"+25 premis kuat: {premis_1}% hari {label_1}")
@@ -2381,15 +2423,18 @@ def rekomendasi_strategi_gabungan(ticker_symbol: str, kondisi_market: dict = Non
             poin -= 10
             alasan.append(f"-10 premis lemah: hanya {premis_1}% hari {label_1}")
 
-        if premis_2 >= 50:
+        if premis_2 >= 30:
             poin += 25
             alasan.append(f"+25 premis kuat: {premis_2}% hari {label_2}")
-        elif premis_2 >= 40:
+        elif premis_2 >= 20:
             poin += 10
             alasan.append(f"+10 premis sedang: {premis_2}% hari {label_2}")
+        elif premis_2 >= 10:
+            poin -= 5
+            alasan.append(f"-5 premis lemah: hanya {premis_2}% hari {label_2}")
         else:
             poin -= 15
-            alasan.append(f"-15 premis lemah: hanya {premis_2}% hari {label_2}")
+            alasan.append(f"-15 premis sangat lemah: hanya {premis_2}% hari {label_2}")
 
         if 'LAYAK' in status:
             poin += 20
