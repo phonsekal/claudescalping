@@ -155,19 +155,37 @@ def rekomendasi_top_per_strategi(tickers: list, top_n: int = 3,
     gabungan_by_saham = {}
     gagal = []
 
-    with ThreadPoolExecutor(max_workers=max_workers) as ex:
-        futures = []
-        for t in tickers:
-            futures.append(ex.submit(_proses_satu_saham, t))
-            # Space antar submit: sebarkan burst request supaya Yahoo tidak
-            # menolak semuanya sekaligus (terutama di IP publik serverless).
-            time.sleep(0.3)
-        for fut in as_completed(futures):
-            t, r = fut.result()
-            if r:
-                gabungan_by_saham[t] = r
-            else:
-                gagal.append(t)
+    def _jalankan_batch(daftar, worker):
+        """Jalankan satu gelombang proses paralel; return (hasil_ok, daftar_gagal)."""
+        ok = {}
+        gag = []
+        with ThreadPoolExecutor(max_workers=worker) as ex:
+            futures = []
+            for t in daftar:
+                futures.append(ex.submit(_proses_satu_saham, t))
+                # Space antar submit: sebarkan burst request supaya Yahoo tidak
+                # menolak semuanya sekaligus (terutama di IP publik serverless).
+                time.sleep(0.4)
+            for fut in as_completed(futures):
+                t, r = fut.result()
+                if r:
+                    ok[t] = r
+                else:
+                    gag.append(t)
+        return ok, gag
+
+    # PASS 1: semua saham
+    ok1, gagal = _jalankan_batch(tickers, max_workers)
+    gabungan_by_saham.update(ok1)
+
+    # PASS 2 (retry): saham yang gagal di pass 1, setelah jeda singkat.
+    # Rate-limit Yahoo transien (biasanya 429 beberapa detik) — batch pertama
+    # sering gagal total kalau burst-nya besar; setelah jeda, batch kecil ulang
+    # jauh lebih mungkin sukses.
+    if gagal and len(gabungan_by_saham) < len(tickers):
+        time.sleep(2.0)
+        ok2, gagal = _jalankan_batch(gagal, max(1, min(max_workers, 2)))
+        gabungan_by_saham.update(ok2)
 
     # --- Leaderboard per strategi (ranking skor) ---
     # Entry menyimpan ticker MENTAH (mis. 'CYBR.JK') supaya backtest finalis

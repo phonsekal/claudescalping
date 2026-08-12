@@ -2038,10 +2038,17 @@ def rekomendasi_strategi_gabungan(ticker_symbol: str, kondisi_market: dict = Non
 
     # Tarik data SEKALI dan pakai bersama untuk semua strategi (hemat request,
     # konsisten — semua strategi melihat data yang sama).
-    if df_harian is None:
-        df_harian = saham.history(period="1y", interval="1d", auto_adjust=False)
-    if df_intraday is None:
-        df_intraday = saham.history(period=RANGE_PAGI_SORE_PERIODE, interval=RANGE_PAGI_SORE_INTERVAL, auto_adjust=False)
+    # PENTING: fetch ini di-bungkus try/except — saat Yahoo rate-limit (HTTP 429)
+    # yfinance melempar exception; tanpa penanganan di sini seluruh endpoint
+    # melempar 500 (kasus AMAN/ADCP di Vercel). Rate-limit itu transien — caller
+    # (screener sektor) sudah melakukan retry dengan backoff.
+    try:
+        if df_harian is None:
+            df_harian = saham.history(period="1y", interval="1d", auto_adjust=False)
+        if df_intraday is None:
+            df_intraday = saham.history(period=RANGE_PAGI_SORE_PERIODE, interval=RANGE_PAGI_SORE_INTERVAL, auto_adjust=False)
+    except Exception:
+        return None
 
     if df_harian is None or df_harian.empty or len(df_harian) < 200:
         return None
